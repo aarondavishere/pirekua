@@ -1,0 +1,483 @@
+/* pirekua — pass 1: hero, ristra, section 1, signup modal
+   Mobile-first. Brand tokens come from the pirekua brand book. */
+
+:root {
+  --orange: #F48500;   /* Cempasúchil Orange — core, buttons, wordmark */
+  --yellow: #FFC845;   /* Warm Yellow — sweet, highlights */
+  --red:    #C1272D;   /* Deep Chili Red — spicy, the "pow" shadow */
+  --cream:  #FFF8EC;   /* Warm Cream — page background, never pure white */
+  --card:   #FFF1DA;   /* Cream Card — panels and cards */
+  --green:  #6B8E4E;   /* Leaf Green — small pops only */
+  --ink:    #3A1406;   /* Mole Ink — all text */
+
+  --script: 'Pacifico', cursive;
+  --sans:   'Poppins', system-ui, sans-serif;
+
+  --gutter: clamp(16px, 4vw, 48px);
+  --radius-lg: clamp(24px, 3vw, 32px);
+  --pow: 0.04em 0.045em 0 var(--red);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 0 clamp(28px, 4vw, 40px);
+  border: 0;
+  border-radius: 999px;
+  font: 700 clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem)/1 var(--sans);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.btn--primary {
+  background: var(--orange);
+  color: var(--ink);
+  box-shadow: 4px 5px 0 var(--red);
+}
+.btn--primary:hover { transform: translate(-1px, -2px); box-shadow: 5px 7px 0 var(--red); }
+.btn--primary:active { transform: translate(3px, 4px); box-shadow: 1px 1px 0 var(--red); }
+.btn--primary:focus-visible { outline-offset: 5px; border-radius: 999px; }
+.btn--block { width: 100%; }
+
+/* ============ 1. HERO ============ */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(112px, 16vw, 150px) var(--gutter) clamp(132px, 14vw, 140px);
+  isolation: isolate;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+/* Lockup + sunrise bloom (geometry matches brand book board 01) */
+.lockup {
+  position: relative;
+  width: min(86vw, 640px);
+}
+.lockup__img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+}
+.lockup__bloom {
+  position: absolute;
+  z-index: 0;
+  left: 2.73%;
+  top: 0;
+  width: 94.66%;
+  margin-top: -13.8%;          /* % of width: the bloom rises above the wordmark */
+  aspect-ratio: 727 / 380;     /* only the top of the flower shows: a sunrise */
+  overflow: hidden;
+}
+.lockup__bloom img { width: 100%; height: auto; }
+
+/* Signature tagline */
+.tagline {
+  margin: clamp(20px, 3vw, 32px) 0 0;
+  font-family: var(--script);
+  font-weight: 400;
+  font-size: clamp(2rem, 11.6vw, 4.75rem);
+  line-height: 1.12;
+  color: var(--orange);
+  text-shadow: var(--pow);
+  letter-spacing: 0;
+}
+.tagline__line { display: block; }
+.tagline__half {
+  display: inline-grid;
+  vertical-align: baseline;
+  border-radius: 12px;
+  cursor: default;
+}
+.tagline__half:focus-visible { outline-offset: 2px; }
+.tagline__layer {
+  grid-area: 1 / 1;
+  justify-self: center;
+  white-space: nowrap;
+  transition: opacity 200ms ease;
+}
+.tagline__layer--b { opacity: 0; }
+.tagline__half.is-swapped .tagline__layer--a { opacity: 0; }
+.tagline__half.is-swapped .tagline__layer--b { opacity: 1; }
+
+/* The chile replaces the dot of the i (brand book method) */
+.tagline__dotted {
+  position: relative;
+  display: inline-block;
+  line-height: 1.45;
+}
+.tagline__half--dot { line-height: 1.45; margin-top: -0.18em; }
+.tagline__i { clip-path: inset(0.833em -0.5em -0.5em -0.5em); }
+.tagline__chile {
+  position: absolute;
+  left: 3.7005em;
+  top: 0.3739em;
+  width: 0.2715em;
+  height: 0.4057em;
+  max-width: none;
+}
+
+.hero__sub {
+  margin: clamp(10px, 1.6vw, 18px) 0 0;
+  max-width: 30ch;
+  font-size: clamp(1.0625rem, 0.95rem + 0.6vw, 1.375rem);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.hero .btn { margin-top: clamp(24px, 3.4vw, 36px); }
+
+/* Scattered jars — decoration, never over the lockup or the copy */
+.hero__jars { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.jar {
+  position: absolute;
+  width: var(--jw);
+  aspect-ratio: 518 / 702;            /* the jar itself, cropped from its render */
+  overflow: hidden;
+  transform: rotate(var(--r));
+  /* feather the last bit of studio backdrop into the cream page */
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 6%, #000 93%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 6%, #000 93%, transparent 100%);
+  mask-composite: intersect;
+}
+.jar img {
+  position: absolute;
+  left: -20.8%;
+  top: -16.7%;
+  width: 138.9%;
+  max-width: none;
+  height: auto;
+}
+
+/* Mobile: four small jars tucked into the corners, cropped by the edges */
+.jar--1 { --jw: 70px; --r: -9deg; left: -14px; top: 6px; }
+.jar--2 { --jw: 64px; --r: 8deg;  right: -12px; top: 14px; }
+.jar--3 { --jw: 72px; --r: 7deg;  left: -16px; bottom: -18px; }
+.jar--6 { --jw: 66px; --r: -8deg; right: -14px; bottom: -10px; }
+.jar--4, .jar--5 { display: none; }
+
+@media (min-width: 640px) {
+  .jar--1 { --jw: 96px; left: -18px; top: 3%; }
+  .jar--2 { --jw: 88px; right: -14px; top: 5%; }
+  .jar--3 { --jw: 100px; left: -22px; bottom: -3%; }
+  .jar--6 { --jw: 92px; right: -18px; bottom: -2%; }
+}
+
+@media (min-width: 1024px) {
+  .hero { padding-top: 150px; padding-bottom: 150px; }
+  .jar--1 { --jw: 120px; --r: -8deg;  left: 4%;   top: 8%; }
+  .jar--2 { --jw: 92px;  --r: 6deg;   left: 15%;  top: 47%; display: block; }
+  .jar--3 { --jw: 132px; --r: 10deg;  left: 1%;   bottom: -6%; }
+  .jar--4 { --jw: 108px; --r: 9deg;   right: 6%;  top: 5%; display: block; }
+  .jar--5 { --jw: 116px; --r: -6deg;  right: 13%; top: 44%; display: block; }
+  .jar--6 { --jw: 112px; --r: -11deg; right: 0;   bottom: -7%; }
+}
+
+@media (min-width: 1440px) {
+  .jar--2 { left: 18%; }
+  .jar--5 { right: 17%; }
+}
+
+/* ============ 2. RISTRA ============ */
+.ristra {
+  /* sizes: small, large, medium, largest, small */
+  --rs-s:  clamp(36px, 5.2vw, 56px);
+  --rs-l:  clamp(54px, 7.6vw, 84px);
+  --rs-m:  clamp(45px, 6.2vw, 68px);
+  --rs-xl: clamp(62px, 8.8vw, 98px);
+  --rs-s2: clamp(33px, 4.6vw, 50px);
+  --line-y: 26px;
+  --ratio: 2.339;     /* icon-mark height / width */
+  --hook: 0.0713;     /* where the p loop meets the line, as a share of icon height */
+  position: relative;
+  height: calc(var(--line-y) + var(--rs-xl) * var(--ratio) * 0.94 + 16px);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.ristra__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--line-y) - 2px);
+  height: 4px;
+  background: var(--ink);
+  z-index: 1;
+}
+.ristra__chile {
+  position: absolute;
+  left: var(--x);
+  top: calc(var(--line-y) - var(--w) * var(--ratio) * var(--hook));
+  width: var(--w);
+  height: calc(var(--w) * var(--ratio));
+  margin-left: calc(var(--w) * -0.5);
+  z-index: 2;
+}
+.ristra__swing {
+  position: absolute;
+  inset: 0;
+  transform-origin: 65% 7.13%;
+  will-change: transform;
+}
+.ristra__swing img { width: 100%; height: 100%; }
+.ristra__thread {
+  /* short piece of line drawn over the p loop so the line threads through it */
+  position: absolute;
+  left: 57.6%;
+  width: 14.7%;
+  top: calc(var(--w) * var(--ratio) * var(--hook) - 2px);
+  height: 4px;
+  background: var(--ink);
+  z-index: 3;
+}
+.ristra__chile.is-mirrored .ristra__swing { transform-origin: 35% 7.13%; }
+.ristra__chile.is-mirrored .ristra__swing img { transform: scaleX(-1); }
+.ristra__chile.is-mirrored .ristra__thread { left: 27.7%; }
+
+/* ============ 3. WHAT IS MEXICAN CHILI CRISP? ============ */
+.what {
+  display: grid;
+  gap: clamp(32px, 5vw, 64px);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(40px, 7vw, 96px) var(--gutter) clamp(72px, 10vw, 128px);
+  align-items: center;
+}
+.what__title {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(2.125rem, 1.4rem + 3.2vw, 3.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  max-width: 13ch;
+}
+.what__body {
+  margin: clamp(16px, 2vw, 24px) 0 0;
+  max-width: 34ch;
+  font-size: clamp(1.0625rem, 0.95rem + 0.5vw, 1.3125rem);
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.family {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: clamp(24px, 4vw, 40px) clamp(8px, 2vw, 20px) clamp(18px, 2.6vw, 28px);
+  background: var(--card);
+  border-radius: var(--radius-lg);
+}
+.family__crop {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 9%, #000 93%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 12%, #000 94%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 9%, #000 93%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 12%, #000 94%, transparent 100%);
+  mask-composite: intersect;
+}
+.family__crop img { position: absolute; max-width: none; height: auto; }
+.family__crop--oil {
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 6%, #000 95%, transparent 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 6%, #000 95%, transparent 100%);
+}
+.family__crop--lineup { width: 75%; aspect-ratio: 1392 / 620; }
+.family__crop--lineup img { width: 114.9%; left: -10.34%; top: -32.26%; }
+.family__crop--oil { width: 17.1%; margin-left: 1%; aspect-ratio: 345.6 / 738; }
+.family__crop--oil img { width: 208.3%; left: -62.5%; top: -10.98%; }
+.family__leaf { position: absolute; z-index: 0; height: auto; }
+.family__leaf--1 { width: clamp(58px, 8vw, 92px); top: clamp(-30px, -2.6vw, -18px); right: 9%; transform: rotate(-18deg); }
+.family__leaf--2 { width: clamp(40px, 5.4vw, 60px); bottom: clamp(-22px, -1.8vw, -14px); left: 5%; transform: rotate(14deg) scaleX(-1); }
+
+@media (min-width: 860px) {
+  .what { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
+}
+
+/* ============ SIGNUP MODAL ============ */
+.modal {
+  width: min(100% - 32px, 440px);
+  max-width: none;
+  max-height: calc(100% - 32px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  overflow: visible;
+}
+.modal::backdrop { background: rgba(58, 20, 6, 0.55); }
+.modal[open] { animation: modal-in 260ms cubic-bezier(.2, .9, .3, 1.2); }
+@keyframes modal-in { from { opacity: 0; transform: translateY(16px) scale(0.97); } }
+
+.modal__panel {
+  position: relative;
+  background: var(--cream);
+  border-radius: 28px;
+  padding: clamp(36px, 6vw, 44px) clamp(22px, 5vw, 36px) clamp(24px, 5vw, 32px);
+  box-shadow: 6px 8px 0 var(--orange);
+}
+.modal__leaf {
+  position: absolute;
+  width: 64px;
+  top: -24px;
+  left: 22px;
+  transform: rotate(-16deg);
+  pointer-events: none;
+}
+.modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.modal__close:hover { background: var(--card); }
+.modal__close:focus-visible { outline-offset: 0; border-radius: 999px; }
+
+.modal__title {
+  margin: 0 0 20px;
+  font-weight: 800;
+  font-size: clamp(1.75rem, 1.4rem + 1.6vw, 2.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  padding-right: 40px;
+}
+.modal__title:focus { outline: none; }
+
+.signup { display: grid; gap: 14px; }
+.signup__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; margin: 0; }
+.field { display: grid; gap: 6px; }
+.field__label { font-weight: 600; font-size: 0.95rem; }
+.field__input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  font: 500 1rem var(--sans);
+}
+.field__input:focus { outline: 3px solid var(--orange); outline-offset: 2px; }
+.field__input[aria-invalid="true"] { border-color: var(--red); }
+.signup__hint { margin: -4px 0 0; font-size: 0.9rem; font-weight: 500; }
+.signup__msg {
+  margin: 0;
+  min-height: 1.5em;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.signup__msg:empty { min-height: 0; margin-top: -14px; }
+.signup .btn { margin-top: 6px; }
+.signup.is-sending .btn { opacity: 0.7; pointer-events: none; }
+
+.modal__success { text-align: center; padding: 8px 0 12px; }
+.modal__success .modal__title { padding: 0; margin: 14px 0 0; }
+.modal__mark { width: 56px; height: auto; margin: 0 auto; }
+
+/* ---------- Chile confetti ---------- */
+.party-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+.party-layer img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: auto;
+  will-change: transform, opacity;
+}
+
+/* ---------- Missing-asset placeholder ---------- */
+.asset-ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 8px;
+  border: 2px dashed var(--ink);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  font: 600 12px/1.3 var(--sans);
+  text-align: center;
+  word-break: break-all;
+  text-shadow: none;
+}
+
+/* placeholders inside cropped frames fill the frame */
+.jar .asset-ph,
+.family__crop .asset-ph { position: absolute; inset: 0; width: auto !important; aspect-ratio: auto !important; }
+
+/* ---------- Reduced motion: static states ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .btn--primary:hover, .btn--primary:active { transform: none; }
+}
