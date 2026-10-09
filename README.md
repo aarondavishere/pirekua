@@ -7,7 +7,7 @@ Deploys from the repo root on Netlify (see `netlify.toml`).
 
 1. Language toggle (EN | ES, fixed top right)
 2. Hero: lockup with sunrise bloom, scattered jars, fixed tagline "Made with amor y risas.", party button
-3. Ristra divider: five hanging icon marks that swing
+3. Ristra divider: ten hanging icon marks that swing
 4. Section 1: What is Mexican chili crisp?
 5. Section 2: What does it taste like? + Not your usual chili crisp (media slot)
 6. Section 3: Meet the lineup (Sweet, Smoky, Spicy, Chili Oil cards)
@@ -36,12 +36,34 @@ Not built yet: shop page, cart, payments, real cookbook pages, real making-of fo
 | `QUIZ_MIN` | `52` | Lowest possible quiz result |
 | `QUIZ_MAX` | `93` | Highest possible quiz result |
 | `DRUMROLL_MS` | `2500` | Anticipation beat after "Show me my results" |
-| `BASKET_MS` | `2500` | Length of the jars-into-the-basket animation |
+| `BASKET_MS` | `3600` | Length of the jars-into-the-basket pour (keep under about 4000) |
 | `JOKE_DELAY_MS` | `500` | Pause after the basket before the joke line |
 | `CTA_DELAY_MS` | `500` | Pause after the joke before the party button |
+| `BASKET_INSIDE_JARS` | `32` | Jars that pour into the basket and heap above the rim |
+| `BASKET_TUMBLERS` | `8` | Jars that spill over the rim and land beside the basket |
+| `BASKET_DROP_STAGGER_MS` | `70` | Gap between jars landing inside |
+| `BASKET_SEED` | `7` | Seed for the heap's small random offsets. Same seed, same heap every run |
 | `COOKBOOK_PAGES` | 6 entries | One entry per cookbook slide (see below) |
 
 Ristra physics (`STIFFNESS`, `DAMPING`, `GAIN`, `MAX_ANGLE`) are in the ristra block of `script.js`.
+
+## Tuning knobs (CSS variables in `styles.css`)
+
+| Variable | Where | What it does |
+|---|---|---|
+| `--hero-pad-top` / `--hero-pad-bottom` | `.hero` | Space above the lockup / above the ristra |
+| `--hero-gap-tagline`, `--hero-gap-sub`, `--hero-gap-btn` | `.hero` | Lockup → tagline → subhead → button spacing |
+| `--lockup-w` | `.hero` | Lockup width (80vw on phones, 64vw on tablets, 560px max) |
+| `--bloom-spin` | `.hero` | One full turn of the sunrise bloom (`60s`) |
+| `--dot-lift` | `.hero` | How far the chile over the i is raised (`0.07em`) |
+| `--side`, `--f`, `--y`, `--jw`, `--r` (`--left` on phones) | `.jar--1` … `.jar--6` | Hero jar placement: side of the lockup, how far out into the side band (0 = lockup edge, 1 = page edge), height, width and angle |
+| `--rs-xs` … `--rs-xl` | `.ristra` | The five chile sizes |
+| `--x`, `--w`, `--rest` (+ `data-rest`) | each `.ristra__chile` in `index.html` | Chile position, size and resting tilt. The swing is added to the tilt |
+| `--products-pad-top`, `--products-pad-bottom`, `--products-title-gap` | `.products` | Lineup section spacing |
+| `--pcard-pad`, `--pcard-gap`, `--oil-col` | `.products` | Card padding, space between cards, and the Chili Oil column width (desktop) |
+| `--win-h` | `.products__grid` | Height of the product window on each card |
+| `--quiz-pad-top`, `--quiz-pad-bottom`, `--quiz-title-gap` | `.quiz` | Quiz section spacing |
+| `--basket-clip` | `.basket-scene` | Where the front copy of the basket starts hiding the jars |
 
 Buttons:
 - `data-signup` opens the signup modal; its `data-source` fills the hidden `source` field (`hero`, `cookbook`, `quiz`, and on the product cards `sweet`, `smoky`, `spicy`, `chili-oil`).
@@ -68,6 +90,13 @@ To add a string:
 - Each slide shows its image if the file exists. Otherwise it shows its branded "Cookbook image N" placeholder.
 - To add the real pages, drop `page-1.png`, `page-2.png` and so on into `assets/cookbook/`. Square images, 1200 × 1200 or larger.
 
+## Pass 4 edits in one line each
+
+- **Hero:** tighter spacing, so the button and the top of the ristra fit on a 1280 × 720 screen. The tagline and subhead each sit on one line, the chile dot is lifted, the sunrise bloom turns slowly, and six shadow-free jars splash out from the wordmark at every width.
+- **Ristra:** ten chiles in five sizes, each with its own resting tilt, all swinging.
+- **Lineup:** tighter spacing, slightly smaller cards, the heat chip closer to the text, and a wider Chili Oil column (`--oil-col`).
+- **Quiz:** tighter spacing, the heading on one line, "Sunrises" / "Sunsets", the brand book market basket, and about 40 jars heaping in and spilling over.
+
 ## Meet the lineup (product cards)
 
 - Four cards: Sweet (Warm Yellow), Smoky (Cempasúchil Orange), Spicy (Deep Chili Red) and Chili Oil (Mole Ink, narrower). Product names are never translated.
@@ -90,11 +119,13 @@ To add a string:
 | `icon-mark.png`, `chile-dot.png`, `bloom-sunrise.png` | Included | |
 | `chile-sweet.png`, `chile-smoky.png`, `chile-spicy.png` (+ `-flip`) | Included | |
 | `leaf-1.png`, `leaf-2.png` | Included | |
-| `render-sweet.png`, `render-smoky.png`, `render-spicy.png`, `render-lineup.png`, `render-chili-oil.png` | Included | Resized for speed |
+| `render-sweet.png`, `render-smoky.png`, `render-spicy.png`, `render-lineup.png`, `render-chili-oil.png` | Included | Resized for speed. Lineup cards and section 1 use these. The hero and quiz use them only as a fallback |
+| `jar-sweet.png`, `jar-smoky.png`, `jar-spicy.png` | **Still needed** | Transparent cutouts, no shadow, tightly cropped, about 600px wide. Used by the hero jars and the quiz basket. Until they're added, the matching `render-*.png` shows with its old crop |
+| `basket.png` | Included | Brand book "Woven market basket" (Icon set board, Market basket, the empty one), exported at 600 × 516 |
 | `chile-scatter.png` | Included | Brand book chile scatter tile, 600 × 600, shown at 300px |
 | `tall-p-white.png` | Included | Brand book Treatment A, white stem and leaves (Leaf Green version) |
 | `bloom-yellow.png`, `bloom-orange.png`, `bloom-red.png`, `bloom-outline.png` | Included | Brand book heat blooms (Icons board), rasterized at 128px |
-| `basket.svg` | Included | Drawn for this pass: Mole Ink outline, Cream Card body, orange weave and rim, open top. Reusable as the cart icon |
+| `basket.svg` | Fallback only | The earlier drawn basket. Used only if `basket.png` is missing. Safe to delete later |
 | `making-of-placeholder.jpg` | **Still needed** | Owner drops in a stand-in photo (4:5). Shows a dashed placeholder until then |
 | `cookbook/page-1.png` … `page-6.png` | **Still needed** | Slides show branded placeholders until then |
 

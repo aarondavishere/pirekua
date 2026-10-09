@@ -70,11 +70,23 @@ img { display: block; max-width: 100%; height: auto; }
 
 /* ============ HERO ============ */
 .hero {
+  /* tuning knobs */
+  --hero-pad-top: 92px;                 /* room for the bloom above the wordmark, clear of the language toggle */
+  --hero-pad-bottom: 104px;             /* phones: room for the lower jars */
+  --hero-gap-tagline: 12px;             /* lockup → tagline */
+  --hero-gap-sub: 2px;                  /* tagline → subhead */
+  --hero-gap-btn: 20px;                 /* subhead → button */
+  --lockup-w: min(80vw, 560px);
+  --lock-half: calc(var(--lockup-w) / 2);
+  --bloom-spin: 60s;                    /* one full turn of the sunrise bloom */
+  --dot-lift: 0.07em;                   /* raises the chile over the i */
   position: relative;
   overflow: hidden;
-  padding: clamp(112px, 16vw, 150px) var(--gutter) clamp(132px, 14vw, 140px);
+  padding: var(--hero-pad-top) var(--gutter) var(--hero-pad-bottom);
   isolation: isolate;
 }
+@media (min-width: 640px) { .hero { --hero-pad-bottom: 60px; --lockup-w: min(64vw, 560px); } }
+@media (min-width: 1024px) { .hero { --hero-pad-bottom: 44px; } }
 
 .hero__inner {
   position: relative;
@@ -90,7 +102,7 @@ img { display: block; max-width: 100%; height: auto; }
 /* Lockup + sunrise bloom (geometry matches brand book board 01) */
 .lockup {
   position: relative;
-  width: min(86vw, 640px);
+  width: var(--lockup-w);
 }
 .lockup__img {
   position: relative;
@@ -108,23 +120,30 @@ img { display: block; max-width: 100%; height: auto; }
   aspect-ratio: 727 / 380;     /* only the top of the flower shows: a sunrise */
   overflow: hidden;
 }
-.lockup__bloom img { width: 100%; height: auto; }
+.lockup__bloom img {
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 50%;   /* the flower's true center */
+  will-change: transform;
+  animation: bloom-spin var(--bloom-spin) linear infinite;
+}
+@keyframes bloom-spin { to { transform: rotate(360deg); } }
 
-/* Signature tagline */
+/* Signature tagline: one line, a supporting line to the lockup */
 .tagline {
-  margin: clamp(20px, 3vw, 32px) 0 0;
+  margin: var(--hero-gap-tagline) 0 0;
   font-family: var(--script);
   font-weight: 400;
-  font-size: clamp(2.5rem, 13vw, 4.75rem);
-  line-height: 1.12;
+  font-size: clamp(1.75rem, 8vw, 2.75rem);
+  line-height: 1.45;
   color: var(--orange);
   text-shadow: var(--pow);
   letter-spacing: 0;
+  white-space: nowrap;
 }
-.tagline__line { display: block; }
 
-/* The chile replaces the dot of the i (brand book method) */
-.tagline__line--dot { line-height: 1.45; margin-top: -0.18em; }
+/* The chile replaces the dot of the i (brand book method). Offsets are measured
+   from the start of "amor y risas." so they hold at every font size. */
 .tagline__dotted {
   position: relative;
   display: inline-block;
@@ -135,31 +154,39 @@ img { display: block; max-width: 100%; height: auto; }
 .tagline__chile {
   position: absolute;
   left: 3.7005em;
-  top: 0.3739em;
+  top: calc(0.3739em - var(--dot-lift));
   width: 0.2715em;
   height: 0.4057em;
   max-width: none;
 }
 
 .hero__sub {
-  margin: clamp(10px, 1.6vw, 18px) 0 0;
-  max-width: 30ch;
-  font-size: clamp(1.0625rem, 0.95rem + 0.6vw, 1.375rem);
+  margin: var(--hero-gap-sub) 0 0;
+  font-size: clamp(1rem, 0.9rem + 0.35vw, 1.1875rem);
   font-weight: 500;
   line-height: 1.5;
 }
+@media (min-width: 600px) { .hero__sub { white-space: nowrap; } }
 
-.hero .btn { margin-top: clamp(24px, 3.4vw, 36px); }
+.hero .btn { margin-top: var(--hero-gap-btn); }
 
-/* Scattered jars — decoration, never over the lockup or the copy */
+/* Hero jars: six transparent cutouts splashing out from behind the wordmark.
+   Each jar: --side (-1 left, 1 right) and --f (0 = at the lockup's edge,
+   1 = at the page edge) set its x; --y its center from the top; --jw its width;
+   --r its angle. Phones set --left directly. */
 .hero__jars { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 .jar {
   position: absolute;
   width: var(--jw);
-  aspect-ratio: 518 / 702;            /* the jar itself, cropped from its render */
+  left: var(--left, calc(50% + var(--side) * (var(--lock-half) + (50% - var(--lock-half)) * var(--f))));
+  top: var(--y);
+  transform: translate(-50%, -50%) rotate(var(--r));
+}
+.jar img { display: block; width: 100%; height: auto; }
+/* Fallback while jar-*.png is missing: the studio render with its old crop */
+.jar.is-fallback {
+  aspect-ratio: 518 / 702;
   overflow: hidden;
-  transform: rotate(var(--r));
-  /* feather the last bit of studio backdrop into the cream page */
   -webkit-mask-image:
     linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%),
     linear-gradient(to bottom, transparent 0, #000 6%, #000 93%, transparent 100%);
@@ -169,52 +196,43 @@ img { display: block; max-width: 100%; height: auto; }
     linear-gradient(to bottom, transparent 0, #000 6%, #000 93%, transparent 100%);
   mask-composite: intersect;
 }
-.jar img {
-  position: absolute;
-  left: -20.8%;
-  top: -16.7%;
-  width: 138.9%;
-  max-width: none;
-  height: auto;
-}
+.jar.is-fallback img { position: absolute; left: -20.8%; top: -16.7%; width: 138.9%; max-width: none; }
 
-/* Mobile: four small jars tucked into the corners, cropped by the edges */
-.jar--1 { --jw: 70px; --r: -9deg; left: -14px; top: 6px; }
-.jar--2 { --jw: 64px; --r: 8deg;  right: -12px; top: 14px; }
-.jar--3 { --jw: 72px; --r: 7deg;  left: -16px; bottom: -18px; }
-.jar--6 { --jw: 66px; --r: -8deg; right: -14px; bottom: -10px; }
-.jar--4, .jar--5 { display: none; }
+/* Phones: two jars fly up past the bloom, four burst out around the button */
+.jar--1 { --jw: 46px; --r: -26deg;  --left: 13%; --y: 44px; }                /* sweet */
+.jar--2 { --jw: 42px; --r: -70deg;  --left: 11%; --y: calc(100% - 132px); }  /* smoky */
+.jar--3 { --jw: 40px; --r: -112deg; --left: 31%; --y: calc(100% - 50px); }   /* spicy */
+.jar--4 { --jw: 42px; --r: 72deg;   --left: 89%; --y: calc(100% - 124px); }  /* spicy */
+.jar--5 { --jw: 44px; --r: 104deg;  --left: 69%; --y: calc(100% - 46px); }   /* sweet */
+.jar--6 { --jw: 34px; --r: 16deg;   --left: 50%; --y: 30px; }                /* smoky */
 
+/* Tablet and up: jars fill the bands either side of the lockup */
 @media (min-width: 640px) {
-  .jar--1 { --jw: 96px; left: -18px; top: 3%; }
-  .jar--2 { --jw: 88px; right: -14px; top: 5%; }
-  .jar--3 { --jw: 100px; left: -22px; bottom: -3%; }
-  .jar--6 { --jw: 92px; right: -18px; bottom: -2%; }
+  .jar { --left: initial; }
+  .jar--1 { --jw: 50px; --side: -1; --f: 0.52; --r: -24deg;  --y: 64px; }
+  .jar--2 { --jw: 44px; --side: -1; --f: 0.5;  --r: -60deg;  --y: 46%; }
+  .jar--3 { --jw: 42px; --side: -1; --f: 0.46; --r: -104deg; --y: calc(100% - 84px); }
+  .jar--4 { --jw: 46px; --side: 1;  --f: 0.48; --r: 30deg;   --y: 130px; }
+  .jar--5 { --jw: 48px; --side: 1;  --f: 0.6;  --r: 64deg;   --y: 214px; }
+  .jar--6 { --jw: 40px; --side: 1;  --f: 0.44; --r: 112deg;  --y: calc(100% - 60px); }
 }
-
 @media (min-width: 1024px) {
-  .hero { padding-top: 150px; padding-bottom: 150px; }
-  .jar--1 { --jw: 120px; --r: -8deg;  left: 4%;   top: 8%; }
-  .jar--2 { --jw: 92px;  --r: 6deg;   left: 15%;  top: 47%; display: block; }
-  .jar--3 { --jw: 132px; --r: 10deg;  left: 1%;   bottom: -6%; }
-  .jar--4 { --jw: 108px; --r: 9deg;   right: 6%;  top: 5%; display: block; }
-  .jar--5 { --jw: 116px; --r: -6deg;  right: 13%; top: 44%; display: block; }
-  .jar--6 { --jw: 112px; --r: -11deg; right: 0;   bottom: -7%; }
-}
-
-@media (min-width: 1440px) {
-  .jar--2 { left: 18%; }
-  .jar--5 { right: 17%; }
+  .jar--1 { --jw: 100px; --f: 0.42; --r: -24deg;  --y: 112px; }
+  .jar--2 { --jw: 84px;  --f: 0.58; --r: -58deg;  --y: 52%; }
+  .jar--3 { --jw: 70px;  --f: 0.36; --r: -104deg; --y: calc(100% - 104px); }
+  .jar--4 { --jw: 92px;  --f: 0.4;  --r: 30deg;   --y: 144px; }
+  .jar--5 { --jw: 100px; --f: 0.6;  --r: 62deg;   --y: 50%; }
+  .jar--6 { --jw: 76px;  --f: 0.44; --r: 112deg;  --y: calc(100% - 122px); }
 }
 
 /* ============ RISTRA ============ */
 .ristra {
-  /* sizes: small, large, medium, largest, small */
-  --rs-s:  clamp(36px, 5.2vw, 56px);
-  --rs-l:  clamp(54px, 7.6vw, 84px);
-  --rs-m:  clamp(45px, 6.2vw, 68px);
-  --rs-xl: clamp(62px, 8.8vw, 98px);
-  --rs-s2: clamp(33px, 4.6vw, 50px);
+  /* five sizes, smallest to largest (mixed along the line in index.html) */
+  --rs-xs: clamp(22px, 3.6vw, 46px);
+  --rs-s:  clamp(26px, 4.4vw, 56px);
+  --rs-m:  clamp(30px, 5.4vw, 68px);
+  --rs-l:  clamp(34px, 6.6vw, 84px);
+  --rs-xl: clamp(38px, 7.8vw, 98px);
   --line-y: 26px;
   --ratio: 2.339;     /* icon-mark height / width */
   --hook: 0.0713;     /* where the p loop meets the line, as a share of icon height */
@@ -246,6 +264,7 @@ img { display: block; max-width: 100%; height: auto; }
   position: absolute;
   inset: 0;
   transform-origin: 65% 7.13%;
+  transform: rotate(var(--rest, 0deg));   /* resting tilt; script.js swings around it */
   will-change: transform;
 }
 .ristra__swing img { width: 100%; height: 100%; }
@@ -425,23 +444,32 @@ img { display: block; max-width: 100%; height: auto; }
 }
 
 /* ============ 3. MEET THE LINEUP ============ */
-.products { background: var(--green); }
+.products {
+  /* tuning knobs */
+  --products-pad-top: clamp(40px, 5.5vw, 76px);
+  --products-pad-bottom: clamp(44px, 6vw, 84px);
+  --products-title-gap: clamp(16px, 2.2vw, 28px);   /* heading → cards */
+  --pcard-pad: 12px;                                  /* card padding */
+  --pcard-gap: clamp(14px, 1.6vw, 18px);             /* space between cards */
+  --oil-col: 0.84fr;                                  /* Chili Oil column vs 1fr jar columns (desktop) */
+  background: var(--green);
+}
 .products__inner {
   max-width: 1280px;
   margin: 0 auto;
-  padding: clamp(64px, 9vw, 120px) var(--gutter);
+  padding: var(--products-pad-top) var(--gutter) var(--products-pad-bottom);
 }
 /* Large type, so cream on Leaf Green clears the large-text contrast bar */
-.products__title { color: var(--cream); margin-bottom: clamp(28px, 4vw, 48px); }
+.products__title { color: var(--cream); margin-bottom: var(--products-title-gap); }
 
 .products__grid {
-  --win-h: clamp(220px, 19vw, 260px);   /* product window height */
+  --win-h: clamp(200px, 17vw, 236px);   /* product window height */
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   /* Each card spans two rows (window, text) through subgrid, so names line up
      across a row; the 1fr text rows make every card the same height in every layout. */
   grid-auto-rows: minmax(var(--win-h), auto) 1fr;
-  gap: clamp(16px, 2vw, 22px);
+  gap: var(--pcard-gap);
   max-width: 420px;
   margin: 0 auto;
   padding: 18px 0;                      /* room for the hover lift */
@@ -450,7 +478,7 @@ img { display: block; max-width: 100%; height: auto; }
   .products__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 820px; }
 }
 @media (min-width: 1024px) {
-  .products__grid { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 0.66fr); max-width: none; }
+  .products__grid { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, var(--oil-col)); max-width: none; }
 }
 
 .pcard {
@@ -461,7 +489,7 @@ img { display: block; max-width: 100%; height: auto; }
   grid-template-rows: subgrid;
   row-gap: 0;
   min-width: 0;
-  padding: 14px;
+  padding: var(--pcard-pad);
   border-radius: 24px;
   background: var(--yellow);
   color: var(--ink);
@@ -523,16 +551,16 @@ img { display: block; max-width: 100%; height: auto; }
 .heat {
   position: absolute;
   z-index: 1;
-  bottom: 20px;
-  left: 20px;
+  bottom: 14px;
+  left: 16px;
   display: flex;
   gap: 2px;
-  padding: 4px 6px;
+  padding: 3px 6px;
   border: 2px solid var(--ink);
   border-radius: 999px;
   background: var(--cream);
 }
-.heat img { width: 26px; height: 26px; }
+.heat img { width: 24px; height: 24px; }
 .heat .asset-ph { min-width: 22px; min-height: 22px; width: 22px !important; padding: 0; font-size: 0; border-width: 1px; }
 
 .pcard__body {
@@ -541,8 +569,8 @@ img { display: block; max-width: 100%; height: auto; }
   gap: 6px;
   padding: 16px 6px 6px;
 }
-.pcard:not(.pcard--oil) .pcard__body { padding-bottom: 50px; }   /* room for the heat meter */
-.pcard--oil { padding: 14px 12px; }
+.pcard:not(.pcard--oil) .pcard__body { padding-bottom: 38px; }   /* room for the heat meter chip (34px tall, 14px up) */
+.pcard--oil { padding: var(--pcard-pad) calc(var(--pcard-pad) - 2px); }
 .pcard--oil .pcard__body { padding: 16px 2px 4px; }
 .pcard__name {
   margin: 0;
@@ -728,17 +756,21 @@ img { display: block; max-width: 100%; height: auto; }
 
 /* ============ 5. HOW MUCH SHOULD I GET? (QUIZ) ============ */
 .quiz {
+  /* tuning knobs */
+  --quiz-pad-top: clamp(40px, 5.5vw, 76px);
+  --quiz-pad-bottom: clamp(64px, 9vw, 120px);
+  --quiz-title-gap: clamp(16px, 2.2vw, 28px);       /* heading → questions */
   background: var(--orange);
-  padding: clamp(64px, 9vw, 120px) var(--gutter);
+  padding: var(--quiz-pad-top) var(--gutter) var(--quiz-pad-bottom);
 }
 .quiz__inner { max-width: 1200px; margin: 0 auto; }
 .quiz__title {
-  margin: 0 0 clamp(28px, 4vw, 48px);
+  margin: 0 0 var(--quiz-title-gap);
   font-weight: 800;
-  font-size: clamp(2.5rem, 1.4rem + 5vw, 5rem);
+  font-size: clamp(1.75rem, 7.4vw, 5rem);    /* one line from 375px up */
   line-height: 1;
   letter-spacing: -0.035em;
-  max-width: 14ch;
+  white-space: nowrap;
 }
 .quiz__grid { display: grid; gap: clamp(20px, 3vw, 36px); align-items: stretch; }
 @media (min-width: 960px) {
@@ -965,13 +997,15 @@ img { display: block; max-width: 100%; height: auto; }
   cursor: pointer;
 }
 
-/* Basket scene: 280 × 210 stage, basket drawn twice so jars sit inside it */
+/* Basket scene: 280 × 250 stage. The brand book basket is drawn twice: behind the jars,
+   and in front of them clipped to the rim band and below, so jars sit inside it. */
 .basket-scene {
   --bs: 1.08;                         /* scene scale */
+  --basket-clip: 32%;                 /* top of the rim band, as a share of the basket image height */
   position: relative;
   width: 280px;
-  height: 210px;
-  margin: 10px 0 calc(210px * (var(--bs) - 1));
+  height: 250px;
+  margin: 10px 0 calc(250px * (var(--bs) - 1));
   flex: none;
   transform: scale(var(--bs));
   transform-origin: top center;
@@ -983,18 +1017,27 @@ img { display: block; max-width: 100%; height: auto; }
   left: 40px;
   bottom: 0;
   width: 200px;
-  height: 150px;
+  height: 172px;                      /* basket.png is 600 × 516 (1.16 : 1) */
   max-width: none;
 }
 .basket-scene__back { z-index: 1; }
-.basket-scene__front { z-index: 3; clip-path: inset(28.4% 0 0 0); }
-.basket-scene__jars { position: absolute; inset: 0; z-index: 2; }
+.basket-scene__front { z-index: 3; clip-path: inset(var(--basket-clip) 0 0 0); }
+/* Fallback while basket.png is missing: the drawn basket.svg (4 : 3) */
+.basket-scene.is-fallback-basket { --basket-clip: 28.4%; }
+.basket-scene.is-fallback-basket .basket-scene__back,
+.basket-scene.is-fallback-basket .basket-scene__front { height: 150px; }
+.basket-scene__jars { position: absolute; inset: 0; z-index: 2; will-change: transform; }
 .minijar {
   position: absolute;
-  width: 30px;
-  height: 41px;
+  width: 26px;
+  height: 35px;
+  will-change: transform, opacity;
+}
+.minijar img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; }
+.minijar.is-tumbler { z-index: 4; }
+/* Fallback while jar-*.png is missing: the studio render with its old crop */
+.minijar.is-fallback {
   overflow: hidden;
-  /* feather the studio backdrop, same as the hero jars */
   -webkit-mask-image:
     linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%),
     linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
@@ -1004,8 +1047,7 @@ img { display: block; max-width: 100%; height: auto; }
     linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
   mask-composite: intersect;
 }
-.minijar img { position: absolute; left: -20.8%; top: -16.7%; width: 138.9%; max-width: none; height: auto; }
-.minijar.is-tumbler { z-index: 4; }
+.minijar.is-fallback img { position: absolute; left: -20.8%; top: -16.7%; width: 138.9%; height: auto; max-width: none; }
 
 /* ============ 6. WHAT IS SPECIAL ABOUT PIREKUA? ============ */
 .story { padding: clamp(64px, 9vw, 120px) var(--gutter) clamp(80px, 11vw, 140px); }
@@ -1294,4 +1336,5 @@ img { display: block; max-width: 100%; height: auto; }
     transition-duration: 0.01ms !important;
   }
   .btn--primary:hover, .btn--primary:active { transform: none; }
+  .lockup__bloom img { animation: none !important; }
 }

@@ -7,9 +7,14 @@ const QUIZ_MIN = 52;
 const QUIZ_MAX = 93;
 // Quiz reveal timing (ms).
 const DRUMROLL_MS = 2500;   // anticipation beat after "Show me my results"
-const BASKET_MS = 2500;     // jars dumping into the basket
+const BASKET_MS = 3600;     // jars pouring into the basket (max ~4000)
 const JOKE_DELAY_MS = 500;  // after the basket, the joke line fades in
 const CTA_DELAY_MS = 500;   // after the joke, the party button fades in
+// Quiz basket: how many jars pour in, and how many spill over the sides.
+const BASKET_INSIDE_JARS = 32;
+const BASKET_TUMBLERS = 8;
+const BASKET_DROP_STAGGER_MS = 70;   // gap between jars landing inside
+const BASKET_SEED = 7;               // change for a different (but repeatable) heap
 
 // Cookbook carousel: one entry per page. A page shows its image when the file
 // exists, otherwise its labeled placeholder. Add or remove entries freely.
@@ -87,8 +92,8 @@ const I18N = {
 
     's4.title': 'How much should I get?',
     'quiz.q1': 'Do you like sunrises or sunsets?',
-    'quiz.q1a': 'Sunrise',
-    'quiz.q1b': 'Sunset',
+    'quiz.q1a': 'Sunrises',
+    'quiz.q1b': 'Sunsets',
     'quiz.q2': 'How many push-ups can you honestly do?',
     'quiz.q2Value': '{n} push-ups',
     'quiz.q3': 'Ready for your new favorite kitchen essential?',
@@ -196,8 +201,8 @@ const I18N = {
 
     's4.title': '¿Cuántos debo llevar?',
     'quiz.q1': '¿Te gustan más los amaneceres o los atardeceres?',
-    'quiz.q1a': 'Amanecer',
-    'quiz.q1b': 'Atardecer',
+    'quiz.q1a': 'Amaneceres',
+    'quiz.q1b': 'Atardeceres',
     'quiz.q2': '¿Cuántas lagartijas puedes hacer, de verdad?',
     'quiz.q2Value': '{n} lagartijas',
     'quiz.q3': '¿Listo para tu nuevo básico favorito de la cocina?',
@@ -301,6 +306,8 @@ const I18N = {
     const fallback = img.dataset.fallback;
     if (fallback && !img.dataset.triedFallback) {
       img.dataset.triedFallback = img.getAttribute('src').split('/').pop();
+      // e.g. a jar cutout falling back to its studio render, which needs the old crop
+      if (img.dataset.fallbackClass && img.parentElement) img.parentElement.classList.add(img.dataset.fallbackClass);
       img.src = fallback;
       return;
     }
@@ -356,6 +363,7 @@ const I18N = {
 
     const chiles = Array.from(ristra.querySelectorAll('[data-chile]')).map((el) => ({
       el, swing: el.querySelector('.ristra__swing'), a: 0, v: 0,
+      rest: (parseFloat(el.dataset.rest) || 0) * Math.PI / 180,   // resting tilt; the swing is added to it
     }));
     let raf = 0, last = 0;
 
@@ -371,7 +379,7 @@ const I18N = {
         if (c.a < -MAX_ANGLE) { c.a = -MAX_ANGLE; c.v = Math.max(c.v, 0); }
         if (Math.abs(c.a) < 0.0006 && Math.abs(c.v) < 0.003) { c.a = 0; c.v = 0; }
         else moving = true;
-        c.swing.style.transform = 'rotate(' + c.a.toFixed(4) + 'rad)';
+        c.swing.style.transform = 'rotate(' + (c.rest + c.a).toFixed(4) + 'rad)';
       }
       raf = moving ? requestAnimationFrame(step) : 0;
     }
@@ -813,56 +821,112 @@ const I18N = {
 
     const later = (fn, ms) => { timers.push(setTimeout(fn, ms)); };
 
-    // Basket choreography in a 280 × 210 scene. Jars land inside, pile up past
-    // the rim, and two tumble over the edge to rest beside the basket.
-    const JAR_ART = ['assets/render-sweet.png', 'assets/render-smoky.png', 'assets/render-spicy.png'];
-    const INSIDE = [
-      { x: 83,  y: 88, r: -6 }, { x: 125, y: 90, r: 4 },  { x: 167, y: 88, r: -3 },
-      { x: 93,  y: 66, r: -9 }, { x: 127, y: 68, r: 6 },  { x: 161, y: 66, r: -4 },
-      { x: 109, y: 45, r: 11 }, { x: 145, y: 46, r: -12 },
-    ];
-    const TUMBLERS = [
-      { x: 15,  y: 174.5, r: -90, pile: [105, -152.5], rim: [30, -104.5], dir: -1, delay: 1180 },
-      { x: 237, y: 174.5, r: 96,  pile: [-97, -150.5], rim: [-32, -102.5], dir: 1, delay: 1400 },
-    ];
-    function makeJar(i, x, y) {
+    // Basket choreography in a 280 × 250 scene (basket: 200 × 172 at the bottom,
+    // rim band top at y 134, rim from x 54 to 226). Positions are generated once
+    // from a fixed seed, so every run looks the same. Jars stack in rows that
+    // narrow into a heap above the rim; the last few tumble over the sides.
+    const FLAVORS = ['sweet', 'smoky', 'spicy'];
+    const SCENE = { w: 280, h: 250, rimY: 134, rimL: 54, rimR: 226, jarW: 26, jarH: 35 };
+
+    // Transparent cutouts (jar-*.png); fall back to the studio renders while they're missing.
+    const jarArt = {};
+    FLAVORS.forEach((f) => {
+      const probe = new Image();
+      probe.onload = () => { jarArt[f] = 'cut'; };
+      probe.onerror = () => { jarArt[f] = 'fallback'; };
+      probe.src = 'assets/jar-' + f + '.png';
+    });
+
+    function seeded(seed) {           // mulberry32
+      let a = seed >>> 0;
+      return () => {
+        a = (a + 0x6D2B79F5) >>> 0;
+        let x = Math.imul(a ^ (a >>> 15), 1 | a);
+        x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+        return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function buildHeap() {
+      const rnd = seeded(BASKET_SEED);
+      const jit = (n) => (rnd() * 2 - 1) * n;
+      const inside = [];
+      // Rows from the bottom up: each row a little narrower and higher.
+      const rows = [];
+      let left = BASKET_INSIDE_JARS, cap = 8;
+      while (left > 0) { const n = Math.min(cap, left); rows.push(n); left -= n; cap = Math.max(2, cap - 1); }
+      rows.forEach((n, r) => {
+        const half = Math.max(16, ((SCENE.rimR - SCENE.rimL) / 2 - 20) - r * 9);   // stays inside the rim
+        const cx = SCENE.w / 2, cy = SCENE.rimY + 10 - r * 19;
+        for (let k = 0; k < n; k++) {
+          const x = n === 1 ? cx : cx - half + (2 * half) * (k / (n - 1));
+          inside.push({ x: x + jit(4), y: cy + jit(3), r: jit(15) });
+        }
+      });
+      // Tumblers rest on the floor beside the basket, a few stacked on top.
+      const spots = [
+        [24, 236, -88], [256, 236, 90], [48, 237, -96], [232, 237, 84],
+        [36, 214, -80], [244, 214, 100], [16, 214, -104], [264, 214, 76],
+      ];
+      const tumblers = [];
+      for (let k = 0; k < BASKET_TUMBLERS; k++) {
+        const [fx, fy, fr] = spots[k % spots.length];
+        const dir = fx < SCENE.w / 2 ? -1 : 1;
+        tumblers.push({
+          x: fx + jit(3), y: fy + jit(2), r: fr + jit(8), dir,
+          pile: [SCENE.w / 2 + jit(14), 34 + jit(6)],                    // lands on top of the heap
+          rim: [dir < 0 ? SCENE.rimL - 6 : SCENE.rimR + 6, SCENE.rimY - 18], // rolls over the rim
+        });
+      }
+      return { inside, tumblers };
+    }
+    const HEAP = buildHeap();
+
+    function makeJar(i, cx, cy) {
+      const f = FLAVORS[i % 3];
       const el = document.createElement('div');
       el.className = 'minijar';
-      el.style.left = x + 'px';
-      el.style.top = y + 'px';
+      el.style.left = (cx - SCENE.jarW / 2) + 'px';
+      el.style.top = (cy - SCENE.jarH / 2) + 'px';
       const img = document.createElement('img');
-      img.src = JAR_ART[i % 3];
       img.alt = '';
-      img.width = 720; img.height = 900;
+      img.decoding = 'async';
+      const useFallback = () => { el.classList.add('is-fallback'); img.src = 'assets/render-' + f + '.png'; };
+      if (jarArt[f] === 'fallback') useFallback();
+      else { img.onerror = () => { img.onerror = null; useFallback(); }; img.src = 'assets/jar-' + f + '.png'; }
       el.appendChild(img);
       jarsEl.appendChild(el);
       return el;
     }
     function playBasket(instant) {
       jarsEl.textContent = '';
-      INSIDE.forEach((p, i) => {
+      HEAP.inside.forEach((p, i) => {
         const el = makeJar(i, p.x, p.y);
-        el.style.transform = 'rotate(' + p.r + 'deg)';
+        el.style.transform = 'rotate(' + p.r.toFixed(1) + 'deg)';
         if (instant || !el.animate) return;
         anims.push(el.animate([
-          { transform: 'translateY(-200px) rotate(' + (p.r - 24) + 'deg)', opacity: 0 },
-          { opacity: 1, offset: 0.25 },
-          { transform: 'translateY(0) rotate(' + p.r + 'deg)', opacity: 1 },
-        ], { duration: 520, delay: i * 140, easing: 'cubic-bezier(.3,1.35,.6,1)', fill: 'both' }));
+          { transform: 'translateY(' + (-p.y - 60) + 'px) rotate(' + (p.r - 30).toFixed(1) + 'deg)', opacity: 0 },
+          { opacity: 1, offset: 0.2 },
+          { transform: 'translateY(0) rotate(' + p.r.toFixed(1) + 'deg)', opacity: 1 },
+        ], { duration: 420, delay: i * BASKET_DROP_STAGGER_MS, easing: 'cubic-bezier(.3,1.3,.6,1)', fill: 'both' }));
       });
-      TUMBLERS.forEach((p, i) => {
-        const el = makeJar(i + 1, p.x, p.y);
+      // Tumblers start once the heap is mostly built and finish inside BASKET_MS.
+      const tumbleDur = 1000;
+      const tumbleStart = Math.max(0, BASKET_MS - tumbleDur - 140 * (HEAP.tumblers.length - 1) - 120);
+      HEAP.tumblers.forEach((p, k) => {
+        const el = makeJar(k + 1, p.x, p.y);
         el.classList.add('is-tumbler');
-        el.style.transform = 'rotate(' + p.r + 'deg)';
+        el.style.transform = 'rotate(' + p.r.toFixed(1) + 'deg)';
         if (instant || !el.animate) return;
-        const tr = (xy, r) => 'translate(' + xy[0] + 'px,' + xy[1] + 'px) rotate(' + r + 'deg)';
+        const off = (pt) => [pt[0] - p.x, pt[1] - p.y];
+        const pile = off(p.pile), rim = off(p.rim);
+        const tr = (xy, r) => 'translate(' + xy[0].toFixed(1) + 'px,' + xy[1].toFixed(1) + 'px) rotate(' + r.toFixed(1) + 'deg)';
         anims.push(el.animate([
-          { transform: tr([p.pile[0], p.pile[1] - 200], 0), opacity: 0 },
-          { transform: tr(p.pile, 0), opacity: 1, offset: 0.26, easing: 'ease-in-out' },
-          { transform: tr([p.pile[0] + p.dir * 8, p.pile[1] - 4], p.dir * 14), offset: 0.42, easing: 'ease-in' },
-          { transform: tr(p.rim, p.dir * 55), offset: 0.66, easing: 'cubic-bezier(.4,0,.8,.6)' },
+          { transform: tr([pile[0], pile[1] - 120], 0), opacity: 0 },
+          { transform: tr(pile, 0), opacity: 1, offset: 0.28, easing: 'ease-in' },
+          { transform: tr([pile[0] + p.dir * 10, pile[1] + 4], p.dir * 20), offset: 0.44, easing: 'ease-in' },
+          { transform: tr(rim, p.dir * 60), offset: 0.68, easing: 'cubic-bezier(.4,0,.8,.6)' },
           { transform: tr([0, 0], p.r), opacity: 1 },
-        ], { duration: 1100, delay: p.delay, fill: 'both' }));
+        ], { duration: tumbleDur, delay: tumbleStart + k * 140, fill: 'both' }));
       });
     }
 

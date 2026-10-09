@@ -27,14 +27,16 @@
   <!-- ============ HERO ============ -->
   <section class="hero" aria-labelledby="hero-title">
 
-    <!-- Scattered jars: decoration only -->
+    <!-- Six jars splashing out from behind the wordmark (2 of each flavor). Decoration only.
+         Positions, sizes and angles: --x, --y, --jw, --r on .jar--1 … .jar--6 in styles.css.
+         Transparent cutouts (jar-*.png); if one is missing, the render-*.png is used with its old crop. -->
     <div class="hero__jars" aria-hidden="true">
-      <div class="jar jar--1"><img src="assets/render-sweet.png" alt="" width="720" height="900" fetchpriority="low"></div>
-      <div class="jar jar--2"><img src="assets/render-spicy.png" alt="" width="720" height="900" fetchpriority="low"></div>
-      <div class="jar jar--3"><img src="assets/render-smoky.png" alt="" width="720" height="900" fetchpriority="low"></div>
-      <div class="jar jar--4"><img src="assets/render-smoky.png" alt="" width="720" height="900" fetchpriority="low"></div>
-      <div class="jar jar--5"><img src="assets/render-sweet.png" alt="" width="720" height="900" fetchpriority="low"></div>
-      <div class="jar jar--6"><img src="assets/render-spicy.png" alt="" width="720" height="900" fetchpriority="low"></div>
+      <div class="jar jar--1"><img src="assets/jar-sweet.png" data-fallback="assets/render-sweet.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
+      <div class="jar jar--2"><img src="assets/jar-smoky.png" data-fallback="assets/render-smoky.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
+      <div class="jar jar--3"><img src="assets/jar-spicy.png" data-fallback="assets/render-spicy.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
+      <div class="jar jar--4"><img src="assets/jar-spicy.png" data-fallback="assets/render-spicy.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
+      <div class="jar jar--5"><img src="assets/jar-sweet.png" data-fallback="assets/render-sweet.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
+      <div class="jar jar--6"><img src="assets/jar-smoky.png" data-fallback="assets/render-smoky.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
     </div>
 
     <div class="hero__inner">
@@ -46,11 +48,8 @@
              alt="pirekua, Mexican chili crisp" data-i18n-attr="alt:lockup.alt" width="1536" height="693" fetchpriority="high">
       </div>
 
-      <!-- Fixed tagline: never translated -->
-      <h1 class="tagline" id="hero-title" aria-label="Made with amor y risas.">
-        <span class="tagline__line">Made with</span>
-        <span class="tagline__line tagline__line--dot"><span class="tagline__dotted">amor y r<span class="tagline__i">i</span>sas.<img class="tagline__chile" src="assets/chile-dot.png" alt="" width="160" height="239"></span></span>
-      </h1>
+      <!-- Fixed tagline: never translated. One line; the chile over the i is anchored to .tagline__dotted -->
+      <h1 class="tagline" id="hero-title" aria-label="Made with amor y risas.">Made with <span class="tagline__dotted">amor y r<span class="tagline__i">i</span>sas.<img class="tagline__chile" src="assets/chile-dot.png" alt="" width="160" height="239"></span></h1>
 
       <p class="hero__sub" data-i18n="hero.sub">It started with two friends, a stove, and a lot of laughing.</p>
 
@@ -59,25 +58,46 @@
   </section>
 
   <!-- ============ DIVIDER: THE RISTRA ============ -->
+  <!-- Ten chiles. --x position, --w size (--rs-* in styles.css), --rest / data-rest resting tilt in degrees -->
   <div class="ristra" aria-hidden="true">
     <div class="ristra__line"></div>
-    <div class="ristra__chile" style="--x: 8%;  --w: var(--rs-s);" data-chile>
+    <div class="ristra__chile" style="--x: 5.5%; --w: var(--rs-m); --rest: -3deg;" data-chile data-rest="-3">
       <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
-    <div class="ristra__chile is-mirrored" style="--x: 25%; --w: var(--rs-l);" data-chile>
+    <div class="ristra__chile is-mirrored" style="--x: 15.5%; --w: var(--rs-xl); --rest: 2deg;" data-chile data-rest="2">
       <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
-    <div class="ristra__chile" style="--x: 46%; --w: var(--rs-m);" data-chile>
+    <div class="ristra__chile" style="--x: 25%; --w: var(--rs-s); --rest: -4deg;" data-chile data-rest="-4">
       <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
-    <div class="ristra__chile" style="--x: 65%; --w: var(--rs-xl);" data-chile>
+    <div class="ristra__chile is-mirrored" style="--x: 34.5%; --w: var(--rs-l); --rest: 3deg;" data-chile data-rest="3">
       <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
-    <div class="ristra__chile is-mirrored" style="--x: 86%; --w: var(--rs-s2);" data-chile>
+    <div class="ristra__chile" style="--x: 44%; --w: var(--rs-xs); --rest: -2deg;" data-chile data-rest="-2">
+      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
+      <span class="ristra__thread"></span>
+    </div>
+    <div class="ristra__chile is-mirrored" style="--x: 54.5%; --w: var(--rs-xl); --rest: 4deg;" data-chile data-rest="4">
+      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
+      <span class="ristra__thread"></span>
+    </div>
+    <div class="ristra__chile" style="--x: 64%; --w: var(--rs-m); --rest: -3deg;" data-chile data-rest="-3">
+      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
+      <span class="ristra__thread"></span>
+    </div>
+    <div class="ristra__chile is-mirrored" style="--x: 74.5%; --w: var(--rs-s); --rest: 2deg;" data-chile data-rest="2">
+      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
+      <span class="ristra__thread"></span>
+    </div>
+    <div class="ristra__chile" style="--x: 84.5%; --w: var(--rs-l); --rest: 3deg;" data-chile data-rest="3">
+      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
+      <span class="ristra__thread"></span>
+    </div>
+    <div class="ristra__chile is-mirrored" style="--x: 94.5%; --w: var(--rs-xs); --rest: -2deg;" data-chile data-rest="-2">
       <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
@@ -234,11 +254,11 @@
             <div class="choices choices--2">
               <label class="choice">
                 <input class="choice__input" type="radio" name="q1" value="sunrise">
-                <span class="choice__face" data-i18n="quiz.q1a">Sunrise</span>
+                <span class="choice__face" data-i18n="quiz.q1a">Sunrises</span>
               </label>
               <label class="choice">
                 <input class="choice__input" type="radio" name="q1" value="sunset">
-                <span class="choice__face" data-i18n="quiz.q1b">Sunset</span>
+                <span class="choice__face" data-i18n="quiz.q1b">Sunsets</span>
               </label>
             </div>
           </fieldset>
@@ -288,9 +308,10 @@
               <p class="stage__label" data-i18n="quiz.label">jars of pirekua Mexican chili crisp</p>
             </div>
             <div class="basket-scene" aria-hidden="true" data-basket>
-              <img class="basket-scene__back" src="assets/basket.svg" alt="" width="160" height="120" loading="lazy">
+              <!-- Brand book market basket (basket.png); falls back to the drawn basket.svg if missing -->
+              <img class="basket-scene__back" src="assets/basket.png" data-fallback="assets/basket.svg" data-fallback-class="is-fallback-basket" alt="" width="600" height="516" loading="lazy">
               <div class="basket-scene__jars" data-basket-jars></div>
-              <img class="basket-scene__front" src="assets/basket.svg" alt="" width="160" height="120" loading="lazy">
+              <img class="basket-scene__front" src="assets/basket.png" data-fallback="assets/basket.svg" alt="" width="600" height="516" loading="lazy">
             </div>
             <p class="stage__joke" data-i18n="quiz.joke">Just joking, but it really is that good!</p>
             <div class="stage__cta">
