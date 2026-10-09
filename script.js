@@ -53,6 +53,24 @@ const I18N = {
     's2.mediaAlt': 'Mexican chili crisp being made in a home kitchen',
     's2.chip': '[PLACEHOLDER: real footage of the chili crisp being made, coming in November]',
 
+    'products.title': 'Meet the lineup',
+    'products.sweet.tag': 'Toasty chiles with a warm, honeyed finish.',
+    'products.sweet.desc': 'The one that surprises people. Mellow heat, a little sweetness, and that nutty crunch underneath. Hard to stop at one spoonful.',
+    'products.sweet.alt': 'A jar of pirekua Sweet Mexican chili crisp',
+    'products.smoky.tag': 'Deep, roasty, a little moody.',
+    'products.smoky.desc': 'The chiles do the talking here: low heat, big smoke, like something pulled straight off the comal. Made for eggs, beans, and anything grilled.',
+    'products.smoky.alt': 'A jar of pirekua Smoky Mexican chili crisp',
+    'products.spicy.tag': 'The bold one.',
+    'products.spicy.desc': "Real heat, but still toasty and nutty underneath, so it's flavor first and fire second. For the people who reach for the hot sauce before they've even tasted the food.",
+    'products.spicy.alt': 'A jar of pirekua Spicy Mexican chili crisp',
+    'products.oil.tag': 'All the flavor of the crisp, none of the crunch.',
+    'products.oil.desc': 'Just a rich, chile-infused oil you drizzle at the end. A little goes everywhere: eggs, pizza, soup, a plate of avocado. Your hot honey, but make it Mexican.',
+    'products.oil.alt': 'A squeeze bottle of pirekua Mexican Chili Oil',
+    'products.heat.none': 'Heat: none',
+    'products.heat.medium': 'Heat: medium',
+    'products.heat.high': 'Heat: high',
+    'products.cardLabel': '{name}: be in the know',
+
     's3.title': 'What do I use it for?',
     's3.body': "Eggs, tacos, pizza, noodles, avocado toast. Anything that could use a little más. If it's food, it probably works.",
     's3.button': 'Get the cookbook',
@@ -143,6 +161,24 @@ const I18N = {
     's2.bodyB': 'Mismo crunch, distinta alma. El nuestro se apoya en chiles, nueces y semillas mexicanos: más cálido y terroso, menos salado y umami, más cocina. Si el chili crisp asiático es puro golpe sabroso y ajoso, el nuestro es más tostado y un poquito más dulce, hecho con los sabores de una cocina mexicana.',
     's2.mediaAlt': 'Chili crisp mexicano preparándose en una cocina casera',
     's2.chip': '[MARCADOR: video real de cómo se hace el chili crisp, llega en noviembre]',
+
+    'products.title': 'Conoce la línea',
+    'products.sweet.tag': 'Chiles tostados con un final cálido y meloso.',
+    'products.sweet.desc': 'El que sorprende a todos. Picor suave, un poquito de dulzura y ese crunch de nuez por debajo. Difícil parar en una sola cucharada.',
+    'products.sweet.alt': 'Un frasco de chili crisp mexicano pirekua Sweet',
+    'products.smoky.tag': 'Profundo, tostado y un poquito temperamental.',
+    'products.smoky.desc': 'Aquí hablan los chiles: poco picor, mucho humo, como recién salido del comal. Hecho para huevos, frijoles y todo lo que va a la parrilla.',
+    'products.smoky.alt': 'Un frasco de chili crisp mexicano pirekua Smoky',
+    'products.spicy.tag': 'El atrevido.',
+    'products.spicy.desc': 'Picor de verdad, pero con ese fondo tostado y de nuez: primero el sabor, luego el fuego. Para quienes buscan la salsa picante antes de probar la comida.',
+    'products.spicy.alt': 'Un frasco de chili crisp mexicano pirekua Spicy',
+    'products.oil.tag': 'Todo el sabor del crisp, nada del crunch.',
+    'products.oil.desc': 'Solo un aceite rico, infusionado con chiles, que rocías al final. Un poquito va con todo: huevos, pizza, sopa, un plato de aguacate. Tu miel picante, pero en versión mexicana.',
+    'products.oil.alt': 'Una botella exprimible de Chili Oil mexicano pirekua',
+    'products.heat.none': 'Picor: nulo',
+    'products.heat.medium': 'Picor: medio',
+    'products.heat.high': 'Picor: alto',
+    'products.cardLabel': '{name}: mantente al tanto',
 
     's3.title': '¿Para qué lo uso?',
     's3.body': 'Huevos, tacos, pizza, fideos, pan tostado con aguacate. Todo lo que merezca un poquito más. Si es comida, seguro funciona.',
@@ -612,6 +648,17 @@ const I18N = {
         form.classList.remove('is-sending');
       }
     });
+  }
+
+
+  /* ---------------------------------------------------------------
+     Product cards: each card's button is named "<product>: be in the know"
+     (product names stay in English)
+     --------------------------------------------------------------- */
+  const cardButtons = document.querySelectorAll('[data-card-name]');
+  if (cardButtons.length) {
+    const nameCards = () => cardButtons.forEach((b) => b.setAttribute('aria-label', t('products.cardLabel', { name: b.dataset.cardName })));
+    langListeners.push(nameCards);
   }
 
   /* ---------------------------------------------------------------

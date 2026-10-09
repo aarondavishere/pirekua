@@ -10,10 +10,11 @@ Deploys from the repo root on Netlify (see `netlify.toml`).
 3. Ristra divider: five hanging icon marks that swing
 4. Section 1: What is Mexican chili crisp?
 5. Section 2: What does it taste like? + Not your usual chili crisp (media slot)
-6. Section 3: What do I use it for? + cookbook carousel + cookbook button
-7. Section 4: How much should I get? (the quiz)
-8. Section 5: What is special about pirekua? (story copy and photo still to come)
-9. Footer, with the Privacy Policy dialog
+6. Section 3: Meet the lineup (Sweet, Smoky, Spicy, Chili Oil cards)
+7. Section 4: What do I use it for? + cookbook carousel + cookbook button
+8. Section 5: How much should I get? (the quiz)
+9. Section 6: What is special about pirekua? (story copy and photo still to come)
+10. Footer, with the Privacy Policy dialog
 
 Not built yet: shop page, cart, payments, real cookbook pages, real making-of footage, real story copy, Spanish welcome email, SMS automation, analytics.
 
@@ -43,7 +44,7 @@ Not built yet: shop page, cart, payments, real cookbook pages, real making-of fo
 Ristra physics (`STIFFNESS`, `DAMPING`, `GAIN`, `MAX_ANGLE`) are in the ristra block of `script.js`.
 
 Buttons:
-- `data-signup` opens the signup modal; its `data-source` fills the hidden `source` field (`hero`, `cookbook`, `quiz`).
+- `data-signup` opens the signup modal; its `data-source` fills the hidden `source` field (`hero`, `cookbook`, `quiz`, and on the product cards `sweet`, `smoky`, `spicy`, `chili-oil`).
 - `data-party` adds the chile burst. Only the hero and quiz buttons have it.
 
 ## Language toggle and translations
@@ -67,6 +68,15 @@ To add a string:
 - Each slide shows its image if the file exists. Otherwise it shows its branded "Cookbook image N" placeholder.
 - To add the real pages, drop `page-1.png`, `page-2.png` and so on into `assets/cookbook/`. Square images, 1200 × 1200 or larger.
 
+## Meet the lineup (product cards)
+
+- Four cards: Sweet (Warm Yellow), Smoky (Cempasúchil Orange), Spicy (Deep Chili Red) and Chili Oil (Mole Ink, narrower). Product names are never translated.
+- All four cards are always the same height, and names, taglines and descriptions line up across a row (CSS subgrid). With the full copy at 15px or more, cards come out taller than square. The jar windows stay the same size on every card.
+- Each card is an `<article>` with one real `<button data-signup>` stretched over it. The buttons' `data-source` values are `sweet`, `smoky`, `spicy` and `chili-oil`, so Netlify Forms shows which product someone tapped.
+- **Future:** the card button becomes "Shop" and links to that product's shop page (there's an HTML comment above the section).
+- The heat meter (bottom corner of each jar card) uses `bloom-yellow/orange/red/outline.png`. It's named "Heat: none / medium / high" for screen readers.
+- Hover or keyboard focus: the card lifts slightly and an inset frame appears. On touch screens, a quieter frame shows at rest and the card presses down on tap. Reduced motion keeps the frame and drops the lift.
+
 ## Section 2 media slot
 
 `.media-slot` holds `making-of-placeholder.jpg` today. To use a video, GIF or small photo carousel instead, swap the `<img class="media-slot__media">` (the HTML comment there shows how) and delete the caption chip.
@@ -83,7 +93,8 @@ To add a string:
 | `render-sweet.png`, `render-smoky.png`, `render-spicy.png`, `render-lineup.png`, `render-chili-oil.png` | Included | Resized for speed |
 | `chile-scatter.png` | Included | Brand book chile scatter tile, 600 × 600, shown at 300px |
 | `tall-p-white.png` | Included | Brand book Treatment A, white stem and leaves (Leaf Green version) |
-| `basket.svg` | Included, new | Drawn for this pass: Mole Ink outline, Cream Card body, orange weave and rim, open top. Reusable as the cart icon |
+| `bloom-yellow.png`, `bloom-orange.png`, `bloom-red.png`, `bloom-outline.png` | Included | Brand book heat blooms (Icons board), rasterized at 128px |
+| `basket.svg` | Included | Drawn for this pass: Mole Ink outline, Cream Card body, orange weave and rim, open top. Reusable as the cart icon |
 | `making-of-placeholder.jpg` | **Still needed** | Owner drops in a stand-in photo (4:5). Shows a dashed placeholder until then |
 | `cookbook/page-1.png` … `page-6.png` | **Still needed** | Slides show branded placeholders until then |
 
@@ -122,5 +133,5 @@ Before launch, replace `[BUSINESS NAME + MAILING ADDRESS]` in the email footer (
 - Dialogs: native `<dialog>`, focus trapped, Escape and backdrop click close them, focus returns to the button that opened them.
 - Carousel: labelled region, "Slide N of 6" announced politely, 48px arrows, real dot buttons, left/right arrow keys, swipe.
 - Quiz: radios and a range input, results announced through a polite live region.
-- Footer: cream on Leaf Green is 3.55:1. That fails the 4.5:1 target for normal text but passes the 3:1 bar for large text, so all footer text is set at 19px bold. A strict 4.5:1 would need a darker green.
+- Lineup section and footer: cream on Leaf Green is 3.55:1. That fails the 4.5:1 target for normal text but passes the 3:1 bar for large text, so all footer text is set at 19px bold and the lineup heading is large. A strict 4.5:1 would need a darker green.
 - `prefers-reduced-motion`: no confetti, ristra swing, drumroll, basket animation or transitions. The quiz shows its final state at once.

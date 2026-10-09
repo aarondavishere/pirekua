@@ -424,7 +424,192 @@ img { display: block; max-width: 100%; height: auto; }
   .taste__media { order: 2; }
 }
 
-/* ============ 3. WHAT DO I USE IT FOR? ============ */
+/* ============ 3. MEET THE LINEUP ============ */
+.products { background: var(--green); }
+.products__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(64px, 9vw, 120px) var(--gutter);
+}
+/* Large type, so cream on Leaf Green clears the large-text contrast bar */
+.products__title { color: var(--cream); margin-bottom: clamp(28px, 4vw, 48px); }
+
+.products__grid {
+  --win-h: clamp(220px, 19vw, 260px);   /* product window height */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  /* Each card spans two rows (window, text) through subgrid, so names line up
+     across a row; the 1fr text rows make every card the same height in every layout. */
+  grid-auto-rows: minmax(var(--win-h), auto) 1fr;
+  gap: clamp(16px, 2vw, 22px);
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 18px 0;                      /* room for the hover lift */
+}
+@media (min-width: 640px) {
+  .products__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 820px; }
+}
+@media (min-width: 1024px) {
+  .products__grid { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 0.66fr); max-width: none; }
+}
+
+.pcard {
+  --frame: var(--ink);                  /* inset border color */
+  position: relative;
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+  min-width: 0;
+  padding: 14px;
+  border-radius: 24px;
+  background: var(--yellow);
+  color: var(--ink);
+  transition: transform 200ms ease;
+}
+.pcard--sweet { background: var(--yellow); }
+.pcard--smoky { background: var(--orange); }
+.pcard--spicy { background: var(--red); color: var(--cream); --frame: var(--cream); }
+.pcard--oil   { background: var(--ink);  color: var(--cream); --frame: var(--cream); }
+/* Chili Oil: same height, narrower, centered when it shares a row track */
+.pcard--oil { justify-self: center; width: 68%; }
+@media (min-width: 640px) { .pcard--oil { width: 66%; } }
+@media (min-width: 1024px) { .pcard--oil { width: 100%; } }
+
+/* Inset "pressed-in" frame */
+.pcard::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  z-index: 2;
+  border: 3px solid var(--frame);
+  border-radius: 18px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+/* Product window: a cream plate so the studio render sits cleanly on any card color */
+.pcard__window {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: var(--win-h);
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--card);
+}
+.pcard__crop {
+  position: relative;
+  height: 94%;
+  aspect-ratio: 518 / 702;              /* same crop as the hero jars */
+  overflow: hidden;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 10%, #000 90%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 7%, #000 94%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 10%, #000 90%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 7%, #000 94%, transparent 100%);
+  mask-composite: intersect;
+}
+.pcard__crop img { position: absolute; left: -20.8%; top: -16.7%; width: 138.9%; max-width: none; height: auto; }
+.pcard--oil .pcard__crop { aspect-ratio: 345.6 / 738; }   /* same crop as section 1's bottle */
+.pcard--oil .pcard__crop img { left: -62.5%; top: -10.98%; width: 208.3%; }
+.pcard__crop .asset-ph { position: absolute; inset: 0; width: auto !important; aspect-ratio: auto !important; }
+
+/* Heat meter: blooms in a cream chip, tucked into the card's bottom corner */
+.heat {
+  position: absolute;
+  z-index: 1;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  gap: 2px;
+  padding: 4px 6px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+}
+.heat img { width: 26px; height: 26px; }
+.heat .asset-ph { min-width: 22px; min-height: 22px; width: 22px !important; padding: 0; font-size: 0; border-width: 1px; }
+
+.pcard__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 6px 6px;
+}
+.pcard:not(.pcard--oil) .pcard__body { padding-bottom: 50px; }   /* room for the heat meter */
+.pcard--oil { padding: 14px 12px; }
+.pcard--oil .pcard__body { padding: 16px 2px 4px; }
+.pcard__name {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 1.2rem + 0.8vw, 1.875rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.pcard__tag {
+  margin: 2px 0 0;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+.pcard__desc {
+  margin: 0;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* The whole card is one real button */
+.pcard__btn {
+  grid-area: 2 / 1;                     /* zero-size, sits in the text cell; ::after covers the card */
+  align-self: start;
+  width: 0;
+  height: 0;
+  position: static;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.pcard__btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 24px;
+}
+.pcard__btn:focus-visible { outline: none; }
+.pcard:has(.pcard__btn:focus-visible) { outline: 3px solid var(--cream); outline-offset: 5px; }
+
+/* Hover and keyboard focus: lift and show the frame */
+@media (hover: hover) {
+  .pcard:hover { transform: scale(1.05); z-index: 4; }
+  .pcard:hover::before { opacity: 1; }
+}
+.pcard:has(.pcard__btn:focus-visible) { transform: scale(1.05); z-index: 4; }
+.pcard:has(.pcard__btn:focus-visible)::before { opacity: 1; }
+
+/* Touch: a quieter frame at rest, full frame and a small press on tap */
+@media (hover: none) {
+  .pcard::before { opacity: 0.45; border-width: 2px; }
+  .pcard:has(.pcard__btn:active) { transform: scale(0.97); }
+  .pcard:has(.pcard__btn:active)::before { opacity: 1; border-width: 3px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pcard, .pcard::before { transition: none; }
+  .pcard:hover,
+  .pcard:has(.pcard__btn:focus-visible),
+  .pcard:has(.pcard__btn:active) { transform: none; }
+}
+
+/* ============ 4. WHAT DO I USE IT FOR? ============ */
 .uses__inner {
   display: grid;
   gap: clamp(36px, 5vw, 64px);
@@ -541,7 +726,7 @@ img { display: block; max-width: 100%; height: auto; }
 .carousel__dot[aria-current="true"]::before { width: 26px; background: var(--orange); }
 .carousel__dot:focus-visible { outline-offset: -2px; border-radius: 10px; }
 
-/* ============ 4. HOW MUCH SHOULD I GET? (QUIZ) ============ */
+/* ============ 5. HOW MUCH SHOULD I GET? (QUIZ) ============ */
 .quiz {
   background: var(--orange);
   padding: clamp(64px, 9vw, 120px) var(--gutter);
@@ -822,7 +1007,7 @@ img { display: block; max-width: 100%; height: auto; }
 .minijar img { position: absolute; left: -20.8%; top: -16.7%; width: 138.9%; max-width: none; height: auto; }
 .minijar.is-tumbler { z-index: 4; }
 
-/* ============ 5. WHAT IS SPECIAL ABOUT PIREKUA? ============ */
+/* ============ 6. WHAT IS SPECIAL ABOUT PIREKUA? ============ */
 .story { padding: clamp(64px, 9vw, 120px) var(--gutter) clamp(80px, 11vw, 140px); }
 .story__panel {
   position: relative;

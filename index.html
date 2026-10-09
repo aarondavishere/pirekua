@@ -129,7 +129,68 @@
     </div>
   </section>
 
-  <!-- ============ 3. WHAT DO I USE IT FOR? ============ -->
+  <!-- ============ 3. MEET THE LINEUP ============ -->
+  <!-- Each card opens the signup modal for now. Later the card button becomes "Shop" and links to that product. -->
+  <section class="products" aria-labelledby="products-title">
+    <div class="products__inner">
+      <h2 class="section-title products__title" id="products-title" data-i18n="products.title">Meet the lineup</h2>
+      <div class="products__grid">
+      <article class="pcard pcard--sweet">
+        <div class="pcard__window">
+          <div class="pcard__crop"><img src="assets/render-sweet.png" width="720" height="900" loading="lazy"
+               alt="A jar of pirekua Sweet Mexican chili crisp" data-i18n-attr="alt:products.sweet.alt"></div>
+        </div>
+        <div class="pcard__body">
+          <h3 class="pcard__name">Sweet</h3>
+          <p class="pcard__tag" data-i18n="products.sweet.tag">Toasty chiles with a warm, honeyed finish.</p>
+          <p class="pcard__desc" data-i18n="products.sweet.desc">The one that surprises people. Mellow heat, a little sweetness, and that nutty crunch underneath. Hard to stop at one spoonful.</p>
+        </div>
+        <div class="heat" role="img" aria-label="Heat: none" data-i18n-attr="aria-label:products.heat.none"><img src="assets/bloom-yellow.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-outline.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-outline.png" alt="" width="128" height="128" loading="lazy"></div>
+        <button type="button" class="pcard__btn" data-signup data-source="sweet" data-card-name="Sweet" aria-label="Sweet: be in the know"></button>
+      </article>
+      <article class="pcard pcard--smoky">
+        <div class="pcard__window">
+          <div class="pcard__crop"><img src="assets/render-smoky.png" width="720" height="900" loading="lazy"
+               alt="A jar of pirekua Smoky Mexican chili crisp" data-i18n-attr="alt:products.smoky.alt"></div>
+        </div>
+        <div class="pcard__body">
+          <h3 class="pcard__name">Smoky</h3>
+          <p class="pcard__tag" data-i18n="products.smoky.tag">Deep, roasty, a little moody.</p>
+          <p class="pcard__desc" data-i18n="products.smoky.desc">The chiles do the talking here: low heat, big smoke, like something pulled straight off the comal. Made for eggs, beans, and anything grilled.</p>
+        </div>
+        <div class="heat" role="img" aria-label="Heat: medium" data-i18n-attr="aria-label:products.heat.medium"><img src="assets/bloom-orange.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-orange.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-outline.png" alt="" width="128" height="128" loading="lazy"></div>
+        <button type="button" class="pcard__btn" data-signup data-source="smoky" data-card-name="Smoky" aria-label="Smoky: be in the know"></button>
+      </article>
+      <article class="pcard pcard--spicy">
+        <div class="pcard__window">
+          <div class="pcard__crop"><img src="assets/render-spicy.png" width="720" height="900" loading="lazy"
+               alt="A jar of pirekua Spicy Mexican chili crisp" data-i18n-attr="alt:products.spicy.alt"></div>
+        </div>
+        <div class="pcard__body">
+          <h3 class="pcard__name">Spicy</h3>
+          <p class="pcard__tag" data-i18n="products.spicy.tag">The bold one.</p>
+          <p class="pcard__desc" data-i18n="products.spicy.desc">Real heat, but still toasty and nutty underneath, so it's flavor first and fire second. For the people who reach for the hot sauce before they've even tasted the food.</p>
+        </div>
+        <div class="heat" role="img" aria-label="Heat: high" data-i18n-attr="aria-label:products.heat.high"><img src="assets/bloom-red.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-red.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-red.png" alt="" width="128" height="128" loading="lazy"></div>
+        <button type="button" class="pcard__btn" data-signup data-source="spicy" data-card-name="Spicy" aria-label="Spicy: be in the know"></button>
+      </article>
+      <article class="pcard pcard--oil">
+        <div class="pcard__window">
+          <div class="pcard__crop"><img src="assets/render-chili-oil.png" width="720" height="900" loading="lazy"
+               alt="A squeeze bottle of pirekua Mexican Chili Oil" data-i18n-attr="alt:products.oil.alt"></div>
+        </div>
+        <div class="pcard__body">
+          <h3 class="pcard__name">Chili Oil</h3>
+          <p class="pcard__tag" data-i18n="products.oil.tag">All the flavor of the crisp, none of the crunch.</p>
+          <p class="pcard__desc" data-i18n="products.oil.desc">Just a rich, chile-infused oil you drizzle at the end. A little goes everywhere: eggs, pizza, soup, a plate of avocado. Your hot honey, but make it Mexican.</p>
+        </div>
+        <button type="button" class="pcard__btn" data-signup data-source="chili-oil" data-card-name="Chili Oil" aria-label="Chili Oil: be in the know"></button>
+      </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. WHAT DO I USE IT FOR? ============ -->
   <section class="uses" aria-labelledby="uses-title">
     <div class="uses__inner">
       <div class="uses__text">
@@ -160,7 +221,7 @@
     </div>
   </section>
 
-  <!-- ============ 4. HOW MUCH SHOULD I GET? (QUIZ) ============ -->
+  <!-- ============ 5. HOW MUCH SHOULD I GET? (QUIZ) ============ -->
   <section class="quiz" aria-labelledby="quiz-title">
     <div class="quiz__inner">
       <h2 class="quiz__title" id="quiz-title" data-i18n="s4.title">How much should I get?</h2>
@@ -245,7 +306,7 @@
     </div>
   </section>
 
-  <!-- ============ 5. WHAT IS SPECIAL ABOUT PIREKUA? ============ -->
+  <!-- ============ 6. WHAT IS SPECIAL ABOUT PIREKUA? ============ -->
   <section class="story" aria-labelledby="story-title">
     <div class="story__panel">
       <img class="story__leaf story__leaf--1" src="assets/leaf-2.png" alt="" width="200" height="202" loading="lazy" aria-hidden="true">
