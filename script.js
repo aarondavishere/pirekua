@@ -42,6 +42,16 @@ const JAR_ART = {
 const OIL_ART = ['assets/jars/oil-1.png', 'assets/jars/oil-2.png', 'assets/jars/oil-3.png', 'assets/jars/oil-4.png', 'assets/jars/oil-5.png'];
 const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
 
+// Language toggle on touch screens (pointer: coarse): a switch you can swipe.
+const TOGGLE_TAP_SLOP_PX = 6;       // movement under this is a tap on a label
+const TOGGLE_FLICK_PX = 12;         // travel past this switches toward the swipe, even short of the middle
+const TOGGLE_FLICK_VELOCITY = 0.4;  // px/ms; a faster flick also switches
+const TOGGLE_HAPTIC_MS = 8;         // tiny vibration on switch, where supported
+const TOGGLE_HINT_DELAY_MS = 1200;  // first visit only: wait this long after load, then...
+const TOGGLE_HINT_PX = 8;           // ...nudge the thumb this far toward the other side and back
+const TOGGLE_HINT_MS = 300;         // ...over this long
+const TOGGLE_HINT_KEY = 'pirekua-toggle-hint';   // localStorage: the hint has been shown
+
 // Language stored on this device.
 const LANG_STORAGE_KEY = 'pirekua-lang';
 
@@ -1026,7 +1036,7 @@ const I18N = {
     // scrolling down, bring it back on the way up, and tuck it again after a short
     // pause so it never sits over content. At the top of the page it always shows.
     let lastY = window.scrollY, idleTimer = 0;
-    const setTucked = (on) => toggle.classList.toggle('is-tucked', on && !toggle.contains(document.activeElement));
+    const setTucked = (on) => toggle.classList.toggle('is-tucked', on && !toggle.contains(document.activeElement) && !toggle.classList.contains('is-dragging'));
     window.addEventListener('scroll', () => {
       const y = window.scrollY;
       setTucked(y > 140 && y > lastY);
@@ -1035,6 +1045,127 @@ const I18N = {
       if (y > 140) idleTimer = setTimeout(() => setTucked(true), 2500);
     }, { passive: true });
     toggle.addEventListener('focusin', () => toggle.classList.remove('is-tucked'));
+
+    // Keyboard bonus: Left selects EN, Right selects ES (focus follows the choice).
+    toggle.addEventListener('keydown', (e) => {
+      const next = e.key === 'ArrowRight' ? 'es' : e.key === 'ArrowLeft' ? 'en' : null;
+      if (!next) return;
+      e.preventDefault();
+      if (next !== lang) { applyLang(next); storeLang(lang); }
+      const btn = toggle.querySelector('[data-lang="' + next + '"]');
+      if (btn) btn.focus();
+    });
+
+    initSwipeToggle(toggle);
+  }
+
+  /* Touch screens: swipe the toggle like a switch. Taps on a label still work
+     (the buttons keep their own click handler), and mouse/keyboard are untouched. */
+  function initSwipeToggle(toggle) {
+    const coarse = window.matchMedia('(pointer: coarse)');
+    const thumb = toggle.querySelector('.lang-toggle__thumb');
+    const btns = { en: toggle.querySelector('[data-lang="en"]'), es: toggle.querySelector('[data-lang="es"]') };
+    if (!thumb || !btns.en || !btns.es) return;
+    const pos = { en: 0, es: 0 };
+
+    // Measure the labels and park the thumb behind the active one.
+    function measure() {
+      if (!coarse.matches) { toggle.classList.remove('has-thumb', 'is-ready'); return; }
+      pos.en = btns.en.offsetLeft; pos.es = btns.es.offsetLeft;
+      toggle.style.setProperty('--thumb-w', Math.max(btns.en.offsetWidth, btns.es.offsetWidth) + 'px');
+      toggle.style.setProperty('--thumb-h', btns.en.offsetHeight + 'px');
+      toggle.style.setProperty('--thumb-y', btns.en.offsetTop + 'px');
+      toggle.style.setProperty('--thumb-x', pos[lang] + 'px');
+      toggle.classList.add('has-thumb');
+      // enable the slide only after the first placement, so the page doesn't load with a slide
+      requestAnimationFrame(() => requestAnimationFrame(() => toggle.classList.add('is-ready')));
+    }
+    measure();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    window.addEventListener('resize', measure);
+    if (coarse.addEventListener) coarse.addEventListener('change', measure);
+    langListeners.push((l) => toggle.style.setProperty('--thumb-x', pos[l] + 'px'));
+
+    let drag = null;        // { id, startX, startPos, x, samples, moved }
+    let swallowClick = false;
+    const clampX = (x) => Math.min(Math.max(x, Math.min(pos.en, pos.es)), Math.max(pos.en, pos.es));
+
+    toggle.addEventListener('pointerdown', (e) => {
+      swallowClick = false;                 // a new touch: its own click must go through
+      if (!coarse.matches || e.pointerType === 'mouse' || drag) return;
+      if (toggle.classList.contains('is-tucked')) return;   // never start a swipe while tucked away
+      drag = { id: e.pointerId, startX: e.clientX, startPos: pos[lang], x: pos[lang], samples: [[e.timeStamp, e.clientX]], moved: false };
+    });
+
+    toggle.addEventListener('pointermove', (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.startX;
+      if (!drag.moved) {
+        if (Math.abs(dx) < TOGGLE_TAP_SLOP_PX) return;
+        drag.moved = true;
+        try { toggle.setPointerCapture(e.pointerId); } catch (err) { /* already released */ }
+        toggle.classList.add('is-dragging');
+      }
+      drag.x = clampX(drag.startPos + dx);
+      thumb.style.transform = 'translateX(' + drag.x + 'px)';
+      drag.samples.push([e.timeStamp, e.clientX]);
+      if (drag.samples.length > 6) drag.samples.shift();
+    });
+
+    function finish(e, cancelled) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag; drag = null;
+      if (!d.moved) return;                 // a tap: the label's own click handles it
+      swallowClick = true; setTimeout(() => { swallowClick = false; }, 400);
+      let target = lang;
+      if (!cancelled) {
+        const mid = (pos.en + pos.es) / 2;
+        target = d.x >= mid ? 'es' : 'en';  // nearer side...
+        // ...unless it was a flick or a clear push: then the swipe's direction wins
+        const first = d.samples[0], last = d.samples[d.samples.length - 1];
+        const recent = d.samples.find((s) => last[0] - s[0] <= 100) || first;
+        const dt = last[0] - recent[0];
+        const v = dt > 0 ? (last[1] - recent[1]) / dt : 0;
+        const travel = last[1] - d.startX;
+        if (Math.abs(v) > TOGGLE_FLICK_VELOCITY) target = v > 0 ? 'es' : 'en';
+        else if (Math.abs(travel) > TOGGLE_FLICK_PX) target = travel > 0 ? 'es' : 'en';
+      }
+      // drop the drag position; the thumb slides (or jumps, reduced motion) to the chosen side
+      thumb.style.transform = '';
+      toggle.classList.remove('is-dragging');
+      if (target !== lang) {
+        applyLang(target);
+        storeLang(lang);
+        if (navigator.vibrate && !reduceMotion()) { try { navigator.vibrate(TOGGLE_HAPTIC_MS); } catch (err) { /* ignore */ } }
+      }
+      // already on that side: it springs back (the slide above handles it)
+    }
+    toggle.addEventListener('pointerup', (e) => {
+      if (drag && e.pointerId === drag.id && drag.moved) drag.samples.push([e.timeStamp, e.clientX]);
+      finish(e, false);
+    });
+    toggle.addEventListener('pointercancel', (e) => finish(e, true));
+    // capture lost without a pointerup (rare). Only the toggle's own capture counts: taking
+    // capture fires a bubbling lostpointercapture from the button that had it implicitly.
+    toggle.addEventListener('lostpointercapture', (e) => { if (e.target === toggle && drag && drag.moved) finish(e, false); });
+    // after a swipe, ignore the click some browsers fire on release
+    toggle.addEventListener('click', (e) => { if (swallowClick) { e.stopPropagation(); e.preventDefault(); swallowClick = false; } }, true);
+
+    // First visit on a touch screen: one small nudge of the thumb toward the other side and back.
+    function hint() {
+      if (!coarse.matches || reduceMotion() || !toggle.classList.contains('has-thumb') || drag) return;
+      try { if (window.localStorage.getItem(TOGGLE_HINT_KEY)) return; window.localStorage.setItem(TOGGLE_HINT_KEY, '1'); }
+      catch (err) { return; }   // can't remember it: skip rather than nudge on every visit
+      if (!thumb.animate) return;
+      const x = pos[lang], dir = lang === 'en' ? 1 : -1;
+      thumb.animate([
+        { transform: 'translateX(' + x + 'px)' },
+        { transform: 'translateX(' + (x + dir * TOGGLE_HINT_PX) + 'px)' },
+        { transform: 'translateX(' + x + 'px)' },
+      ], { duration: TOGGLE_HINT_MS, easing: 'ease-in-out' });
+    }
+    const startHint = () => setTimeout(hint, TOGGLE_HINT_DELAY_MS);
+    if (document.readyState === 'complete') startHint(); else window.addEventListener('load', startHint);
   }
 
   const stored = readStoredLang();

@@ -44,6 +44,12 @@ Not built yet: shop page, cart, payments, real cookbook pages, real making-of fo
 | `BASKET_DROP_STAGGER_MS` | `70` | Gap between jars landing inside |
 | `BASKET_SEED` | `7` | Seed for the heap's small random offsets. Same seed, same heap every run |
 | `COOKBOOK_PAGES` | 6 entries | One entry per cookbook slide (see below) |
+| `TOGGLE_TAP_SLOP_PX` | `6` | Touch toggle: movement under this is a tap on a label |
+| `TOGGLE_FLICK_PX` | `12` | Touch toggle: travel past this switches toward the swipe, even short of the middle |
+| `TOGGLE_FLICK_VELOCITY` | `0.4` | Touch toggle: a flick faster than this (px/ms) also switches |
+| `TOGGLE_HAPTIC_MS` | `8` | Touch toggle: vibration on switch, where supported (skipped with reduced motion) |
+| `TOGGLE_HINT_DELAY_MS`, `TOGGLE_HINT_PX`, `TOGGLE_HINT_MS` | `1200`, `8`, `300` | First-visit hint: wait, then nudge the thumb this far toward the other side and back, over this long |
+| `TOGGLE_HINT_KEY` | `pirekua-toggle-hint` | `localStorage` key that remembers the hint was shown |
 | `JAR_ART` | 7 per flavor | Jar cutout manifest (see "Jar art" below). The quiz basket picks its angles from here |
 | `OIL_ART` | 5 entries | Chili Oil cutouts, same idea |
 
@@ -63,6 +69,7 @@ Ristra physics (`STIFFNESS`, `DAMPING`, `GAIN`, `MAX_ANGLE`) are in the ristra b
 | `--jw`, `--r`, `--y` | `.jar--1` … `.jar--12` | Hero jar width, rotation and vertical position (% of the hero) |
 | `--side`, `--f` (1024px and up) | `.jar--N` | Which side of the lockup (`-1` left, `1` right) and how far out into that side band (0 = lockup edge, 1 = page edge) |
 | `--left` (below 1024px) | `.jar--N` | Horizontal position as % of the hero. Jars 10–12 are hidden below 1024px |
+| Phone jar set (below 640px) | `@media (max-width: 639.98px)` block | Phones show 6 jars: 3 above (1 sweet, 2 smoky, 3 spicy) and 3 below (5 sweet, 6 spicy, 9 smoky). Jars 4, 7 and 8 are hidden there only. Edit that block's `--left/--y/--jw/--r` to move them; tablets (9 jars) and desktop (12) don't read it |
 | `--jscale` | `.hero` | Shrinks every jar at once (`0.78` from 1024 to 1279px) |
 | `--left`/`--side`/`--f`, `--y`, `--r`, `--align`, `--aside-w` | `.hero__aside--tl`, `--br` | The two tilted asides: position, tilt, text alignment and max width (they wrap past it) |
 | `--rs-s`, `--rs-l`, `--rs-m`, `--rs-xl`, `--rs-s2` | `.ristra` | The five chile sizes, left to right |
@@ -81,6 +88,9 @@ Buttons:
 
 - EN | ES switches the whole page instantly, updates `<html lang>`, and remembers the choice on the device (`localStorage` key `pirekua-lang`). Default is English.
 - On phones the toggle tucks away while you scroll down or pause, and comes back when you scroll up.
+- **Touch screens (`pointer: coarse`, any width):** the toggle is a switch. An orange thumb sits behind the active label and slides (200ms) when the language changes. Swipe right for ES, left for EN; a flick or a push past 12px switches even short of the middle; a short drag springs back. Taps on a label still work. The grab area is 12px bigger than the pill (invisible). It never starts a swipe while tucked, and never tucks mid-swipe. `touch-action: none` is on the toggle only, so the page scrolls as usual. On first visit the thumb gives one small nudge toward the other side (not with reduced motion).
+- Touch toggle CSS variables (on `.lang-toggle.has-thumb`): `--toggle-slide` (`200ms`, the thumb slide) and `--toggle-hit` (`12px`, the invisible grab area). JS adds `.has-thumb` after measuring the labels, so without JS it stays a plain tap toggle.
+- Mouse and keyboard are unchanged: two real buttons with `aria-pressed`. Bonus: with a label focused, Left selects EN and Right selects ES.
 - Never translated: the tagline "Made with amor y risas.", the name pirekua, and the lockup art.
 - All strings live in the `I18N` object in `script.js`, with `en` and `es` for every key. The Spanish is a draft for native-speaker review.
 
@@ -108,9 +118,15 @@ To add a string:
 - **Fallback chain:** `data-fallback="a|b"` tries each file in order. Jars go small cutout → full cutout → `render-{flavor}.png` with its old crop (`is-fallback`), then a dashed placeholder.
 - To replace the cutouts with your own exports, overwrite the files with the same names (and re-make the `small/` copies).
 
+## Pass 6 edits in one line each (phones only, except the touch toggle)
+
+- **Bloom stacking fix:** on iOS Safari the sunrise bloom painted in front of the wordmark. Root cause: WebKit ignores `aspect-ratio` on the absolutely positioned bloom window, so the window grew to the whole flower. The window now has an explicit height (`--lockup-w × 0.494785`, same 727 × 380 geometry as before) plus `clip-path`, `.lockup` is its own stacking context (`isolation: isolate`) with the bloom at z 0 and the wordmark, tagline, subhead and button at z 1, and on phones the wordmark is on its own layer. 640px and up renders pixel for pixel as before.
+- **Phone jars:** 9 down to 6 (3 above, 3 below, 2 of each flavor), re-spaced; the bottom aside sits a little lower on phones for air under the button.
+- **Language toggle:** a swipeable switch on touch screens (see "Language toggle and translations").
+
 ## Pass 5 edits in one line each
 
-- **Jars:** shadow-free cutouts everywhere. 12 jars in the hero (9 on phones and tablets) at mixed sizes and angles, plus two tilted asides. Mixed angles in the basket, front views on the lineup cards and in section 1.
+- **Jars:** shadow-free cutouts everywhere. 12 jars in the hero (9 on tablets; 6 on phones since pass 6) at mixed sizes and angles, plus two tilted asides. Mixed angles in the basket, front views on the lineup cards and in section 1.
 - **Ristra:** back to the pass 3 ristra: five chiles, chiles 2 and 5 mirrored, same swing.
 - **Hero:** fills the first screen; lockup, tagline and subhead are larger, and the ristra sits just below the fold.
 
@@ -193,4 +209,5 @@ Before launch, replace `[BUSINESS NAME + MAILING ADDRESS]` in the email footer (
 - Quiz: radios and a range input, results announced through a polite live region.
 - Lineup section and footer: cream on Leaf Green is 3.55:1. That fails the 4.5:1 target for normal text but passes the 3:1 bar for large text, so all footer text is set at 19px bold and the lineup heading is large. A strict 4.5:1 would need a darker green.
 - Hero jars and asides: jars are decorative (`aria-hidden`, `alt=""`, no pointer events); the asides are real text and translate.
-- `prefers-reduced-motion`: no bloom spin, confetti, ristra swing, drumroll, basket animation or transitions. The quiz shows its final state at once.
+- Language toggle: on touch screens it can be swiped, but the two real buttons, `aria-pressed`, focus rings, Tab/Enter/Space and taps all work as before; arrow keys also switch.
+- `prefers-reduced-motion`: no bloom spin, confetti, ristra swing, drumroll, basket animation or transitions. The toggle thumb jumps instead of sliding, with no first-visit nudge and no haptic tick. The quiz shows its final state at once.

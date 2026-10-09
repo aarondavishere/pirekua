@@ -112,9 +112,17 @@ img { display: block; max-width: 100%; height: auto; }
   margin: 0 auto;
 }
 
-/* Lockup + sunrise bloom (geometry matches brand book board 01) */
+/* Lockup + sunrise bloom (geometry matches brand book board 01).
+   Stacking: .lockup is its own stacking context (isolation), the bloom is the
+   bottom layer (z 0) and the wordmark sits on top (z 1). The bloom's window has
+   an explicit height and clips with clip-path as well as overflow, and is its own
+   compositing layer; on phones the wordmark gets its own layer too (phone block
+   below). So WebKit/iOS never paints the spinning flower unclipped or in front of
+   the letters. The tagline, subhead and button sit above (z 1). */
 .lockup {
   position: relative;
+  z-index: 0;
+  isolation: isolate;
   width: var(--lockup-w);
   margin-top: calc(var(--lockup-w) * 0.138);   /* room for the bloom rising above the wordmark */
 }
@@ -131,8 +139,15 @@ img { display: block; max-width: 100%; height: auto; }
   top: 0;
   width: 94.66%;
   margin-top: -13.8%;          /* % of width: the bloom rises above the wordmark */
-  aspect-ratio: 727 / 380;     /* only the top of the flower shows: a sunrise */
+  /* Window = 727 × 380 of the flower: only the top shows, a sunrise.
+     Explicit height (94.66% × 380/727 of the lockup width) rather than
+     aspect-ratio alone: WebKit/iOS ignores aspect-ratio on this absolutely
+     positioned box and grew the window to the whole flower. */
+  height: calc(var(--lockup-w) * 0.494785);
+  aspect-ratio: 727 / 380;
   overflow: hidden;
+  clip-path: inset(0);         /* same window again; WebKit honours it on composited children */
+  transform: translateZ(0);    /* the window is a layer too, so it clips the spinning layer inside it */
 }
 .lockup__bloom img {
   width: 100%;
@@ -175,6 +190,7 @@ img { display: block; max-width: 100%; height: auto; }
   max-width: none;
 }
 
+.tagline, .hero__sub, .hero .btn { position: relative; z-index: 1; }
 .hero__sub {
   margin: var(--hero-gap-sub) 0 0;
   font-size: clamp(1rem, min(0.8rem + 0.6vw, 2.6vh), 1.375rem);
@@ -232,7 +248,8 @@ img { display: block; max-width: 100%; height: auto; }
   transform: translate(-50%, -50%) rotate(var(--r));
 }
 
-/* Phones and tablets: 9 jars, above and below the centered content */
+/* Phones and tablets share these angles; tablets set their own sizes and
+   positions below, and phones (under 640px) get their own six-jar set after that */
 .jar--10, .jar--11, .jar--12 { display: none; }
 .jar--1 { --jw: 44px; --r: -18deg;  --left: 22%; --y: 17%; }
 .jar--2 { --jw: 36px; --r: 32deg;   --left: 57%; --y: 8%; }
@@ -246,6 +263,20 @@ img { display: block; max-width: 100%; height: auto; }
 .hero__aside { font-size: 0.875rem; --aside-w: 9.5rem; }
 .hero__aside--tl { --r: -4deg; --left: 23%; --y: 6.5%; --align: left; }
 .hero__aside--br { --r: 3deg;  --left: 76%; --y: 85%; --align: right; }
+
+/* Phones only: 6 jars, 3 above and 3 below, 2 of each flavor.
+   Above: 1 sweet, 2 smoky, 3 spicy. Below: 5 sweet, 6 spicy, 9 smoky. */
+@media (max-width: 639.98px) {
+  .lockup__img { transform: translateZ(0); }   /* wordmark on its own layer, above the spinning bloom */
+  .jar--4, .jar--7, .jar--8 { display: none; }
+  .jar--1 { --jw: 46px; --r: -18deg; --left: 19%; --y: 20%; }
+  .jar--2 { --jw: 34px; --r: 34deg;  --left: 57%; --y: 11%; }
+  .jar--3 { --jw: 50px; --r: -9deg;  --left: 80%; --y: 19%; }
+  .jar--5 { --jw: 50px; --r: -26deg; --left: 15%; --y: 88%; }
+  .jar--6 { --jw: 38px; --r: 62deg;  --left: 41%; --y: 94%; }
+  .jar--9 { --jw: 32px; --r: -98deg; --left: 66%; --y: 96%; }
+  .hero__aside--br { --y: 87%; }   /* a little more air under the button */
+}
 
 @media (min-width: 640px) {
   .jar--1 { --jw: 64px; --left: 20%; --y: 15%; }
@@ -1237,6 +1268,45 @@ img { display: block; max-width: 100%; height: auto; }
 .lang-toggle__btn[aria-pressed="true"] { background: var(--orange); }
 .lang-toggle__btn:focus-visible { outline-offset: 1px; border-radius: 999px; }
 .lang-toggle__sep { padding: 0 1px; font-weight: 500; font-size: 0.875rem; }
+
+/* Touch screens: the toggle becomes a swipeable switch. An orange thumb slides
+   behind the active label; the pill looks exactly as before. JS adds .has-thumb
+   once it has measured the labels, so without JS the tap toggle above stays. */
+.lang-toggle__thumb { display: none; }
+@media (pointer: coarse) {
+  .lang-toggle.has-thumb {
+    --toggle-slide: 200ms;   /* thumb slide when the language changes */
+    --toggle-hit: 12px;      /* invisible extra grab area around the pill */
+    touch-action: none;      /* the toggle only; the page scrolls as usual */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lang-toggle.has-thumb::before {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--toggle-hit));
+    border-radius: 999px;
+  }
+  .lang-toggle.has-thumb .lang-toggle__thumb {
+    display: block;
+    position: absolute;
+    z-index: 0;
+    left: 0;
+    top: var(--thumb-y, 3px);
+    width: var(--thumb-w, 44px);
+    height: var(--thumb-h, 44px);
+    border-radius: 999px;
+    background: var(--orange);
+    transform: translateX(var(--thumb-x, 3px));
+    pointer-events: none;
+  }
+  .lang-toggle.has-thumb.is-ready .lang-toggle__thumb { transition: transform var(--toggle-slide) ease; }
+  .lang-toggle.has-thumb.is-dragging .lang-toggle__thumb { transition: none; }
+  .lang-toggle.has-thumb .lang-toggle__btn,
+  .lang-toggle.has-thumb .lang-toggle__sep { position: relative; z-index: 1; }
+  .lang-toggle.has-thumb .lang-toggle__btn[aria-pressed="true"] { background: transparent; }
+}
 @media (max-width: 639px) {
   .lang-toggle.is-tucked { transform: translateY(calc(-100% - 20px)); }
 }
@@ -1397,4 +1467,5 @@ img { display: block; max-width: 100%; height: auto; }
   }
   .btn--primary:hover, .btn--primary:active { transform: none; }
   .lockup__bloom img { animation: none !important; }
+  .lang-toggle__thumb { transition: none !important; }   /* the thumb jumps, no slide */
 }
