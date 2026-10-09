@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>pirekua · Mexican chili crisp</title>
-  <meta name="description" content="pirekua Mexican chili crisp. Made with amor y risas. Sign up to be in the know.">
+  <title data-i18n="meta.title">pirekua · Mexican chili crisp</title>
+  <meta name="description" content="pirekua Mexican chili crisp. Made with amor y risas. Sign up to be in the know." data-i18n-attr="content:meta.description">
   <meta name="theme-color" content="#FFF8EC">
   <link rel="icon" type="image/png" href="assets/icon-mark.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,9 +15,16 @@
 </head>
 <body>
 
+<!-- ============ LANGUAGE TOGGLE ============ -->
+<div class="lang-toggle" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.group">
+  <button type="button" class="lang-toggle__btn" data-lang="en" lang="en" aria-label="English" aria-pressed="true">EN</button>
+  <span class="lang-toggle__sep" aria-hidden="true">|</span>
+  <button type="button" class="lang-toggle__btn" data-lang="es" lang="es" aria-label="Español" aria-pressed="false">ES</button>
+</div>
+
 <main id="main">
 
-  <!-- ============ 1. HERO ============ -->
+  <!-- ============ HERO ============ -->
   <section class="hero" aria-labelledby="hero-title">
 
     <!-- Scattered jars: decoration only -->
@@ -36,31 +43,22 @@
           <img src="assets/bloom-sunrise.png" alt="" width="1400" height="1400">
         </div>
         <img class="lockup__img" src="assets/lockup-primary.svg" data-fallback="assets/lockup-primary.png"
-             alt="pirekua, Mexican chili crisp" width="1536" height="693" fetchpriority="high">
+             alt="pirekua, Mexican chili crisp" data-i18n-attr="alt:lockup.alt" width="1536" height="693" fetchpriority="high">
       </div>
 
+      <!-- Fixed tagline: never translated -->
       <h1 class="tagline" id="hero-title" aria-label="Made with amor y risas.">
-        <span class="tagline__line">
-          <span class="tagline__half" tabindex="0" data-half>
-            <span class="tagline__layer tagline__layer--a">Made with</span>
-            <span class="tagline__layer tagline__layer--b" aria-hidden="true">Hecho con</span>
-          </span>
-        </span>
-        <span class="tagline__line">
-          <span class="tagline__half tagline__half--dot" tabindex="0" data-half>
-            <span class="tagline__layer tagline__layer--a tagline__dotted">amor y r<span class="tagline__i">i</span>sas.<img class="tagline__chile" src="assets/chile-dot.png" alt="" width="160" height="239"></span>
-            <span class="tagline__layer tagline__layer--b" aria-hidden="true">love and laughter.</span>
-          </span>
-        </span>
+        <span class="tagline__line">Made with</span>
+        <span class="tagline__line tagline__line--dot"><span class="tagline__dotted">amor y r<span class="tagline__i">i</span>sas.<img class="tagline__chile" src="assets/chile-dot.png" alt="" width="160" height="239"></span></span>
       </h1>
 
-      <p class="hero__sub">It started with two friends, a stove, and a lot of laughing.</p>
+      <p class="hero__sub" data-i18n="hero.sub">It started with two friends, a stove, and a lot of laughing.</p>
 
-      <button type="button" class="btn btn--primary" data-party data-signup data-source="hero">Be in the know</button>
+      <button type="button" class="btn btn--primary" data-party data-signup data-source="hero" data-i18n="cta.know">Be in the know</button>
     </div>
   </section>
 
-  <!-- ============ 2. DIVIDER: THE RISTRA ============ -->
+  <!-- ============ DIVIDER: THE RISTRA ============ -->
   <div class="ristra" aria-hidden="true">
     <div class="ristra__line"></div>
     <div class="ristra__chile" style="--x: 8%;  --w: var(--rs-s);" data-chile>
@@ -85,59 +83,263 @@
     </div>
   </div>
 
-  <!-- ============ 3. WHAT IS MEXICAN CHILI CRISP? ============ -->
+  <!-- ============ 1. WHAT IS MEXICAN CHILI CRISP? ============ -->
   <section class="what" aria-labelledby="what-title">
     <div class="what__text">
-      <h2 class="what__title" id="what-title">What is Mexican chili crisp?</h2>
-      <p class="what__body">It's salsa macha's cooler cousin: dried chiles, nuts, and seeds in a rich, crunchy oil. Spoonable heat you drizzle, dunk, and pile onto everything.</p>
+      <h2 class="what__title" id="what-title" data-i18n="s1.title">What is Mexican chili crisp?</h2>
+      <p class="what__body" data-i18n="s1.body">It's salsa macha's cooler cousin: dried chiles, nuts, and seeds in a rich, crunchy oil. Spoonable heat you drizzle, dunk, and pile onto everything.</p>
     </div>
     <div class="what__visual">
       <div class="family">
         <img class="family__leaf family__leaf--1" src="assets/leaf-1.png" alt="" width="252" height="144" loading="lazy" aria-hidden="true">
         <img class="family__leaf family__leaf--2" src="assets/leaf-2.png" alt="" width="200" height="202" loading="lazy" aria-hidden="true">
         <div class="family__crop family__crop--lineup"><img src="assets/render-lineup.png" width="1600" height="1000" loading="lazy"
-             alt="Three jars of pirekua Mexican chili crisp side by side: Sweet in a yellow label, Smoky in orange, and Spicy in red"></div>
+             alt="Three jars of pirekua Mexican chili crisp side by side: Sweet in a yellow label, Smoky in orange, and Spicy in red" data-i18n-attr="alt:s1.lineupAlt"></div>
         <div class="family__crop family__crop--oil"><img src="assets/render-chili-oil.png" width="720" height="900" loading="lazy"
-             alt="A squeeze bottle of pirekua Mexican Chili Oil with a deep brown label"></div>
+             alt="A squeeze bottle of pirekua Mexican Chili Oil with a deep brown label" data-i18n-attr="alt:s1.oilAlt"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. WHAT DOES IT TASTE LIKE? ============ -->
+  <section class="taste" aria-labelledby="taste-title">
+    <div class="taste__inner">
+      <div class="taste__media">
+        <!-- MEDIA SLOT
+             Swap the <img class="media-slot__media"> below for any of these, keeping the
+             .media-slot wrapper (it sets the size, shape and chile backdrop):
+               <video class="media-slot__media" src="assets/making-of.mp4" autoplay muted loop playsinline></video>
+               <img class="media-slot__media" src="assets/making-of.gif" alt="…">
+               a small photo carousel inside .media-slot__frame
+             Delete the caption chip when the real footage is in. -->
+        <div class="media-slot" data-bg="assets/chile-scatter.png">
+          <div class="media-slot__frame">
+            <img class="media-slot__media" src="assets/making-of-placeholder.jpg" width="1200" height="1500" loading="lazy"
+                 alt="Mexican chili crisp being made in a home kitchen" data-i18n-attr="alt:s2.mediaAlt">
+            <p class="media-slot__chip" data-i18n="s2.chip">[PLACEHOLDER: real footage of the chili crisp being made, coming in November]</p>
+          </div>
+        </div>
+      </div>
+      <div class="taste__text">
+        <h2 class="section-title" id="taste-title" data-i18n="s2.titleA">What does it taste like?</h2>
+        <p class="section-body" data-i18n="s2.bodyA">Toasty, nutty, a little smoky. Unexpected but familiar. You'll swear you've had it before, then realize you haven't.</p>
+        <h2 class="section-title taste__second" data-i18n="s2.titleB">Not your usual chili crisp.</h2>
+        <p class="section-body" data-i18n="s2.bodyB">Same crunch, different soul. Ours leans on Mexican chiles, nuts, and seeds: warmer and earthier, less salty-umami, more cocina. If Asian chili crisp is all about that savory, garlicky punch, ours is toastier and a little sweeter, built on the flavors of a Mexican kitchen.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. WHAT DO I USE IT FOR? ============ -->
+  <section class="uses" aria-labelledby="uses-title">
+    <div class="uses__inner">
+      <div class="uses__text">
+        <h2 class="section-title" id="uses-title" data-i18n="s3.title">What do I use it for?</h2>
+        <p class="section-body" data-i18n="s3.body">Eggs, tacos, pizza, noodles, avocado toast. Anything that could use a little más. If it's food, it probably works.</p>
+        <button type="button" class="btn btn--primary uses__btn" data-signup data-source="cookbook" data-i18n="s3.button">Get the cookbook</button>
+      </div>
+
+      <!-- Cookbook carousel: slides come from COOKBOOK_PAGES in script.js -->
+      <div class="uses__carousel">
+        <div class="carousel" role="region" aria-roledescription="carousel" aria-label="Cookbook pages"
+             data-i18n-attr="aria-roledescription:s3.roledesc;aria-label:s3.carouselLabel" data-carousel>
+          <div class="carousel__viewport">
+            <ul class="carousel__track" data-carousel-track></ul>
+          </div>
+          <div class="carousel__controls">
+            <button type="button" class="carousel__arrow" data-carousel-prev aria-label="Previous page" data-i18n-attr="aria-label:s3.prev">
+              <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots" data-carousel-dots></div>
+            <button type="button" class="carousel__arrow" data-carousel-next aria-label="Next page" data-i18n-attr="aria-label:s3.next">
+              <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <p class="sr-only" aria-live="polite" data-carousel-status></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. HOW MUCH SHOULD I GET? (QUIZ) ============ -->
+  <section class="quiz" aria-labelledby="quiz-title">
+    <div class="quiz__inner">
+      <h2 class="quiz__title" id="quiz-title" data-i18n="s4.title">How much should I get?</h2>
+
+      <div class="quiz__grid">
+        <form class="quiz__questions" data-quiz-form novalidate>
+
+          <fieldset class="qcard">
+            <legend class="qcard__q"><span class="qcard__num" aria-hidden="true">1</span><span data-i18n="quiz.q1">Do you like sunrises or sunsets?</span></legend>
+            <div class="choices choices--2">
+              <label class="choice">
+                <input class="choice__input" type="radio" name="q1" value="sunrise">
+                <span class="choice__face" data-i18n="quiz.q1a">Sunrise</span>
+              </label>
+              <label class="choice">
+                <input class="choice__input" type="radio" name="q1" value="sunset">
+                <span class="choice__face" data-i18n="quiz.q1b">Sunset</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="qcard">
+            <label class="qcard__q" for="quiz-pushups"><span class="qcard__num" aria-hidden="true">2</span><span data-i18n="quiz.q2">How many push-ups can you honestly do?</span></label>
+            <div class="slider">
+              <input class="slider__input" id="quiz-pushups" type="range" name="q2" min="0" max="50" step="1" value="0">
+              <output class="slider__value" for="quiz-pushups" data-quiz-pushups-out>0</output>
+            </div>
+          </div>
+
+          <fieldset class="qcard">
+            <legend class="qcard__q"><span class="qcard__num" aria-hidden="true">3</span><span data-i18n="quiz.q3">Ready for your new favorite kitchen essential?</span></legend>
+            <div class="choices choices--3">
+              <label class="choice">
+                <input class="choice__input" type="radio" name="q3" value="yes">
+                <span class="choice__face" data-q3-face="quiz.q3yes">Yes!</span>
+              </label>
+              <label class="choice">
+                <input class="choice__input" type="radio" name="q3" value="no">
+                <span class="choice__face" data-q3-face="quiz.q3no">Absolutely not</span>
+              </label>
+              <label class="choice">
+                <input class="choice__input" type="radio" name="q3" value="maybe">
+                <span class="choice__face" data-q3-face="quiz.q3maybe">Maybe</span>
+              </label>
+            </div>
+          </fieldset>
+        </form>
+
+        <div class="stage" data-quiz-stage data-state="idle">
+          <div class="stage__idle">
+            <button type="button" class="btn btn--primary btn--big" data-quiz-show disabled aria-describedby="quiz-helper" data-i18n="quiz.show">Show me my results</button>
+            <p class="stage__helper" id="quiz-helper" data-i18n="quiz.helper">Answer all three first.</p>
+          </div>
+
+          <div class="stage__drum" aria-hidden="true">
+            <img src="assets/chile-sweet.png" alt="" width="132" height="240" loading="lazy">
+            <img src="assets/chile-smoky.png" alt="" width="132" height="240" loading="lazy">
+            <img src="assets/chile-spicy.png" alt="" width="132" height="240" loading="lazy">
+          </div>
+
+          <div class="stage__result">
+            <div class="stage__count" aria-hidden="true">
+              <p class="stage__number" data-quiz-number></p>
+              <p class="stage__label" data-i18n="quiz.label">jars of pirekua Mexican chili crisp</p>
+            </div>
+            <div class="basket-scene" aria-hidden="true" data-basket>
+              <img class="basket-scene__back" src="assets/basket.svg" alt="" width="160" height="120" loading="lazy">
+              <div class="basket-scene__jars" data-basket-jars></div>
+              <img class="basket-scene__front" src="assets/basket.svg" alt="" width="160" height="120" loading="lazy">
+            </div>
+            <p class="stage__joke" data-i18n="quiz.joke">Just joking, but it really is that good!</p>
+            <div class="stage__cta">
+              <button type="button" class="btn btn--primary" data-party data-signup data-source="quiz" data-i18n="cta.know">Be in the know</button>
+            </div>
+            <button type="button" class="stage__again" data-quiz-again data-i18n="quiz.again">Go again</button>
+          </div>
+
+          <!-- Result announced to screen readers -->
+          <p class="sr-only" aria-live="polite" data-quiz-status></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5. WHAT IS SPECIAL ABOUT PIREKUA? ============ -->
+  <section class="story" aria-labelledby="story-title">
+    <div class="story__panel">
+      <img class="story__leaf story__leaf--1" src="assets/leaf-2.png" alt="" width="200" height="202" loading="lazy" aria-hidden="true">
+      <img class="story__leaf story__leaf--2" src="assets/leaf-1.png" alt="" width="252" height="144" loading="lazy" aria-hidden="true">
+      <div class="story__text">
+        <h2 class="section-title" id="story-title" data-i18n="s5.title">What is special about pirekua?</h2>
+        <p class="placeholder-copy" data-i18n="s5.body">[STORY COPY: to be written with Emma]</p>
+      </div>
+      <div class="story__photo">
+        <!-- PHOTO SLOT: replace this div with <img class="story__img" src="assets/…" width="…" height="…" alt="…"> -->
+        <div class="photo-slot" role="img" aria-label="[PHOTO: Emma and her friend in the kitchen]" data-i18n-attr="aria-label:s5.photo">
+          <span data-i18n="s5.photo">[PHOTO: Emma and her friend in the kitchen]</span>
+        </div>
       </div>
     </div>
   </section>
 
 </main>
 
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <ul class="footer__list">
+      <li data-i18n="footer.website">[WEBSITE URL]</li>
+      <li data-i18n="footer.social">[@SOCIAL]</li>
+      <li><button type="button" class="footer__link" data-privacy data-i18n="footer.privacy">Privacy Policy</button></li>
+      <li>© 2026 pirekua</li>
+    </ul>
+  </div>
+  <img class="footer__p" src="assets/tall-p-white.png" alt="" width="708" height="1656" loading="lazy" aria-hidden="true">
+</footer>
+
 <!-- ============ SIGNUP MODAL (reusable) ============ -->
 <dialog class="modal" id="signup-modal" aria-labelledby="signup-title">
   <div class="modal__panel">
-    <button type="button" class="modal__close" data-close aria-label="Close">
+    <button type="button" class="modal__close" data-close aria-label="Close" data-i18n-attr="aria-label:modal.close">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
     </button>
     <img class="modal__leaf" src="assets/leaf-1.png" alt="" width="252" height="144" aria-hidden="true">
 
     <div class="modal__body" data-form-view>
-      <h2 class="modal__title" id="signup-title">Be in the know</h2>
+      <h2 class="modal__title" id="signup-title" data-i18n="modal.title">Be in the know</h2>
       <form class="signup" name="signup" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
         <input type="hidden" name="form-name" value="signup">
         <input type="hidden" name="source" value="hero">
+        <input type="hidden" name="lang" value="en">
         <p class="signup__hp" aria-hidden="true">
           <label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label>
         </p>
         <div class="field">
-          <label class="field__label" for="signup-email">Email</label>
+          <label class="field__label" for="signup-email" data-i18n="modal.email">Email</label>
           <input class="field__input" id="signup-email" name="email" type="email" inputmode="email" autocomplete="email" aria-describedby="signup-msg">
         </div>
         <div class="field">
-          <label class="field__label" for="signup-phone">Phone</label>
+          <label class="field__label" for="signup-phone" data-i18n="modal.phone">Phone</label>
           <input class="field__input" id="signup-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" aria-describedby="signup-msg">
         </div>
-        <p class="signup__hint">Either one works.</p>
+        <p class="signup__hint" data-i18n="modal.hint">Either one works.</p>
         <p class="signup__msg" id="signup-msg" role="alert" aria-live="polite"></p>
-        <button type="submit" class="btn btn--primary btn--block">Count me in</button>
+        <button type="submit" class="btn btn--primary btn--block" data-i18n="modal.submit">Count me in</button>
+        <p class="signup__consent" data-i18n="modal.consent">By signing up, you agree to receive emails and texts from pirekua. Unsubscribe anytime. Message and data rates may apply.</p>
       </form>
     </div>
 
     <div class="modal__body modal__success" data-success-view hidden>
       <img class="modal__mark" src="assets/icon-mark.png" alt="" width="708" height="1656" aria-hidden="true">
-      <h2 class="modal__title" tabindex="-1">You're on the list.</h2>
+      <h2 class="modal__title" tabindex="-1" data-i18n="modal.success">You're on the list.</h2>
+    </div>
+  </div>
+</dialog>
+
+<!-- ============ PRIVACY POLICY MODAL ============ -->
+<dialog class="modal modal--doc" id="privacy-modal" aria-labelledby="privacy-title">
+  <div class="modal__panel" tabindex="0">
+    <button type="button" class="modal__close" data-close aria-label="Close" data-i18n-attr="aria-label:modal.close">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="modal__body policy">
+      <h2 class="modal__title" id="privacy-title" tabindex="-1" data-i18n="privacy.title">Privacy Policy</h2>
+      <p class="policy__date" data-i18n="privacy.updated">Last updated: [DATE]</p>
+      <h3 data-i18n="privacy.collectH">What we collect.</h3>
+      <p data-i18n="privacy.collect">If you sign up on this site, we collect the email address and/or phone number you enter, and which part of the site you signed up from. That's it.</p>
+      <h3 data-i18n="privacy.useH">How we use it.</h3>
+      <p data-i18n="privacy.use">We use it to send you a welcome email and occasional news from pirekua, such as when jars are ready, new flavors and recipes. If you give us a phone number, we may text you the same kind of news. We don't send much, and we're not here to spam you.</p>
+      <h3 data-i18n="privacy.whoH">Who sees it.</h3>
+      <p data-i18n="privacy.who">We don't sell or rent your information. It's stored with our website host (Netlify) and, for email, sent through our email provider (Resend) so we can deliver messages to you.</p>
+      <h3 data-i18n="privacy.choicesH">Your choices.</h3>
+      <p data-i18n="privacy.choices">You can opt out of emails or texts at any time by replying "stop" or by contacting us, and we'll remove you. You can also ask us to delete your information.</p>
+      <h3 data-i18n="privacy.cookiesH">Cookies and tracking.</h3>
+      <p data-i18n="privacy.cookies">This site doesn't use advertising or tracking cookies. If you choose a language, your browser remembers that choice on your device.</p>
+      <h3 data-i18n="privacy.kidsH">Kids.</h3>
+      <p data-i18n="privacy.kids">This site isn't meant for children under 13.</p>
+      <h3 data-i18n="privacy.contactH">Contact.</h3>
+      <p data-i18n="privacy.contact">[CONTACT EMAIL]</p>
     </div>
   </div>
 </dialog>
@@ -146,6 +348,7 @@
 <form name="signup" data-netlify="true" netlify-honeypot="bot-field" hidden>
   <input type="hidden" name="form-name" value="signup">
   <input type="hidden" name="source">
+  <input type="hidden" name="lang">
   <input name="bot-field">
   <input type="email" name="email">
   <input type="tel" name="phone">

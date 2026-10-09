@@ -1,65 +1,126 @@
-# pirekua — marketing site (pass 1)
+# pirekua — marketing site
 
-Single-page, static site. Plain HTML, CSS and vanilla JS. No framework, no build step.
-Deploys from the repo root on Netlify (publish directory: `/`).
+Single-page, static site. Plain HTML, CSS and vanilla JS. No framework, no build step, no dependencies.
+Deploys from the repo root on Netlify (see `netlify.toml`).
 
-## In this pass
+## Page order
 
-- Hero: lockup with sunrise bloom, scattered jars, bilingual tagline, party button
-- Ristra divider: five hanging icon marks that swing
-- Section 1: "What is Mexican chili crisp?"
-- Signup modal (Netlify Forms, submitted with `fetch`)
+1. Language toggle (EN | ES, fixed top right)
+2. Hero: lockup with sunrise bloom, scattered jars, fixed tagline "Made with amor y risas.", party button
+3. Ristra divider: five hanging icon marks that swing
+4. Section 1: What is Mexican chili crisp?
+5. Section 2: What does it taste like? + Not your usual chili crisp (media slot)
+6. Section 3: What do I use it for? + cookbook carousel + cookbook button
+7. Section 4: How much should I get? (the quiz)
+8. Section 5: What is special about pirekua? (story copy and photo still to come)
+9. Footer, with the Privacy Policy dialog
 
-Not yet built: header language toggle, the other four sections, the quiz, shop, footer.
+Not built yet: shop page, cart, payments, real cookbook pages, real making-of footage, real story copy, Spanish welcome email, SMS automation, analytics.
 
 ## Files
 
 | File | What it does |
 |---|---|
-| `index.html` | Page markup, the signup modal, and a hidden static copy of the form for Netlify |
+| `index.html` | Page markup, both dialogs (signup, privacy), and a hidden static copy of the signup form for Netlify |
 | `styles.css` | Brand tokens, mobile-first layout, reduced-motion rules |
-| `script.js` | Headline swap and timer, ristra swing, chile confetti, modal, validation, missing-asset placeholders |
+| `script.js` | Strings (EN/ES), language toggle, ristra swing, chile confetti, dialogs, validation, carousel, quiz, missing-asset placeholders |
+| `netlify/functions/submission-created.js` | Sends the welcome email after each signup |
+| `netlify.toml` | Publish the repo root; functions live in `netlify/functions` |
 | `assets/` | Brand art (see below) |
 
-## Tuning knobs
+## Tuning knobs (top of `script.js`)
 
-- `HEADLINE_FLIP_MS` (top of `script.js`, default `10000`): how often the tagline flips language on touch devices.
-- `HEADLINE_HOLD_MS` (next line, default `3500`): how long it stays flipped before flipping back.
-- Ristra physics: `STIFFNESS`, `DAMPING`, `GAIN`, `MAX_ANGLE` in the ristra block of `script.js`.
-- Any button with `data-party` gets the chile burst. Any button with `data-signup` opens the modal; its `data-source` fills the hidden `source` field.
+| Constant | Default | What it does |
+|---|---|---|
+| `QUIZ_MIN` | `52` | Lowest possible quiz result |
+| `QUIZ_MAX` | `93` | Highest possible quiz result |
+| `DRUMROLL_MS` | `2500` | Anticipation beat after "Show me my results" |
+| `BASKET_MS` | `2500` | Length of the jars-into-the-basket animation |
+| `JOKE_DELAY_MS` | `500` | Pause after the basket before the joke line |
+| `CTA_DELAY_MS` | `500` | Pause after the joke before the party button |
+| `COOKBOOK_PAGES` | 6 entries | One entry per cookbook slide (see below) |
+
+Ristra physics (`STIFFNESS`, `DAMPING`, `GAIN`, `MAX_ANGLE`) are in the ristra block of `script.js`.
+
+Buttons:
+- `data-signup` opens the signup modal; its `data-source` fills the hidden `source` field (`hero`, `cookbook`, `quiz`).
+- `data-party` adds the chile burst. Only the hero and quiz buttons have it.
+
+## Language toggle and translations
+
+- EN | ES switches the whole page instantly, updates `<html lang>`, and remembers the choice on the device (`localStorage` key `pirekua-lang`). Default is English.
+- On phones the toggle tucks away while you scroll down or pause, and comes back when you scroll up.
+- Never translated: the tagline "Made with amor y risas.", the name pirekua, and the lockup art.
+- All strings live in the `I18N` object in `script.js`, with `en` and `es` for every key. The Spanish is a draft for native-speaker review.
+
+To add a string:
+1. Add the key to both `I18N.en` and `I18N.es`.
+2. Point the element at it:
+   - `data-i18n="key"` for text
+   - `data-i18n-html="key"` for a string with markup or line breaks
+   - `data-i18n-attr="alt:key;aria-label:other.key"` for attributes
+3. A missing key falls back to English and logs a warning in the console.
+
+## Cookbook carousel
+
+- Slides come from `COOKBOOK_PAGES` in `script.js`, one `{ src }` per page.
+- Each slide shows its image if the file exists. Otherwise it shows its branded "Cookbook image N" placeholder.
+- To add the real pages, drop `page-1.png`, `page-2.png` and so on into `assets/cookbook/`. Square images, 1200 × 1200 or larger.
+
+## Section 2 media slot
+
+`.media-slot` holds `making-of-placeholder.jpg` today. To use a video, GIF or small photo carousel instead, swap the `<img class="media-slot__media">` (the HTML comment there shows how) and delete the caption chip.
 
 ## Assets
 
-All files below are in `assets/`. They were taken from the brand book and renders artifacts and saved under the manifest names.
-
 | File | Status | Notes |
 |---|---|---|
-| `lockup-primary.png` | Included | Exported from brand book board 01 (primary lockup), transparent background |
-| `lockup-primary.svg` | **Still needed** | The page tries the SVG first and falls back to the PNG. Drop the master SVG in to replace it. |
-| `icon-mark.png` | Included | |
-| `chile-dot.png` | Included | Rasterized from the brand book SVG |
-| `chile-sweet.png`, `chile-smoky.png`, `chile-spicy.png` | Included | Rasterized from the brand book SVGs |
-| `chile-sweet-flip.png`, `chile-smoky-flip.png`, `chile-spicy-flip.png` | Included | The brand book's flipped versions |
+| `lockup-primary.png` | Included | Exported from brand book board 01 |
+| `lockup-primary.svg` | **Still needed** | The page tries the SVG first and falls back to the PNG |
+| `icon-mark.png`, `chile-dot.png`, `bloom-sunrise.png` | Included | |
+| `chile-sweet.png`, `chile-smoky.png`, `chile-spicy.png` (+ `-flip`) | Included | |
 | `leaf-1.png`, `leaf-2.png` | Included | |
-| `bloom-sunrise.png` | Included | The bloom used behind the primary lockup in the brand book |
-| `render-sweet.png`, `render-smoky.png`, `render-spicy.png` | Included | Resized to 720×900 for speed |
-| `render-lineup.png` | Included | Resized to 1600×1000 |
-| `render-chili-oil.png` | Included | Resized to 720×900 |
+| `render-sweet.png`, `render-smoky.png`, `render-spicy.png`, `render-lineup.png`, `render-chili-oil.png` | Included | Resized for speed |
+| `chile-scatter.png` | Included | Brand book chile scatter tile, 600 × 600, shown at 300px |
+| `tall-p-white.png` | Included | Brand book Treatment A, white stem and leaves (Leaf Green version) |
+| `basket.svg` | Included, new | Drawn for this pass: Mole Ink outline, Cream Card body, orange weave and rim, open top. Reusable as the cart icon |
+| `making-of-placeholder.jpg` | **Still needed** | Owner drops in a stand-in photo (4:5). Shows a dashed placeholder until then |
+| `cookbook/page-1.png` … `page-6.png` | **Still needed** | Slides show branded placeholders until then |
 
-If any listed file is missing, the page shows a dashed placeholder box with the filename instead of substitute art.
-
-Swap in final masters any time; keep the filenames. If a render's framing changes, adjust the crop numbers on `.jar img` and `.family__crop--* img` in `styles.css`.
+Any missing file shows a dashed placeholder box with its filename, never substitute art.
 
 ## Signup form (Netlify Forms)
 
-- The modal form is `name="signup"`, `data-netlify="true"`, with a honeypot (`bot-field`) and a hidden `source` field.
-- It posts with `fetch` to `/`, so the modal stays open and shows "You're on the list."
-- A hidden static copy of the form sits at the bottom of `index.html` so Netlify's build bot detects it. If Netlify ever reports a duplicate form name, delete that hidden copy: the modal form is already static HTML.
-- Submissions only work on a Netlify deploy. Locally, submitting shows the calm "try again" message.
+- Fields: `email`, `phone` (one of the two is required), hidden `source`, hidden `lang`, honeypot `bot-field`.
+- A consent line sits under the submit button.
+- It posts with `fetch`, so the modal stays open and shows "You're on the list."
+- A hidden static copy of the form at the bottom of `index.html` keeps Netlify's bot detecting the same fields. If Netlify ever reports a duplicate form name, delete that copy.
+
+## Welcome email
+
+- `netlify/functions/submission-created.js` runs automatically after every verified Netlify Forms submission. There's no polling or schedule.
+- It only acts on the `signup` form. When a signup includes an email address, it sends the welcome email through Resend's REST API.
+- Phone-only signups get nothing automatic. Export the numbers from Netlify Forms and text them by hand.
+- Every signup gets the same English email for now. `lang` is stored for later.
+- Check Netlify → Logs → Functions for `[welcome] sent …` or the reason a send failed. The API key is never logged.
+
+Set these five environment variables in Netlify (Site configuration → Environment variables):
+
+| Variable | Example | Purpose |
+|---|---|---|
+| `RESEND_API_KEY` | `re_…` | Resend API key |
+| `FROM_EMAIL` | `pirekua <hello@yourdomain.com>` | Sender. The domain must be verified in Resend |
+| `REPLY_TO` | `hello@yourdomain.com` | Where replies go |
+| `SITE_URL` | `https://pirekua.netlify.app` | Base URL, used for the logo image in the email |
+| `COOKBOOK_URL` | `https://…` | Cookbook link. Leave empty to drop that line from the email |
+
+Before launch, replace `[BUSINESS NAME + MAILING ADDRESS]` in the email footer (in the function file).
 
 ## Accessibility and motion
 
-- Real `<button>` elements, visible focus rings, alt text on product renders, decorative art hidden from screen readers.
-- The tagline halves are keyboard-focusable and swap language on focus. The heading's accessible name is always "Made with amor y risas."
-- Modal: native `<dialog>`, focus trapped, Escape and backdrop click close it, focus returns to the button that opened it.
-- `prefers-reduced-motion`: no confetti, no ristra swing, no headline timer. The modal opens straight away.
+- Real buttons and inputs throughout, visible focus rings, alt text that translates.
+- Dialogs: native `<dialog>`, focus trapped, Escape and backdrop click close them, focus returns to the button that opened them.
+- Carousel: labelled region, "Slide N of 6" announced politely, 48px arrows, real dot buttons, left/right arrow keys, swipe.
+- Quiz: radios and a range input, results announced through a polite live region.
+- Footer: cream on Leaf Green is 3.55:1. That fails the 4.5:1 target for normal text but passes the 3:1 bar for large text, so all footer text is set at 19px bold. A strict 4.5:1 would need a darker green.
+- `prefers-reduced-motion`: no confetti, ristra swing, drumroll, basket animation or transitions. The quiz shows its final state at once.

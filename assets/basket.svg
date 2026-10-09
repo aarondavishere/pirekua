@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="160" height="120" role="img" aria-label="Basket">
+  <title>Basket</title>
+  <!-- pirekua basket icon: Mole Ink outline, Cream Card body, Cempasúchil Orange weave and rim.
+       Open top: the rim is an orange ring around a dark opening. -->
+  <defs>
+    <clipPath id="basket-body">
+      <path d="M14 34 L28 104 Q30 112 40 112 L120 112 Q130 112 132 104 L146 34 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- body -->
+  <path d="M14 34 L28 104 Q30 112 40 112 L120 112 Q130 112 132 104 L146 34 Z"
+        fill="#FFF1DA" stroke="#3A1406" stroke-width="4" stroke-linejoin="round"/>
+
+  <!-- woven bands -->
+  <g clip-path="url(#basket-body)">
+    <path d="M0 58 Q80 72 160 58 L160 74 Q80 88 0 74 Z" fill="#F48500"/>
+    <path d="M0 90 Q80 104 160 90 L160 100 Q80 114 0 100 Z" fill="#F48500"/>
+  </g>
+  <g fill="none" stroke="#3A1406" stroke-width="3" stroke-linecap="round" clip-path="url(#basket-body)">
+    <path d="M0 58 Q80 72 160 58"/>
+    <path d="M0 74 Q80 88 160 74"/>
+    <path d="M0 90 Q80 104 160 90"/>
+    <!-- stitches, offset row to row so it reads as woven -->
+    <path d="M40 46 v12 M64 49 v12 M88 49 v12 M112 47 v12"/>
+    <path d="M52 81 v10 M76 83 v10 M100 82 v10 M124 79 v10"/>
+  </g>
+
+  <!-- rim: orange ring around the open top -->
+  <ellipse cx="80" cy="34" rx="68" ry="15" fill="#F48500" stroke="#3A1406" stroke-width="4"/>
+  <ellipse cx="80" cy="33" rx="56" ry="9" fill="#3A1406"/>
+</svg>
