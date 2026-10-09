@@ -71,22 +71,34 @@ img { display: block; max-width: 100%; height: auto; }
 /* ============ HERO ============ */
 .hero {
   /* tuning knobs */
-  --hero-pad-top: 92px;                 /* room for the bloom above the wordmark, clear of the language toggle */
-  --hero-pad-bottom: 104px;             /* phones: room for the lower jars */
-  --hero-gap-tagline: 12px;             /* lockup → tagline */
+  --hero-peek: 0px;                     /* > 0 lifts the ristra into the first screen; < 0 pushes it further down */
+  --hero-pad-top: 64px;                 /* clear of the language toggle */
+  --hero-pad-bottom: 40px;
+  --hero-gap-tagline: clamp(8px, 1.6vh, 18px);   /* lockup → tagline */
   --hero-gap-sub: 2px;                  /* tagline → subhead */
-  --hero-gap-btn: 20px;                 /* subhead → button */
-  --lockup-w: min(80vw, 560px);
+  --hero-gap-btn: clamp(16px, 3vh, 32px);        /* subhead → button */
+  --lockup-w: min(86vw, 820px, calc(130vh - 320px));   /* sized by width and by screen height */
   --lock-half: calc(var(--lockup-w) / 2);
   --bloom-spin: 60s;                    /* one full turn of the sunrise bloom */
   --dot-lift: 0.07em;                   /* raises the chile over the i */
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* fills the first screen, so the ristra starts just below the fold */
+  min-height: calc(100vh - var(--hero-peek));
   padding: var(--hero-pad-top) var(--gutter) var(--hero-pad-bottom);
   isolation: isolate;
 }
-@media (min-width: 640px) { .hero { --hero-pad-bottom: 60px; --lockup-w: min(64vw, 560px); } }
-@media (min-width: 1024px) { .hero { --hero-pad-bottom: 44px; } }
+@supports (height: 100svh) {
+  .hero {
+    --hero-gap-tagline: clamp(8px, 1.6svh, 18px);
+    --hero-gap-btn: clamp(16px, 3svh, 32px);
+    --lockup-w: min(86vw, 820px, calc(130svh - 320px));
+    min-height: calc(100svh - var(--hero-peek));
+  }
+}
 
 .hero__inner {
   position: relative;
@@ -95,7 +107,8 @@ img { display: block; max-width: 100%; height: auto; }
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 760px;
+  width: 100%;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -103,6 +116,7 @@ img { display: block; max-width: 100%; height: auto; }
 .lockup {
   position: relative;
   width: var(--lockup-w);
+  margin-top: calc(var(--lockup-w) * 0.138);   /* room for the bloom rising above the wordmark */
 }
 .lockup__img {
   position: relative;
@@ -129,18 +143,19 @@ img { display: block; max-width: 100%; height: auto; }
 }
 @keyframes bloom-spin { to { transform: rotate(360deg); } }
 
-/* Signature tagline: one line, a supporting line to the lockup */
+/* Signature tagline: one line */
 .tagline {
   margin: var(--hero-gap-tagline) 0 0;
   font-family: var(--script);
   font-weight: 400;
-  font-size: clamp(1.75rem, 8vw, 2.75rem);
+  font-size: clamp(1.75rem, min(8vw, 6.4vh), 3.6rem);
   line-height: 1.45;
   color: var(--orange);
   text-shadow: var(--pow);
   letter-spacing: 0;
   white-space: nowrap;
 }
+@supports (height: 100svh) { .tagline { font-size: clamp(1.75rem, min(8vw, 6.4svh), 3.6rem); } }
 
 /* The chile replaces the dot of the i (brand book method). Offsets are measured
    from the start of "amor y risas." so they hold at every font size. */
@@ -162,28 +177,29 @@ img { display: block; max-width: 100%; height: auto; }
 
 .hero__sub {
   margin: var(--hero-gap-sub) 0 0;
-  font-size: clamp(1rem, 0.9rem + 0.35vw, 1.1875rem);
+  font-size: clamp(1rem, min(0.8rem + 0.6vw, 2.6vh), 1.375rem);
   font-weight: 500;
   line-height: 1.5;
 }
+@supports (height: 100svh) { .hero__sub { font-size: clamp(1rem, min(0.8rem + 0.6vw, 2.6svh), 1.375rem); } }
 @media (min-width: 600px) { .hero__sub { white-space: nowrap; } }
 
 .hero .btn { margin-top: var(--hero-gap-btn); }
 
-/* Hero jars: six transparent cutouts splashing out from behind the wordmark.
-   Each jar: --side (-1 left, 1 right) and --f (0 = at the lockup's edge,
-   1 = at the page edge) set its x; --y its center from the top; --jw its width;
-   --r its angle. Phones set --left directly. */
+/* Hero jars: a loose, hand-placed scatter of transparent cutouts.
+   Per jar: --jw width, --r angle, --y center from the top (% of the hero);
+   x is --left on phones and tablets, and on desktop --side (-1 left, 1 right)
+   with --f (0 = at the lockup's edge, 1 = at the page edge). */
 .hero__jars { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 .jar {
   position: absolute;
-  width: var(--jw);
+  width: calc(var(--jw) * var(--jscale, 1));
   left: var(--left, calc(50% + var(--side) * (var(--lock-half) + (50% - var(--lock-half)) * var(--f))));
   top: var(--y);
   transform: translate(-50%, -50%) rotate(var(--r));
 }
 .jar img { display: block; width: 100%; height: auto; }
-/* Fallback while jar-*.png is missing: the studio render with its old crop */
+/* Fallback when the cutouts are missing: the studio render with its old crop */
 .jar.is-fallback {
   aspect-ratio: 518 / 702;
   overflow: hidden;
@@ -198,41 +214,89 @@ img { display: block; max-width: 100%; height: auto; }
 }
 .jar.is-fallback img { position: absolute; left: -20.8%; top: -16.7%; width: 138.9%; max-width: none; }
 
-/* Phones: two jars fly up past the bloom, four burst out around the button */
-.jar--1 { --jw: 46px; --r: -26deg;  --left: 13%; --y: 44px; }                /* sweet */
-.jar--2 { --jw: 42px; --r: -70deg;  --left: 11%; --y: calc(100% - 132px); }  /* smoky */
-.jar--3 { --jw: 40px; --r: -112deg; --left: 31%; --y: calc(100% - 50px); }   /* spicy */
-.jar--4 { --jw: 42px; --r: 72deg;   --left: 89%; --y: calc(100% - 124px); }  /* spicy */
-.jar--5 { --jw: 44px; --r: 104deg;  --left: 69%; --y: calc(100% - 46px); }   /* sweet */
-.jar--6 { --jw: 34px; --r: 16deg;   --left: 50%; --y: 30px; }                /* smoky */
-
-/* Tablet and up: jars fill the bands either side of the lockup */
-@media (min-width: 640px) {
-  .jar { --left: initial; }
-  .jar--1 { --jw: 50px; --side: -1; --f: 0.52; --r: -24deg;  --y: 64px; }
-  .jar--2 { --jw: 44px; --side: -1; --f: 0.5;  --r: -60deg;  --y: 46%; }
-  .jar--3 { --jw: 42px; --side: -1; --f: 0.46; --r: -104deg; --y: calc(100% - 84px); }
-  .jar--4 { --jw: 46px; --side: 1;  --f: 0.48; --r: 30deg;   --y: 130px; }
-  .jar--5 { --jw: 48px; --side: 1;  --f: 0.6;  --r: 64deg;   --y: 214px; }
-  .jar--6 { --jw: 40px; --side: 1;  --f: 0.44; --r: 112deg;  --y: calc(100% - 60px); }
+/* Two small lines tucked among the jars */
+.hero__aside .nobr { white-space: nowrap; }
+.hero__aside {
+  position: absolute;
+  z-index: 2;
+  left: var(--left, calc(50% + var(--side) * (var(--lock-half) + (50% - var(--lock-half)) * var(--f))));
+  top: var(--y);
+  margin: 0;
+  max-width: var(--aside-w, 16rem);
+  width: max-content;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+  text-align: var(--align, center);
+  transform: translate(-50%, -50%) rotate(var(--r));
 }
+
+/* Phones and tablets: 9 jars, above and below the centered content */
+.jar--10, .jar--11, .jar--12 { display: none; }
+.jar--1 { --jw: 44px; --r: -18deg;  --left: 22%; --y: 17%; }
+.jar--2 { --jw: 36px; --r: 32deg;   --left: 57%; --y: 8%; }
+.jar--3 { --jw: 50px; --r: -8deg;   --left: 66%; --y: 17%; }
+.jar--4 { --jw: 32px; --r: 70deg;   --left: 88%; --y: 18%; }
+.jar--5 { --jw: 46px; --r: -28deg;  --left: 12%; --y: 87%; }
+.jar--6 { --jw: 38px; --r: 64deg;   --left: 27%; --y: 92%; }
+.jar--7 { --jw: 46px; --r: 12deg;   --left: 41%; --y: 87%; }
+.jar--8 { --jw: 34px; --r: -36deg;  --left: 88%; --y: 95%; }
+.jar--9 { --jw: 30px; --r: -96deg;  --left: 58%; --y: 95%; }
+.hero__aside { font-size: 0.875rem; --aside-w: 9.5rem; }
+.hero__aside--tl { --r: -4deg; --left: 23%; --y: 6.5%; --align: left; }
+.hero__aside--br { --r: 3deg;  --left: 76%; --y: 85%; --align: right; }
+
+@media (min-width: 640px) {
+  .jar--1 { --jw: 64px; --left: 20%; --y: 15%; }
+  .jar--2 { --jw: 48px; --left: 47%; --y: 8%; }
+  .jar--3 { --jw: 72px; --left: 62%; --y: 14%; }
+  .jar--4 { --jw: 44px; --left: 84%; --y: 17%; }
+  .jar--5 { --jw: 76px; --left: 10%; --y: 88%; }
+  .jar--6 { --jw: 50px; --left: 25%; --y: 92%; }
+  .jar--7 { --jw: 60px; --left: 40%; --y: 92%; }
+  .jar--8 { --jw: 46px; --left: 92%; --y: 94%; }
+  .jar--9 { --jw: 40px; --left: 55%; --y: 94%; }
+  .hero__aside { font-size: 0.9375rem; --aside-w: 14rem; }
+  .hero__aside--tl { --left: 21%; --y: 5%; }
+  .hero__aside--br { --left: 78%; --y: 86%; }
+}
+
+/* Desktop: 12 jars in the bands either side of the lockup */
 @media (min-width: 1024px) {
-  .jar--1 { --jw: 100px; --f: 0.42; --r: -24deg;  --y: 112px; }
-  .jar--2 { --jw: 84px;  --f: 0.58; --r: -58deg;  --y: 52%; }
-  .jar--3 { --jw: 70px;  --f: 0.36; --r: -104deg; --y: calc(100% - 104px); }
-  .jar--4 { --jw: 92px;  --f: 0.4;  --r: 30deg;   --y: 144px; }
-  .jar--5 { --jw: 100px; --f: 0.6;  --r: 62deg;   --y: 50%; }
-  .jar--6 { --jw: 76px;  --f: 0.44; --r: 112deg;  --y: calc(100% - 122px); }
+  .jar, .hero__aside { --left: initial; }
+  .jar--10, .jar--11, .jar--12 { display: block; }
+  .jar--1  { --side: -1; --f: 0.40; --y: 30%; --jw: 74px; --r: -16deg; }
+  .jar--2  { --side: -1; --f: 0.76; --y: 40%; --jw: 50px; --r: 28deg; }
+  .jar--3  { --side: -1; --f: 0.22; --y: 52%; --jw: 56px; --r: -34deg; }
+  .jar--4  { --side: -1; --f: 0.60; --y: 62%; --jw: 84px; --r: 76deg; }
+  .jar--5  { --side: -1; --f: 0.30; --y: 80%; --jw: 64px; --r: 18deg; }
+  .jar--6  { --side: -1; --f: 0.78; --y: 85%; --jw: 44px; --r: -38deg; }
+  .jar--7  { --side: 1;  --f: 0.30; --y: 22%; --jw: 80px; --r: 14deg; }
+  .jar--8  { --side: 1;  --f: 0.68; --y: 34%; --jw: 52px; --r: -26deg; }
+  .jar--9  { --side: 1;  --f: 0.34; --y: 50%; --jw: 64px; --r: 38deg; }
+  .jar--10 { --side: 1;  --f: 0.74; --y: 58%; --jw: 92px; --r: -12deg; }
+  .jar--11 { --side: 1;  --f: 0.24; --y: 75%; --jw: 48px; --r: -66deg; }
+  .jar--12 { --side: 1;  --f: 0.84; --y: 76%; --jw: 40px; --r: 30deg; }
+  .hero__aside { --aside-w: 13rem; }
+  .hero__aside--tl { --side: -1; --f: 0.55; --y: 13%; }
+  .hero__aside--br { --side: 1;  --f: 0.50; --y: 90%; }
+}
+/* Small laptops: a slightly smaller lockup and jars, so the side bands have room */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hero { --lockup-w: min(56vw, 820px, calc(130vh - 320px)); --jscale: 0.78; }
+  @supports (height: 100svh) { .hero { --lockup-w: min(56vw, 820px, calc(130svh - 320px)); } }
+  .hero__aside { --aside-w: 11rem; font-size: 0.875rem; }
 }
 
 /* ============ RISTRA ============ */
 .ristra {
-  /* five sizes, smallest to largest (mixed along the line in index.html) */
-  --rs-xs: clamp(22px, 3.6vw, 46px);
-  --rs-s:  clamp(26px, 4.4vw, 56px);
-  --rs-m:  clamp(30px, 5.4vw, 68px);
-  --rs-l:  clamp(34px, 6.6vw, 84px);
-  --rs-xl: clamp(38px, 7.8vw, 98px);
+  /* sizes: small, large, medium, largest, small */
+  --rs-s:  clamp(36px, 5.2vw, 56px);
+  --rs-l:  clamp(54px, 7.6vw, 84px);
+  --rs-m:  clamp(45px, 6.2vw, 68px);
+  --rs-xl: clamp(62px, 8.8vw, 98px);
+  --rs-s2: clamp(33px, 4.6vw, 50px);
   --line-y: 26px;
   --ratio: 2.339;     /* icon-mark height / width */
   --hook: 0.0713;     /* where the p loop meets the line, as a share of icon height */
@@ -264,7 +328,6 @@ img { display: block; max-width: 100%; height: auto; }
   position: absolute;
   inset: 0;
   transform-origin: 65% 7.13%;
-  transform: rotate(var(--rest, 0deg));   /* resting tilt; script.js swings around it */
   will-change: transform;
 }
 .ristra__swing img { width: 100%; height: 100%; }
@@ -316,32 +379,18 @@ img { display: block; max-width: 100%; height: auto; }
   background: var(--card);
   border-radius: var(--radius-lg);
 }
-.family__crop {
+.family__jars {
   position: relative;
   z-index: 1;
-  overflow: hidden;
-  -webkit-mask-image:
-    linear-gradient(to right, transparent 0, #000 9%, #000 93%, transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 12%, #000 94%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to right, transparent 0, #000 9%, #000 93%, transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 12%, #000 94%, transparent 100%);
-  mask-composite: intersect;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2%;
+  width: 72%;
 }
-.family__crop img { position: absolute; max-width: none; height: auto; }
-.family__crop--oil {
-  -webkit-mask-image:
-    linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 6%, #000 95%, transparent 100%);
-  mask-image:
-    linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 6%, #000 95%, transparent 100%);
-}
-.family__crop--lineup { width: 75%; aspect-ratio: 1392 / 620; }
-.family__crop--lineup img { width: 114.9%; left: -10.34%; top: -32.26%; }
-.family__crop--oil { width: 17.1%; margin-left: 1%; aspect-ratio: 345.6 / 738; }
-.family__crop--oil img { width: 208.3%; left: -62.5%; top: -10.98%; }
+.family__jars img { width: 32%; height: auto; }
+.family__oil { position: relative; z-index: 1; width: 10.5%; margin-left: 3%; }
+.family__oil img { width: 100%; height: auto; }
 .family__leaf { position: absolute; z-index: 0; height: auto; }
 .family__leaf--1 { width: clamp(58px, 8vw, 92px); top: clamp(-30px, -2.6vw, -18px); right: 9%; transform: rotate(-18deg); }
 .family__leaf--2 { width: clamp(40px, 5.4vw, 60px); bottom: clamp(-22px, -1.8vw, -14px); left: 5%; transform: rotate(14deg) scaleX(-1); }
@@ -528,10 +577,21 @@ img { display: block; max-width: 100%; height: auto; }
   border-radius: 16px;
   background: var(--card);
 }
+/* Out of flow so the tall cutouts never stretch the window past --win-h */
 .pcard__crop {
-  position: relative;
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   height: 94%;
-  aspect-ratio: 518 / 702;              /* same crop as the hero jars */
+}
+.pcard__crop img { height: 100%; width: auto; max-width: 100%; object-fit: contain; object-position: 50% 100%; }
+/* Fallback when a cutout is missing: the studio render with its old crop */
+.pcard__crop.is-fallback {
+  left: 50%; right: auto;
+  transform: translateX(-50%);
+  aspect-ratio: 518 / 702;
   overflow: hidden;
   -webkit-mask-image:
     linear-gradient(to right, transparent 0, #000 10%, #000 90%, transparent 100%),
@@ -542,9 +602,9 @@ img { display: block; max-width: 100%; height: auto; }
     linear-gradient(to bottom, transparent 0, #000 7%, #000 94%, transparent 100%);
   mask-composite: intersect;
 }
-.pcard__crop img { position: absolute; left: -20.8%; top: -16.7%; width: 138.9%; max-width: none; height: auto; }
-.pcard--oil .pcard__crop { aspect-ratio: 345.6 / 738; }   /* same crop as section 1's bottle */
-.pcard--oil .pcard__crop img { left: -62.5%; top: -10.98%; width: 208.3%; }
+.pcard__crop.is-fallback img { position: absolute; left: -20.8%; top: -16.7%; width: 138.9%; height: auto; max-width: none; }
+.pcard--oil .pcard__crop.is-fallback { aspect-ratio: 345.6 / 738; }
+.pcard--oil .pcard__crop.is-fallback img { left: -62.5%; top: -10.98%; width: 208.3%; }
 .pcard__crop .asset-ph { position: absolute; inset: 0; width: auto !important; aspect-ratio: auto !important; }
 
 /* Heat meter: blooms in a cream chip, tucked into the card's bottom corner */
@@ -1327,7 +1387,7 @@ img { display: block; max-width: 100%; height: auto; }
 
 /* placeholders inside cropped frames fill the frame */
 .jar .asset-ph,
-.family__crop .asset-ph { position: absolute; inset: 0; width: auto !important; aspect-ratio: auto !important; }
+.family__jars .asset-ph { flex: 0 0 32%; aspect-ratio: 480 / 694 !important; width: auto !important; }
 
 /* ---------- Reduced motion: static states ---------- */
 @media (prefers-reduced-motion: reduce) {

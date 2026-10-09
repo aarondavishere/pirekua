@@ -27,6 +27,21 @@ const COOKBOOK_PAGES = [
   { src: 'assets/cookbook/page-6.png' },
 ];
 
+// Jar cutouts (transparent, no shadow) in assets/jars/, named <flavor>-<angle>.png.
+// -1 is always the straight-on front view. The quiz basket picks angles from these
+// lists; the hero picks its angle per jar in index.html. Adding or removing an
+// angle here is a one-line change. A small copy of each lives in assets/jars/small/
+// (used by the hero and the basket); if it's missing, the full-size file is used.
+//   2 = ¾ left, 3 = ¾ right, 4 = high angle, 5 = low angle, 6 = side (story panel), 7 = side (nutrition panel)
+const JAR_ART = {
+  sweet: ['assets/jars/sweet-1.png', 'assets/jars/sweet-2.png', 'assets/jars/sweet-3.png', 'assets/jars/sweet-4.png', 'assets/jars/sweet-5.png', 'assets/jars/sweet-6.png', 'assets/jars/sweet-7.png'],
+  smoky: ['assets/jars/smoky-1.png', 'assets/jars/smoky-2.png', 'assets/jars/smoky-3.png', 'assets/jars/smoky-4.png', 'assets/jars/smoky-5.png', 'assets/jars/smoky-6.png', 'assets/jars/smoky-7.png'],
+  spicy: ['assets/jars/spicy-1.png', 'assets/jars/spicy-2.png', 'assets/jars/spicy-3.png', 'assets/jars/spicy-4.png', 'assets/jars/spicy-5.png', 'assets/jars/spicy-6.png', 'assets/jars/spicy-7.png'],
+};
+// Chili Oil bottle cutouts: 1 front, 2 ¾ left, 3 ¾ right, 4 high angle, 5 back.
+const OIL_ART = ['assets/jars/oil-1.png', 'assets/jars/oil-2.png', 'assets/jars/oil-3.png', 'assets/jars/oil-4.png', 'assets/jars/oil-5.png'];
+const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
+
 // Language stored on this device.
 const LANG_STORAGE_KEY = 'pirekua-lang';
 
@@ -44,6 +59,8 @@ const I18N = {
     'lang.group': 'Language',
     'lockup.alt': 'pirekua, Mexican chili crisp',
     'hero.sub': 'It started with two friends, a stove, and a lot of laughing.',
+    'hero.asideTl': 'it’s pronounced <span class="nobr">“perry-KOO-a”</span>',
+    'hero.asideBr': 'but you can just call us delicious',
     'cta.know': 'Be in the know',
 
     's1.title': 'What is Mexican chili crisp?',
@@ -153,6 +170,8 @@ const I18N = {
     'lang.group': 'Idioma',
     'lockup.alt': 'pirekua, chili crisp mexicano',
     'hero.sub': 'Todo empezó con dos amigos, una estufa y un montón de risas.',
+    'hero.asideTl': 'Se pronuncia <span class="nobr">“perry-KOO-a”</span>',
+    'hero.asideBr': 'pero puedes decirnos deliciosos',
     'cta.know': 'Mantente al tanto',
 
     's1.title': '¿Qué es el chili crisp mexicano?',
@@ -303,12 +322,16 @@ const I18N = {
      Missing brand art: show a labeled placeholder, never a substitute
      --------------------------------------------------------------- */
   function toPlaceholder(img) {
-    const fallback = img.dataset.fallback;
-    if (fallback && !img.dataset.triedFallback) {
-      img.dataset.triedFallback = img.getAttribute('src').split('/').pop();
-      // e.g. a jar cutout falling back to its studio render, which needs the old crop
-      if (img.dataset.fallbackClass && img.parentElement) img.parentElement.classList.add(img.dataset.fallbackClass);
-      img.src = fallback;
+    // data-fallback: one file, or several separated by "|", tried in order.
+    // data-fallback-class: added to the parent when the LAST fallback is used
+    // (e.g. a jar cutout falling back to its studio render, which needs the old crop).
+    const list = (img.dataset.fallback || '').split('|').filter(Boolean);
+    const step = Number(img.dataset.fallbackStep || 0);
+    if (step < list.length) {
+      if (!img.dataset.triedFallback) img.dataset.triedFallback = img.getAttribute('src').split('/').pop();
+      img.dataset.fallbackStep = String(step + 1);
+      if (step === list.length - 1 && img.dataset.fallbackClass && img.parentElement) img.parentElement.classList.add(img.dataset.fallbackClass);
+      img.src = list[step];
       return;
     }
     const tried = img.dataset.triedFallback;
@@ -363,7 +386,6 @@ const I18N = {
 
     const chiles = Array.from(ristra.querySelectorAll('[data-chile]')).map((el) => ({
       el, swing: el.querySelector('.ristra__swing'), a: 0, v: 0,
-      rest: (parseFloat(el.dataset.rest) || 0) * Math.PI / 180,   // resting tilt; the swing is added to it
     }));
     let raf = 0, last = 0;
 
@@ -379,7 +401,7 @@ const I18N = {
         if (c.a < -MAX_ANGLE) { c.a = -MAX_ANGLE; c.v = Math.max(c.v, 0); }
         if (Math.abs(c.a) < 0.0006 && Math.abs(c.v) < 0.003) { c.a = 0; c.v = 0; }
         else moving = true;
-        c.swing.style.transform = 'rotate(' + (c.rest + c.a).toFixed(4) + 'rad)';
+        c.swing.style.transform = 'rotate(' + c.a.toFixed(4) + 'rad)';
       }
       raf = moving ? requestAnimationFrame(step) : 0;
     }
@@ -828,15 +850,6 @@ const I18N = {
     const FLAVORS = ['sweet', 'smoky', 'spicy'];
     const SCENE = { w: 280, h: 250, rimY: 134, rimL: 54, rimR: 226, jarW: 26, jarH: 35 };
 
-    // Transparent cutouts (jar-*.png); fall back to the studio renders while they're missing.
-    const jarArt = {};
-    FLAVORS.forEach((f) => {
-      const probe = new Image();
-      probe.onload = () => { jarArt[f] = 'cut'; };
-      probe.onerror = () => { jarArt[f] = 'fallback'; };
-      probe.src = 'assets/jar-' + f + '.png';
-    });
-
     function seeded(seed) {           // mulberry32
       let a = seed >>> 0;
       return () => {
@@ -881,8 +894,18 @@ const I18N = {
     }
     const HEAP = buildHeap();
 
-    function makeJar(i, cx, cy) {
+    // Each jar gets a flavor (cycling) and an angle from JAR_ART, chosen once from
+    // the seed, so the heap looks varied but is the same on every run.
+    const pickRnd = seeded(BASKET_SEED + 101);
+    const TOTAL_JARS = BASKET_INSIDE_JARS + BASKET_TUMBLERS;
+    const JAR_PICKS = Array.from({ length: TOTAL_JARS }, (_, i) => {
       const f = FLAVORS[i % 3];
+      const list = JAR_ART[f] || [];
+      return { f, src: list.length ? list[Math.floor(pickRnd() * list.length)] : '' };
+    });
+
+    function makeJar(i, cx, cy) {
+      const pick = JAR_PICKS[i % JAR_PICKS.length];
       const el = document.createElement('div');
       el.className = 'minijar';
       el.style.left = (cx - SCENE.jarW / 2) + 'px';
@@ -890,9 +913,17 @@ const I18N = {
       const img = document.createElement('img');
       img.alt = '';
       img.decoding = 'async';
-      const useFallback = () => { el.classList.add('is-fallback'); img.src = 'assets/render-' + f + '.png'; };
-      if (jarArt[f] === 'fallback') useFallback();
-      else { img.onerror = () => { img.onerror = null; useFallback(); }; img.src = 'assets/jar-' + f + '.png'; }
+      // small cutout → full-size cutout → studio render with the old crop
+      const chain = [pick.src && smallJar(pick.src), pick.src, 'assets/render-' + pick.f + '.png'].filter(Boolean);
+      let k = 0;
+      img.onerror = () => {
+        k += 1;
+        if (k >= chain.length) { img.onerror = null; return; }
+        if (k === chain.length - 1) el.classList.add('is-fallback');
+        img.src = chain[k];
+      };
+      if (chain.length === 1) el.classList.add('is-fallback');
+      img.src = chain[0];
       el.appendChild(img);
       jarsEl.appendChild(el);
       return el;
@@ -913,7 +944,7 @@ const I18N = {
       const tumbleDur = 1000;
       const tumbleStart = Math.max(0, BASKET_MS - tumbleDur - 140 * (HEAP.tumblers.length - 1) - 120);
       HEAP.tumblers.forEach((p, k) => {
-        const el = makeJar(k + 1, p.x, p.y);
+        const el = makeJar(BASKET_INSIDE_JARS + k, p.x, p.y);
         el.classList.add('is-tumbler');
         el.style.transform = 'rotate(' + p.r.toFixed(1) + 'deg)';
         if (instant || !el.animate) return;

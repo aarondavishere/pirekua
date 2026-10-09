@@ -6,8 +6,8 @@ Deploys from the repo root on Netlify (see `netlify.toml`).
 ## Page order
 
 1. Language toggle (EN | ES, fixed top right)
-2. Hero: lockup with sunrise bloom, scattered jars, fixed tagline "Made with amor y risas.", party button
-3. Ristra divider: ten hanging icon marks that swing
+2. Hero: fills the first screen. Lockup with sunrise bloom, scattered jars, two tilted asides, fixed tagline "Made with amor y risas.", party button
+3. Ristra divider: five hanging icon marks that swing, just below the first screen
 4. Section 1: What is Mexican chili crisp?
 5. Section 2: What does it taste like? + Not your usual chili crisp (media slot)
 6. Section 3: Meet the lineup (Sweet, Smoky, Spicy, Chili Oil cards)
@@ -24,7 +24,7 @@ Not built yet: shop page, cart, payments, real cookbook pages, real making-of fo
 |---|---|
 | `index.html` | Page markup, both dialogs (signup, privacy), and a hidden static copy of the signup form for Netlify |
 | `styles.css` | Brand tokens, mobile-first layout, reduced-motion rules |
-| `script.js` | Strings (EN/ES), language toggle, ristra swing, chile confetti, dialogs, validation, carousel, quiz, missing-asset placeholders |
+| `script.js` | Jar art manifest, strings (EN/ES), language toggle, ristra swing, chile confetti, dialogs, validation, carousel, quiz, missing-asset placeholders |
 | `netlify/functions/submission-created.js` | Sends the welcome email after each signup |
 | `netlify.toml` | Publish the repo root; functions live in `netlify/functions` |
 | `assets/` | Brand art (see below) |
@@ -44,6 +44,8 @@ Not built yet: shop page, cart, payments, real cookbook pages, real making-of fo
 | `BASKET_DROP_STAGGER_MS` | `70` | Gap between jars landing inside |
 | `BASKET_SEED` | `7` | Seed for the heap's small random offsets. Same seed, same heap every run |
 | `COOKBOOK_PAGES` | 6 entries | One entry per cookbook slide (see below) |
+| `JAR_ART` | 7 per flavor | Jar cutout manifest (see "Jar art" below). The quiz basket picks its angles from here |
+| `OIL_ART` | 5 entries | Chili Oil cutouts, same idea |
 
 Ristra physics (`STIFFNESS`, `DAMPING`, `GAIN`, `MAX_ANGLE`) are in the ristra block of `script.js`.
 
@@ -51,14 +53,20 @@ Ristra physics (`STIFFNESS`, `DAMPING`, `GAIN`, `MAX_ANGLE`) are in the ristra b
 
 | Variable | Where | What it does |
 |---|---|---|
-| `--hero-pad-top` / `--hero-pad-bottom` | `.hero` | Space above the lockup / above the ristra |
-| `--hero-gap-tagline`, `--hero-gap-sub`, `--hero-gap-btn` | `.hero` | Lockup → tagline → subhead → button spacing |
-| `--lockup-w` | `.hero` | Lockup width (80vw on phones, 64vw on tablets, 560px max) |
+| `--hero-peek` | `.hero` | How much of the ristra peeks above the fold. `0px` = the hero fills the screen (`100svh`, `100vh` fallback) and the ristra starts just below it. `60px` would show 60px of it |
+| `--hero-pad-top` / `--hero-pad-bottom` | `.hero` | Minimum space above the lockup / below the button. Content is centered vertically in what's left |
+| `--hero-gap-tagline`, `--hero-gap-sub`, `--hero-gap-btn` | `.hero` | Lockup → tagline → subhead → button spacing (scale with screen height) |
+| `--lockup-w` | `.hero` | Lockup width: `min(86vw, 820px, 130svh − 320px)`, so short screens shrink it to fit. `56vw` from 1024 to 1279px |
+| `--lock-half` | `.hero` | Half the lockup width. Desktop jars measure their side bands from it |
 | `--bloom-spin` | `.hero` | One full turn of the sunrise bloom (`60s`) |
 | `--dot-lift` | `.hero` | How far the chile over the i is raised (`0.07em`) |
-| `--side`, `--f`, `--y`, `--jw`, `--r` (`--left` on phones) | `.jar--1` … `.jar--6` | Hero jar placement: side of the lockup, how far out into the side band (0 = lockup edge, 1 = page edge), height, width and angle |
-| `--rs-xs` … `--rs-xl` | `.ristra` | The five chile sizes |
-| `--x`, `--w`, `--rest` (+ `data-rest`) | each `.ristra__chile` in `index.html` | Chile position, size and resting tilt. The swing is added to the tilt |
+| `--jw`, `--r`, `--y` | `.jar--1` … `.jar--12` | Hero jar width, rotation and vertical position (% of the hero) |
+| `--side`, `--f` (1024px and up) | `.jar--N` | Which side of the lockup (`-1` left, `1` right) and how far out into that side band (0 = lockup edge, 1 = page edge) |
+| `--left` (below 1024px) | `.jar--N` | Horizontal position as % of the hero. Jars 10–12 are hidden below 1024px |
+| `--jscale` | `.hero` | Shrinks every jar at once (`0.78` from 1024 to 1279px) |
+| `--left`/`--side`/`--f`, `--y`, `--r`, `--align`, `--aside-w` | `.hero__aside--tl`, `--br` | The two tilted asides: position, tilt, text alignment and max width (they wrap past it) |
+| `--rs-s`, `--rs-l`, `--rs-m`, `--rs-xl`, `--rs-s2` | `.ristra` | The five chile sizes, left to right |
+| `--x`, `--w` | each `.ristra__chile` in `index.html` | Chile position and size. `is-mirrored` flips a chile (chiles 2 and 5) |
 | `--products-pad-top`, `--products-pad-bottom`, `--products-title-gap` | `.products` | Lineup section spacing |
 | `--pcard-pad`, `--pcard-gap`, `--oil-col` | `.products` | Card padding, space between cards, and the Chili Oil column width (desktop) |
 | `--win-h` | `.products__grid` | Height of the product window on each card |
@@ -90,10 +98,26 @@ To add a string:
 - Each slide shows its image if the file exists. Otherwise it shows its branded "Cookbook image N" placeholder.
 - To add the real pages, drop `page-1.png`, `page-2.png` and so on into `assets/cookbook/`. Square images, 1200 × 1200 or larger.
 
+## Jar art
+
+- Cutouts live in `assets/jars/` as `{flavor}-{n}.png`: `sweet`, `smoky`, `spicy`, `oil`. Transparent, no shadow, tightly cropped, 480px wide (oil 300px).
+- Angles: `1` front (upright, used for the lineup cards and section 1), `2` three-quarter left, `3` three-quarter right, `4` high, `5` low, `6` side (story panel), `7` side (nutrition panel). Oil: `1` front, `2` three-quarter left, `3` three-quarter right, `4` high, `5` back.
+- `assets/jars/small/` holds 200px copies with the same names. The hero and the quiz basket load these.
+- **Manifest:** `JAR_ART` and `OIL_ART` at the very top of `script.js` list every file. To add or remove an angle, add or remove its line there; the basket only picks from what's listed.
+- **Hero jars:** each `<div class="jar jar--N">` in `index.html` names its image directly (comment above the jar layer). Change the filename to change the angle; change its placement variables in `styles.css` (see the CSS table above) to move it.
+- **Fallback chain:** `data-fallback="a|b"` tries each file in order. Jars go small cutout → full cutout → `render-{flavor}.png` with its old crop (`is-fallback`), then a dashed placeholder.
+- To replace the cutouts with your own exports, overwrite the files with the same names (and re-make the `small/` copies).
+
+## Pass 5 edits in one line each
+
+- **Jars:** shadow-free cutouts everywhere. 12 jars in the hero (9 on phones and tablets) at mixed sizes and angles, plus two tilted asides. Mixed angles in the basket, front views on the lineup cards and in section 1.
+- **Ristra:** back to the pass 3 ristra: five chiles, chiles 2 and 5 mirrored, same swing.
+- **Hero:** fills the first screen; lockup, tagline and subhead are larger, and the ristra sits just below the fold.
+
 ## Pass 4 edits in one line each
 
 - **Hero:** tighter spacing, so the button and the top of the ristra fit on a 1280 × 720 screen. The tagline and subhead each sit on one line, the chile dot is lifted, the sunrise bloom turns slowly, and six shadow-free jars splash out from the wordmark at every width.
-- **Ristra:** ten chiles in five sizes, each with its own resting tilt, all swinging.
+- **Ristra:** ten chiles with resting tilts (undone in pass 5).
 - **Lineup:** tighter spacing, slightly smaller cards, the heat chip closer to the text, and a wider Chili Oil column (`--oil-col`).
 - **Quiz:** tighter spacing, the heading on one line, "Sunrises" / "Sunsets", the brand book market basket, and about 40 jars heaping in and spilling over.
 
@@ -119,8 +143,11 @@ To add a string:
 | `icon-mark.png`, `chile-dot.png`, `bloom-sunrise.png` | Included | |
 | `chile-sweet.png`, `chile-smoky.png`, `chile-spicy.png` (+ `-flip`) | Included | |
 | `leaf-1.png`, `leaf-2.png` | Included | |
-| `render-sweet.png`, `render-smoky.png`, `render-spicy.png`, `render-lineup.png`, `render-chili-oil.png` | Included | Resized for speed. Lineup cards and section 1 use these. The hero and quiz use them only as a fallback |
-| `jar-sweet.png`, `jar-smoky.png`, `jar-spicy.png` | **Still needed** | Transparent cutouts, no shadow, tightly cropped, about 600px wide. Used by the hero jars and the quiz basket. Until they're added, the matching `render-*.png` shows with its old crop |
+| `jars/sweet-1.png` … `sweet-7.png`, `smoky-1` … `7`, `spicy-1` … `7` | Included | Shadow-free cutouts, 480px wide, cut from the no-shadow renders in the Perikua Labels canvas. Side views (6, 7) show placeholder label text ([UPC], nutrition) until the real label art is final |
+| `jars/oil-1.png` … `oil-5.png` | Included | Chili Oil cutouts, 300px wide. No low-angle oil yet |
+| `jars/small/*.png` | Included | 200px copies of the jar cutouts for the hero and basket |
+| `render-sweet.png`, `render-smoky.png`, `render-spicy.png`, `render-chili-oil.png` | Fallback only | Shown with their old crop only if a cutout is missing |
+| `render-lineup.png` | Not used | Section 1 now builds the lineup from the three front cutouts plus the oil. Safe to delete later |
 | `basket.png` | Included | Brand book "Woven market basket" (Icon set board, Market basket, the empty one), exported at 600 × 516 |
 | `chile-scatter.png` | Included | Brand book chile scatter tile, 600 × 600, shown at 300px |
 | `tall-p-white.png` | Included | Brand book Treatment A, white stem and leaves (Leaf Green version) |
@@ -165,4 +192,5 @@ Before launch, replace `[BUSINESS NAME + MAILING ADDRESS]` in the email footer (
 - Carousel: labelled region, "Slide N of 6" announced politely, 48px arrows, real dot buttons, left/right arrow keys, swipe.
 - Quiz: radios and a range input, results announced through a polite live region.
 - Lineup section and footer: cream on Leaf Green is 3.55:1. That fails the 4.5:1 target for normal text but passes the 3:1 bar for large text, so all footer text is set at 19px bold and the lineup heading is large. A strict 4.5:1 would need a darker green.
-- `prefers-reduced-motion`: no confetti, ristra swing, drumroll, basket animation or transitions. The quiz shows its final state at once.
+- Hero jars and asides: jars are decorative (`aria-hidden`, `alt=""`, no pointer events); the asides are real text and translate.
+- `prefers-reduced-motion`: no bloom spin, confetti, ristra swing, drumroll, basket animation or transitions. The quiz shows its final state at once.

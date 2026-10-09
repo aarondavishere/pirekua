@@ -27,16 +27,24 @@
   <!-- ============ HERO ============ -->
   <section class="hero" aria-labelledby="hero-title">
 
-    <!-- Six jars splashing out from behind the wordmark (2 of each flavor). Decoration only.
-         Positions, sizes and angles: --x, --y, --jw, --r on .jar--1 … .jar--6 in styles.css.
-         Transparent cutouts (jar-*.png); if one is missing, the render-*.png is used with its old crop. -->
+    <!-- Hero jars: a loose scatter, tossed across the table. Decoration only.
+         Each jar's flavor and angle is its image here (assets/jars/small/<flavor>-<angle>.png);
+         its position, size and tilt are --side/--f (or --left), --y, --jw and --r on .jar--N in styles.css.
+         Jars 10 to 12 show from 1024px up (12 total); smaller screens show 1 to 9.
+         If a cutout is missing: the full-size cutout, then the old studio render with its crop. -->
     <div class="hero__jars" aria-hidden="true">
-      <div class="jar jar--1"><img src="assets/jar-sweet.png" data-fallback="assets/render-sweet.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
-      <div class="jar jar--2"><img src="assets/jar-smoky.png" data-fallback="assets/render-smoky.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
-      <div class="jar jar--3"><img src="assets/jar-spicy.png" data-fallback="assets/render-spicy.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
-      <div class="jar jar--4"><img src="assets/jar-spicy.png" data-fallback="assets/render-spicy.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
-      <div class="jar jar--5"><img src="assets/jar-sweet.png" data-fallback="assets/render-sweet.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
-      <div class="jar jar--6"><img src="assets/jar-smoky.png" data-fallback="assets/render-smoky.png" data-fallback-class="is-fallback" alt="" width="600" height="800" fetchpriority="low"></div>
+      <div class="jar jar--1"><img src="assets/jars/small/sweet-2.png" data-fallback="assets/jars/sweet-2.png|assets/render-sweet.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--2"><img src="assets/jars/small/smoky-4.png" data-fallback="assets/jars/smoky-4.png|assets/render-smoky.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--3"><img src="assets/jars/small/spicy-1.png" data-fallback="assets/jars/spicy-1.png|assets/render-spicy.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--4"><img src="assets/jars/small/smoky-5.png" data-fallback="assets/jars/smoky-5.png|assets/render-smoky.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--5"><img src="assets/jars/small/sweet-3.png" data-fallback="assets/jars/sweet-3.png|assets/render-sweet.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--6"><img src="assets/jars/small/spicy-6.png" data-fallback="assets/jars/spicy-6.png|assets/render-spicy.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--7"><img src="assets/jars/small/spicy-3.png" data-fallback="assets/jars/spicy-3.png|assets/render-spicy.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--8"><img src="assets/jars/small/sweet-4.png" data-fallback="assets/jars/sweet-4.png|assets/render-sweet.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--9"><img src="assets/jars/small/smoky-2.png" data-fallback="assets/jars/smoky-2.png|assets/render-smoky.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--10"><img src="assets/jars/small/sweet-5.png" data-fallback="assets/jars/sweet-5.png|assets/render-sweet.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--11"><img src="assets/jars/small/spicy-2.png" data-fallback="assets/jars/spicy-2.png|assets/render-spicy.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
+      <div class="jar jar--12"><img src="assets/jars/small/smoky-3.png" data-fallback="assets/jars/smoky-3.png|assets/render-smoky.png" data-fallback-class="is-fallback" alt="" width="200" height="289" fetchpriority="low"></div>
     </div>
 
     <div class="hero__inner">
@@ -55,49 +63,32 @@
 
       <button type="button" class="btn btn--primary" data-party data-signup data-source="hero" data-i18n="cta.know">Be in the know</button>
     </div>
+
+    <!-- Two small lines tucked among the jars (positions: --x/--y/--r on .hero__aside--tl / --br) -->
+    <p class="hero__aside hero__aside--tl" data-i18n-html="hero.asideTl">it’s pronounced <span class="nobr">“perry-KOO-a”</span></p>
+    <p class="hero__aside hero__aside--br" data-i18n="hero.asideBr">but you can just call us delicious</p>
   </section>
 
   <!-- ============ DIVIDER: THE RISTRA ============ -->
-  <!-- Ten chiles. --x position, --w size (--rs-* in styles.css), --rest / data-rest resting tilt in degrees -->
   <div class="ristra" aria-hidden="true">
     <div class="ristra__line"></div>
-    <div class="ristra__chile" style="--x: 5.5%; --w: var(--rs-m); --rest: -3deg;" data-chile data-rest="-3">
+    <div class="ristra__chile" style="--x: 8%;  --w: var(--rs-s);" data-chile>
       <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
-    <div class="ristra__chile is-mirrored" style="--x: 15.5%; --w: var(--rs-xl); --rest: 2deg;" data-chile data-rest="2">
+    <div class="ristra__chile is-mirrored" style="--x: 25%; --w: var(--rs-l);" data-chile>
       <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
-    <div class="ristra__chile" style="--x: 25%; --w: var(--rs-s); --rest: -4deg;" data-chile data-rest="-4">
+    <div class="ristra__chile" style="--x: 46%; --w: var(--rs-m);" data-chile>
       <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
-    <div class="ristra__chile is-mirrored" style="--x: 34.5%; --w: var(--rs-l); --rest: 3deg;" data-chile data-rest="3">
+    <div class="ristra__chile" style="--x: 65%; --w: var(--rs-xl);" data-chile>
       <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
-    <div class="ristra__chile" style="--x: 44%; --w: var(--rs-xs); --rest: -2deg;" data-chile data-rest="-2">
-      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
-      <span class="ristra__thread"></span>
-    </div>
-    <div class="ristra__chile is-mirrored" style="--x: 54.5%; --w: var(--rs-xl); --rest: 4deg;" data-chile data-rest="4">
-      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
-      <span class="ristra__thread"></span>
-    </div>
-    <div class="ristra__chile" style="--x: 64%; --w: var(--rs-m); --rest: -3deg;" data-chile data-rest="-3">
-      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
-      <span class="ristra__thread"></span>
-    </div>
-    <div class="ristra__chile is-mirrored" style="--x: 74.5%; --w: var(--rs-s); --rest: 2deg;" data-chile data-rest="2">
-      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
-      <span class="ristra__thread"></span>
-    </div>
-    <div class="ristra__chile" style="--x: 84.5%; --w: var(--rs-l); --rest: 3deg;" data-chile data-rest="3">
-      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
-      <span class="ristra__thread"></span>
-    </div>
-    <div class="ristra__chile is-mirrored" style="--x: 94.5%; --w: var(--rs-xs); --rest: -2deg;" data-chile data-rest="-2">
+    <div class="ristra__chile is-mirrored" style="--x: 86%; --w: var(--rs-s2);" data-chile>
       <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
@@ -113,9 +104,12 @@
       <div class="family">
         <img class="family__leaf family__leaf--1" src="assets/leaf-1.png" alt="" width="252" height="144" loading="lazy" aria-hidden="true">
         <img class="family__leaf family__leaf--2" src="assets/leaf-2.png" alt="" width="200" height="202" loading="lazy" aria-hidden="true">
-        <div class="family__crop family__crop--lineup"><img src="assets/render-lineup.png" width="1600" height="1000" loading="lazy"
-             alt="Three jars of pirekua Mexican chili crisp side by side: Sweet in a yellow label, Smoky in orange, and Spicy in red" data-i18n-attr="alt:s1.lineupAlt"></div>
-        <div class="family__crop family__crop--oil"><img src="assets/render-chili-oil.png" width="720" height="900" loading="lazy"
+        <div class="family__jars" role="img" aria-label="Three jars of pirekua Mexican chili crisp side by side: Sweet in a yellow label, Smoky in orange, and Spicy in red" data-i18n-attr="aria-label:s1.lineupAlt">
+          <img src="assets/jars/sweet-1.png" data-fallback="assets/render-sweet.png" alt="" width="480" height="694" loading="lazy">
+          <img src="assets/jars/smoky-1.png" data-fallback="assets/render-smoky.png" alt="" width="480" height="694" loading="lazy">
+          <img src="assets/jars/spicy-1.png" data-fallback="assets/render-spicy.png" alt="" width="480" height="694" loading="lazy">
+        </div>
+        <div class="family__oil"><img src="assets/jars/oil-1.png" data-fallback="assets/render-chili-oil.png" width="300" height="1082" loading="lazy"
              alt="A squeeze bottle of pirekua Mexican Chili Oil with a deep brown label" data-i18n-attr="alt:s1.oilAlt"></div>
       </div>
     </div>
@@ -157,7 +151,7 @@
       <div class="products__grid">
       <article class="pcard pcard--sweet">
         <div class="pcard__window">
-          <div class="pcard__crop"><img src="assets/render-sweet.png" width="720" height="900" loading="lazy"
+          <div class="pcard__crop"><img src="assets/jars/sweet-1.png" data-fallback="assets/render-sweet.png" data-fallback-class="is-fallback" width="480" height="694" loading="lazy"
                alt="A jar of pirekua Sweet Mexican chili crisp" data-i18n-attr="alt:products.sweet.alt"></div>
         </div>
         <div class="pcard__body">
@@ -170,7 +164,7 @@
       </article>
       <article class="pcard pcard--smoky">
         <div class="pcard__window">
-          <div class="pcard__crop"><img src="assets/render-smoky.png" width="720" height="900" loading="lazy"
+          <div class="pcard__crop"><img src="assets/jars/smoky-1.png" data-fallback="assets/render-smoky.png" data-fallback-class="is-fallback" width="480" height="694" loading="lazy"
                alt="A jar of pirekua Smoky Mexican chili crisp" data-i18n-attr="alt:products.smoky.alt"></div>
         </div>
         <div class="pcard__body">
@@ -183,7 +177,7 @@
       </article>
       <article class="pcard pcard--spicy">
         <div class="pcard__window">
-          <div class="pcard__crop"><img src="assets/render-spicy.png" width="720" height="900" loading="lazy"
+          <div class="pcard__crop"><img src="assets/jars/spicy-1.png" data-fallback="assets/render-spicy.png" data-fallback-class="is-fallback" width="480" height="694" loading="lazy"
                alt="A jar of pirekua Spicy Mexican chili crisp" data-i18n-attr="alt:products.spicy.alt"></div>
         </div>
         <div class="pcard__body">
@@ -196,7 +190,7 @@
       </article>
       <article class="pcard pcard--oil">
         <div class="pcard__window">
-          <div class="pcard__crop"><img src="assets/render-chili-oil.png" width="720" height="900" loading="lazy"
+          <div class="pcard__crop"><img src="assets/jars/oil-1.png" data-fallback="assets/render-chili-oil.png" data-fallback-class="is-fallback" width="300" height="1082" loading="lazy"
                alt="A squeeze bottle of pirekua Mexican Chili Oil" data-i18n-attr="alt:products.oil.alt"></div>
         </div>
         <div class="pcard__body">
