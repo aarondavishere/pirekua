@@ -1,4 +1,5 @@
-/* pirekua — pass 1: hero, ristra, section 1, signup modal
+/* pirekua — shared styles (tokens, buttons, fields, dialogs, toggle) and the home page.
+   The Reserve page adds reserve.css on top.
    Mobile-first. Brand tokens come from the pirekua brand book. */
 
 :root {
@@ -67,6 +68,7 @@ img { display: block; max-width: 100%; height: auto; }
 .btn--primary:active { transform: translate(3px, 4px); box-shadow: 1px 1px 0 var(--red); }
 .btn--primary:focus-visible { outline-offset: 5px; border-radius: 999px; }
 .btn--block { width: 100%; }
+.btn--big { min-height: 64px; padding: 0 clamp(36px, 5vw, 56px); font-size: clamp(1.1875rem, 1.05rem + 0.5vw, 1.375rem); }
 
 /* ============ HERO ============ */
 .hero {
@@ -1253,6 +1255,8 @@ img { display: block; max-width: 100%; height: auto; }
   box-shadow: 3px 4px 0 var(--red);
   transition: transform 260ms ease;
 }
+/* In a page header (Reserve page): sits in the flow instead of floating */
+.lang-toggle--inline { position: relative; top: auto; right: auto; z-index: 1; }
 .lang-toggle__btn {
   min-width: 44px;
   min-height: 44px;
@@ -1324,7 +1328,7 @@ img { display: block; max-width: 100%; height: auto; }
   border: 0;
 }
 
-/* ============ SIGNUP MODAL ============ */
+/* ============ DIALOGS AND FORMS (shared by every page) ============ */
 .modal {
   width: min(100% - 32px, 440px);
   max-width: none;
@@ -1381,9 +1385,8 @@ img { display: block; max-width: 100%; height: auto; }
 }
 .modal__title:focus { outline: none; }
 
-.signup { display: grid; gap: 14px; }
-.signup__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; margin: 0; }
-.field { display: grid; gap: 6px; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; margin: 0; }   /* honeypot */
+.field { display: grid; gap: 6px; align-content: start; }
 .field__label { font-weight: 600; font-size: 0.95rem; }
 .field__input {
   width: 100%;
@@ -1396,19 +1399,33 @@ img { display: block; max-width: 100%; height: auto; }
   font: 500 1rem var(--sans);
 }
 .field__input:focus { outline: 3px solid var(--orange); outline-offset: 2px; }
-.field__input[aria-invalid="true"] { border-color: var(--red); }
-.signup__hint { margin: -4px 0 0; font-size: 0.9rem; font-weight: 500; }
-.signup__msg {
-  margin: 0;
-  min-height: 1.5em;
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1.45;
+.field__input[aria-invalid="true"] { border-color: var(--red); border-width: 3px; }
+select.field__input {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 44px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
 }
-.signup__msg:empty { min-height: 0; margin-top: -14px; }
-.signup .btn { margin-top: 6px; }
-.signup__consent { margin: 0; font-size: 0.8125rem; font-weight: 500; line-height: 1.45; }
-.signup.is-sending .btn { opacity: 0.7; pointer-events: none; }
+/* Inline error under a field: ink text with a red marker, never red small text */
+.field__error { margin: 0; font-size: 0.9rem; font-weight: 600; line-height: 1.4; }
+.field__error:empty { display: none; }
+.field__error::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 999px; background: var(--red); vertical-align: 0.1em; }
+/* Consent line under a submit button */
+.form-consent { margin: 0; font-size: 0.8125rem; font-weight: 500; line-height: 1.45; }
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
 
 .modal__success { text-align: center; padding: 8px 0 12px; }
 .modal__success .modal__title { padding: 0; margin: 14px 0 0; }

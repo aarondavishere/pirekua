@@ -1,0 +1,380 @@
+/* pirekua — Reserve page (/reserve/). Loaded after styles.css, which supplies the
+   tokens, buttons, fields, dialogs, toggle and footer. Clean and fast: no motion
+   here except the confetti on a confirmed reservation and the summary sheet. */
+
+.rpage {
+  /* tuning knobs */
+  --r-max: 1280px;                         /* page width */
+  --r-side: 340px;                         /* desktop summary column */
+  --r-gap: clamp(28px, 4vw, 56px);         /* space between sections */
+  --r-radius: clamp(22px, 2.6vw, 30px);    /* panel corners */
+  --stepper-size: 48px;                    /* − and + buttons (48px minimum touch target) */
+}
+
+/* Section headings are smaller here than on the home page, so the gift box leads */
+.reserve .section-title { font-size: clamp(1.75rem, 1.25rem + 2vw, 2.75rem); max-width: none; }
+
+/* ============ HEADER ============ */
+.rhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: var(--r-max);
+  margin: 0 auto;
+  padding: 12px var(--gutter);
+}
+.rhead__home { display: block; flex: 0 0 auto; border-radius: 8px; }
+.rhead__home img { width: clamp(96px, 20vw, 156px); height: auto; }
+.rhead__home .asset-ph { width: clamp(96px, 20vw, 156px) !important; aspect-ratio: 1536 / 693 !important; }
+.rhead__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-left: auto;
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  white-space: nowrap;
+}
+
+/* ============ LAYOUT ============ */
+.reserve__layout {
+  max-width: var(--r-max);
+  margin: 0 auto;
+  padding: 8px var(--gutter) var(--r-gap);
+}
+.reserve__main, .reserve__shop { display: grid; gap: var(--r-gap); min-width: 0; }
+.summary { display: none; }
+
+@media (min-width: 1024px) {
+  .reserve__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--r-side);
+    gap: clamp(28px, 3vw, 44px);
+    align-items: start;
+  }
+  .summary { display: block; position: sticky; top: 20px; }
+}
+
+/* ============ THE HOLIDAY GIFT BOX ============ */
+.gift {
+  display: grid;
+  gap: clamp(20px, 3vw, 36px);
+  padding: clamp(18px, 3vw, 36px);
+  border-radius: var(--r-radius);
+  background: var(--card);
+}
+@media (min-width: 768px) {
+  .gift { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); align-items: center; }
+}
+.gift__art {
+  position: relative;
+  display: grid;
+  border-radius: calc(var(--r-radius) - 8px);
+  background: var(--cream);
+  overflow: hidden;
+}
+.gift__img { width: 100%; height: auto; }
+/* While assets/gift-box.png is missing: the labeled placeholder, with the three jars standing in it */
+.gift__art .asset-ph {
+  grid-area: 1 / 1;
+  width: 100% !important;
+  align-items: flex-start;
+  padding-top: 14px;
+  border-radius: inherit;
+}
+.gift__jars {
+  grid-area: 1 / 1;
+  align-self: end;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4%;
+  padding: 0 10% 7%;
+  pointer-events: none;
+}
+.gift__jars img { width: 28%; height: auto; }
+.gift__art.has-box .gift__jars { display: none; }
+
+.gift__body { display: grid; gap: 14px; min-width: 0; }
+.gift__eyebrow {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+/* The biggest type on the page */
+.gift__name {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 1.55rem + 3.6vw, 4.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.gift__desc { margin: 0; font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem); font-weight: 500; line-height: 1.6; }
+.gift__inside-title { margin: 4px 0 0; font-size: 1.0625rem; font-weight: 800; }
+.gift__inside {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.gift__inside li { position: relative; padding-left: 30px; }
+/* checklist tick (a UI mark, not brand art) */
+.gift__inside li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0.32em;
+  width: 7px;
+  height: 13px;
+  border: solid var(--ink);
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+.gift__bulk {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--yellow);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* ============ QUANTITY STEPPER (all five products) ============ */
+.qty { display: grid; gap: 6px; justify-items: start; }
+.qty__label { font-size: 0.95rem; font-weight: 700; }
+.qty--gift { margin-top: 4px; }
+.qty--gift .qty__label { font-size: 1.0625rem; font-weight: 800; }
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+}
+.stepper__btn {
+  display: grid;
+  place-items: center;
+  width: var(--stepper-size);
+  height: var(--stepper-size);
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.stepper__btn:focus-visible { outline-offset: -3px; }
+.stepper__btn:disabled { cursor: default; opacity: 0.4; }
+.stepper__input {
+  width: 4ch;
+  min-width: 52px;
+  height: var(--stepper-size);
+  padding: 0;
+  border: 0;
+  border-left: 2px solid var(--ink);
+  border-right: 2px solid var(--ink);
+  border-radius: 0;
+  background: var(--card);
+  color: var(--ink);
+  font: 800 1.125rem/1 var(--sans);
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.stepper__input::-webkit-outer-spin-button,
+.stepper__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper__input:focus { outline: 3px solid var(--orange); outline-offset: 2px; }
+.qty--gift .stepper { --stepper-size: 56px; }
+.qty--gift .stepper__input { font-size: 1.375rem; min-width: 64px; }
+
+.price { margin: 0; font-weight: 800; font-size: 1.125rem; }
+.price--big { font-size: 1.5rem; }
+
+/* ============ SINGLE JARS ============ */
+.jars { display: grid; gap: clamp(14px, 2vw, 22px); }
+.jars__grid { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+
+.rcard {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);   /* phones: jar beside the text */
+  gap: 14px;
+  padding: 12px;
+  border-radius: 24px;
+  background: var(--yellow);
+  color: var(--ink);
+}
+.rcard--sweet { background: var(--yellow); }
+.rcard--smoky { background: var(--orange); }
+.rcard--spicy { background: var(--red); color: var(--cream); }
+.rcard--oil   { background: var(--ink); color: var(--cream); }
+.rcard__window {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 150px;
+  padding: 10px 8px 6px;
+  border-radius: 16px;
+  background: var(--card);
+}
+.rcard__window img { width: auto; max-width: 100%; height: 134px; object-fit: contain; object-position: 50% 100%; }
+@media (max-width: 639.98px) { .rcard__window { align-items: center; } }
+.rcard__window .asset-ph { width: 100% !important; align-self: stretch; }
+.rcard__body { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; padding: 4px 2px; }
+.rcard__name { margin: 0; font-weight: 800; font-size: clamp(1.5rem, 1.25rem + 0.6vw, 1.75rem); line-height: 1.05; letter-spacing: -0.02em; }
+.rcard__tag { margin: 0; font-weight: 700; font-size: 0.9375rem; line-height: 1.35; }
+.rcard .qty { margin-top: auto; padding-top: 4px; }
+.heat--inline { position: static; color: var(--ink); }
+
+@media (min-width: 640px) {
+  .jars__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rcard { grid-template-columns: minmax(0, 1fr); }
+  .rcard__window { min-height: 200px; }
+  .rcard__window img { height: 184px; }
+}
+/* Four in a row once the main column is wide enough (beside the summary column) */
+@media (min-width: 1200px) {
+  .jars__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .rcard__window { min-height: 180px; }
+  .rcard__window img { height: 164px; }
+}
+
+/* ============ WHAT RESERVING MEANS ============ */
+.means {
+  display: grid;
+  gap: 12px;
+  padding: clamp(22px, 3.4vw, 40px);
+  border-radius: var(--r-radius);
+  background: var(--card);
+}
+.means .section-title { margin-bottom: 4px; }
+.means p { max-width: 62ch; margin: 0; font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem); font-weight: 500; line-height: 1.65; }
+
+/* ============ SUMMARY BAR (phones and tablets) ============ */
+.rbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 calc(-1 * var(--gutter));
+  padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom, 0px));
+  border-top: 2px solid var(--ink);
+  background: var(--cream);
+}
+.rbar__text { display: grid; margin: 0 auto 0 0; min-width: 0; line-height: 1.25; }
+.rbar__title { font-weight: 800; font-size: 0.95rem; }
+.rbar__count { font-weight: 600; font-size: 0.9rem; }
+.rbar__view {
+  min-height: 48px;
+  padding: 0 16px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  font: 700 1rem/1 var(--sans);
+  cursor: pointer;
+}
+.rbar__go { min-height: 48px; padding: 0 20px; font-size: 1rem; box-shadow: 3px 4px 0 var(--red); }
+@media (min-width: 1024px) { .rbar { display: none; } }
+
+/* ============ SUMMARY (desktop panel and phone sheet) ============ */
+.summary__panel {
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 24px 22px;
+  border: 2px solid var(--ink);
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: 5px 6px 0 var(--orange);
+}
+.summary__title { margin: 0 0 14px; font-weight: 800; font-size: 1.5rem; line-height: 1.1; letter-spacing: -0.02em; padding-right: 44px; }
+.summary__panel .summary__title { padding-right: 0; }
+.summary__title:focus { outline: none; }
+.summary__lines { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.summary__line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 8px 0;
+  border-bottom: 2px solid var(--cream);
+}
+.summary__name { font-weight: 700; line-height: 1.3; }
+.summary__amount { font-weight: 800; white-space: nowrap; }
+.summary__remove { justify-self: start; min-height: 32px; font-size: 0.875rem; font-weight: 600; }
+.summary__empty, .summary__total, .summary__mixing, .summary__price, .summary__nopay { margin: 12px 0 0; line-height: 1.5; }
+.summary__empty { font-weight: 600; }
+.summary__total { font-weight: 600; font-size: 0.95rem; }
+.summary__mixing { margin-top: 4px; font-weight: 600; font-size: 0.95rem; }
+.summary__price { font-weight: 800; font-size: 1.125rem; }
+.summary__nopay { font-weight: 700; font-size: 0.95rem; }
+
+/* Sheet: slides up from the bottom on phones and tablets */
+.sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 85dvh;
+  margin: auto auto 0;
+}
+.sheet[open] { animation: sheet-in 240ms cubic-bezier(.2, .9, .3, 1); }
+@keyframes sheet-in { from { transform: translateY(40px); opacity: 0; } }
+.sheet__panel {
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: 24px clamp(18px, 5vw, 28px) calc(22px + env(safe-area-inset-bottom, 0px));
+  border-radius: 28px 28px 0 0;
+  box-shadow: none;
+}
+.sheet__go { margin-top: 18px; }
+
+/* ============ FORM ============ */
+.rform { display: grid; gap: 18px; scroll-margin-top: 16px; }
+.rform .section-title:focus { outline: none; }
+.rform__form { display: grid; gap: 20px; }
+.rform__fields { margin: 0; padding: 0; border: 0; min-width: 0; }
+.rform__grid { display: grid; gap: 16px; }
+@media (min-width: 640px) {
+  .rform__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .field--half { grid-column: span 3; }
+  .field--full { grid-column: span 6; }
+  .field--third { grid-column: span 2; }
+}
+.form-alert {
+  margin: 0;
+  padding: 12px 16px;
+  border: 2px solid var(--ink);
+  border-left: 8px solid var(--red);
+  border-radius: 14px;
+  background: var(--card);
+  font-weight: 700;
+}
+.form-alert:focus { outline: none; }
+.rform__submit { display: grid; gap: 14px; justify-items: start; max-width: 560px; }
+.rform__recap { margin: 0; font-weight: 600; line-height: 1.5; }
+.rform__note { margin: 0; font-weight: 700; line-height: 1.45; }
+.rform__note:empty { display: none; }
+.rform__note::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 8px; border-radius: 999px; background: var(--red); }
+.btn[aria-busy="true"] { cursor: progress; opacity: 0.8; }
+
+/* ============ RESERVATION CONFIRMED ============ */
+.done { width: min(100% - 32px, 480px); }
+.done__body { display: grid; gap: 12px; text-align: center; }
+.done__body .modal__title { margin: 6px 0 0; padding: 0; }
+.done__text { margin: 0; font-weight: 500; line-height: 1.6; }
+.done__recap-title { margin: 6px 0 0; font-size: 1rem; font-weight: 800; }
+.done__recap { display: grid; gap: 4px; margin: 0 0 8px; padding: 0; list-style: none; font-weight: 600; }
+
+/* No motion beyond the confetti and the sheet; reduced motion drops those too
+   (styles.css already zeroes animations and transitions). */
+@media (prefers-reduced-motion: reduce) {
+  .sheet[open] { animation: none; }
+}

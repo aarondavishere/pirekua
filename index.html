@@ -4,13 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title data-i18n="meta.title">pirekua · Mexican chili crisp</title>
-  <meta name="description" content="pirekua Mexican chili crisp. Made with amor y risas. Sign up to be in the know." data-i18n-attr="content:meta.description">
+  <meta name="description" content="pirekua Mexican chili crisp. Made with amor y risas. Reserve yours for the holidays." data-i18n-attr="content:meta.description">
   <meta name="theme-color" content="#FFF8EC">
   <link rel="icon" type="image/png" href="assets/icon-mark.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="styles.css">
+  <script src="i18n.js" defer></script>
+  <script src="common.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body>
@@ -62,7 +64,7 @@
 
       <p class="hero__sub" data-i18n="hero.sub">It started with two friends, a stove, and a lot of laughing.</p>
 
-      <button type="button" class="btn btn--primary" data-party data-signup data-source="hero" data-i18n="cta.know">Be in the know</button>
+      <a class="btn btn--primary" data-party href="/reserve/?source=hero" data-i18n="cta.know">Reserve yours</a>
     </div>
 
     <!-- Two small lines tucked among the jars (positions: --x/--y/--r on .hero__aside--tl / --br) -->
@@ -145,7 +147,7 @@
   </section>
 
   <!-- ============ 3. MEET THE LINEUP ============ -->
-  <!-- Each card opens the signup modal for now. Later the card button becomes "Shop" and links to that product. -->
+  <!-- Each card links to the Reserve page with that product already added (add=…). When /reserve becomes /shop, update these links. -->
   <section class="products" aria-labelledby="products-title">
     <div class="products__inner">
       <h2 class="section-title products__title" id="products-title" data-i18n="products.title">Meet the lineup</h2>
@@ -161,7 +163,7 @@
           <p class="pcard__desc" data-i18n="products.sweet.desc">The one that surprises people. Mellow heat, a little sweetness, and that nutty crunch underneath. Hard to stop at one spoonful.</p>
         </div>
         <div class="heat" role="img" aria-label="Heat: none" data-i18n-attr="aria-label:products.heat.none"><img src="assets/bloom-yellow.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-outline.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-outline.png" alt="" width="128" height="128" loading="lazy"></div>
-        <button type="button" class="pcard__btn" data-signup data-source="sweet" data-card-name="Sweet" aria-label="Sweet: be in the know"></button>
+        <a class="pcard__btn" href="/reserve/?source=sweet&amp;add=sweet" data-card-name="Sweet" aria-label="Sweet: reserve yours"></a>
       </article>
       <article class="pcard pcard--smoky">
         <div class="pcard__window">
@@ -174,7 +176,7 @@
           <p class="pcard__desc" data-i18n="products.smoky.desc">The chiles do the talking here: low heat, big smoke, like something pulled straight off the comal. Made for eggs, beans, and anything grilled.</p>
         </div>
         <div class="heat" role="img" aria-label="Heat: medium" data-i18n-attr="aria-label:products.heat.medium"><img src="assets/bloom-orange.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-orange.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-outline.png" alt="" width="128" height="128" loading="lazy"></div>
-        <button type="button" class="pcard__btn" data-signup data-source="smoky" data-card-name="Smoky" aria-label="Smoky: be in the know"></button>
+        <a class="pcard__btn" href="/reserve/?source=smoky&amp;add=smoky" data-card-name="Smoky" aria-label="Smoky: reserve yours"></a>
       </article>
       <article class="pcard pcard--spicy">
         <div class="pcard__window">
@@ -187,7 +189,7 @@
           <p class="pcard__desc" data-i18n="products.spicy.desc">Real heat, but still toasty and nutty underneath, so it's flavor first and fire second. For the people who reach for the hot sauce before they've even tasted the food.</p>
         </div>
         <div class="heat" role="img" aria-label="Heat: high" data-i18n-attr="aria-label:products.heat.high"><img src="assets/bloom-red.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-red.png" alt="" width="128" height="128" loading="lazy"><img src="assets/bloom-red.png" alt="" width="128" height="128" loading="lazy"></div>
-        <button type="button" class="pcard__btn" data-signup data-source="spicy" data-card-name="Spicy" aria-label="Spicy: be in the know"></button>
+        <a class="pcard__btn" href="/reserve/?source=spicy&amp;add=spicy" data-card-name="Spicy" aria-label="Spicy: reserve yours"></a>
       </article>
       <article class="pcard pcard--oil">
         <div class="pcard__window">
@@ -199,7 +201,7 @@
           <p class="pcard__tag" data-i18n="products.oil.tag">All the flavor of the crisp, none of the crunch.</p>
           <p class="pcard__desc" data-i18n="products.oil.desc">Just a rich, chile-infused oil you drizzle at the end. A little goes everywhere: eggs, pizza, soup, a plate of avocado. Your hot honey, but make it Mexican.</p>
         </div>
-        <button type="button" class="pcard__btn" data-signup data-source="chili-oil" data-card-name="Chili Oil" aria-label="Chili Oil: be in the know"></button>
+        <a class="pcard__btn" href="/reserve/?source=chili-oil&amp;add=chili-oil" data-card-name="Chili Oil" aria-label="Chili Oil: reserve yours"></a>
       </article>
       </div>
     </div>
@@ -211,7 +213,7 @@
       <div class="uses__text">
         <h2 class="section-title" id="uses-title" data-i18n="s3.title">What do I use it for?</h2>
         <p class="section-body" data-i18n="s3.body">Eggs, tacos, pizza, noodles, avocado toast. Anything that could use a little más. If it's food, it probably works.</p>
-        <button type="button" class="btn btn--primary uses__btn" data-signup data-source="cookbook" data-i18n="s3.button">Get the cookbook</button>
+        <a class="btn btn--primary uses__btn" href="/reserve/?source=cookbook" data-i18n="s3.button">Get the cookbook</a>
       </div>
 
       <!-- Cookbook carousel: slides come from COOKBOOK_PAGES in script.js -->
@@ -310,7 +312,7 @@
             </div>
             <p class="stage__joke" data-i18n="quiz.joke">Just joking, but it really is that good!</p>
             <div class="stage__cta">
-              <button type="button" class="btn btn--primary" data-party data-signup data-source="quiz" data-i18n="cta.know">Be in the know</button>
+              <a class="btn btn--primary" data-party href="/reserve/?source=quiz" data-i18n="cta.know">Reserve yours</a>
             </div>
             <button type="button" class="stage__again" data-quiz-again data-i18n="quiz.again">Go again</button>
           </div>
@@ -355,45 +357,6 @@
   <img class="footer__p" src="assets/tall-p-white.png" alt="" width="708" height="1656" loading="lazy" aria-hidden="true">
 </footer>
 
-<!-- ============ SIGNUP MODAL (reusable) ============ -->
-<dialog class="modal" id="signup-modal" aria-labelledby="signup-title">
-  <div class="modal__panel">
-    <button type="button" class="modal__close" data-close aria-label="Close" data-i18n-attr="aria-label:modal.close">
-      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-    </button>
-    <img class="modal__leaf" src="assets/leaf-1.png" alt="" width="252" height="144" aria-hidden="true">
-
-    <div class="modal__body" data-form-view>
-      <h2 class="modal__title" id="signup-title" data-i18n="modal.title">Be in the know</h2>
-      <form class="signup" name="signup" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
-        <input type="hidden" name="form-name" value="signup">
-        <input type="hidden" name="source" value="hero">
-        <input type="hidden" name="lang" value="en">
-        <p class="signup__hp" aria-hidden="true">
-          <label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label>
-        </p>
-        <div class="field">
-          <label class="field__label" for="signup-email" data-i18n="modal.email">Email</label>
-          <input class="field__input" id="signup-email" name="email" type="email" inputmode="email" autocomplete="email" aria-describedby="signup-msg">
-        </div>
-        <div class="field">
-          <label class="field__label" for="signup-phone" data-i18n="modal.phone">Phone</label>
-          <input class="field__input" id="signup-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" aria-describedby="signup-msg">
-        </div>
-        <p class="signup__hint" data-i18n="modal.hint">Either one works.</p>
-        <p class="signup__msg" id="signup-msg" role="alert" aria-live="polite"></p>
-        <button type="submit" class="btn btn--primary btn--block" data-i18n="modal.submit">Count me in</button>
-        <p class="signup__consent" data-i18n="modal.consent">By signing up, you agree to receive emails and texts from pirekua. Unsubscribe anytime. Message and data rates may apply.</p>
-      </form>
-    </div>
-
-    <div class="modal__body modal__success" data-success-view hidden>
-      <img class="modal__mark" src="assets/icon-mark.png" alt="" width="708" height="1656" aria-hidden="true">
-      <h2 class="modal__title" tabindex="-1" data-i18n="modal.success">You're on the list.</h2>
-    </div>
-  </div>
-</dialog>
-
 <!-- ============ PRIVACY POLICY MODAL ============ -->
 <dialog class="modal modal--doc" id="privacy-modal" aria-labelledby="privacy-title">
   <div class="modal__panel" tabindex="0">
@@ -420,16 +383,6 @@
     </div>
   </div>
 </dialog>
-
-<!-- Hidden static copy so Netlify's build bot detects the form -->
-<form name="signup" data-netlify="true" netlify-honeypot="bot-field" hidden>
-  <input type="hidden" name="form-name" value="signup">
-  <input type="hidden" name="source">
-  <input type="hidden" name="lang">
-  <input name="bot-field">
-  <input type="email" name="email">
-  <input type="tel" name="phone">
-</form>
 
 </body>
 </html>

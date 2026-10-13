@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="reserve.metaTitle">Reserve · pirekua</title>
+  <meta name="description" content="Reserve pirekua Mexican chili crisp for the holidays: the Holiday Gift Box or single jars. No payment today." data-i18n-attr="content:reserve.metaDescription">
+  <meta name="theme-color" content="#FFF8EC">
+  <link rel="icon" type="image/png" href="/assets/icon-mark.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;500;600;700;800&display=swap">
+  <!-- Root-relative paths, so the page works at /reserve and /reserve/ (and after a rename to /shop) -->
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/reserve.css">
+  <script src="/i18n.js" defer></script>
+  <script src="/common.js" defer></script>
+  <script src="/reserve.js" defer></script>
+</head>
+<body class="rpage">
+
+<!-- ============ HEADER ============ -->
+<header class="rhead">
+  <a class="rhead__home" href="/"><img src="/assets/lockup-primary.png" width="1536" height="693" alt="pirekua, back to home" data-i18n-attr="alt:reserve.homeAlt"></a>
+  <a class="rhead__back" href="/" data-i18n="reserve.back">Back to home</a>
+  <div class="lang-toggle lang-toggle--inline" data-no-tuck role="group" aria-label="Language" data-i18n-attr="aria-label:lang.group">
+    <span class="lang-toggle__thumb" aria-hidden="true"></span>
+    <button type="button" class="lang-toggle__btn" data-lang="en" lang="en" aria-label="English" aria-pressed="true">EN</button>
+    <span class="lang-toggle__sep" aria-hidden="true">|</span>
+    <button type="button" class="lang-toggle__btn" data-lang="es" lang="es" aria-label="Español" aria-pressed="false">ES</button>
+  </div>
+</header>
+
+<main id="main" class="reserve">
+  <div class="reserve__layout">
+    <div class="reserve__main">
+
+      <!-- Products + "What reserving means". The phone/tablet summary bar sticks to the
+           bottom of the screen only while this block is on screen, so it never covers the form. -->
+      <div class="reserve__shop">
+
+        <!-- ============ THE HOLIDAY GIFT BOX ============ -->
+        <section class="gift" aria-labelledby="gift-name">
+          <div class="gift__art" data-gift-art>
+            <!-- GIFT BOX ART: assets/gift-box.png. Until it exists, a labeled placeholder plus the three jars show. -->
+            <img class="gift__img" src="/assets/gift-box.png" width="1200" height="900" alt="The pirekua Holiday Gift Box" data-i18n-attr="alt:gift.alt">
+            <div class="gift__jars" role="img" aria-label="One jar each of pirekua Sweet, Smoky and Spicy" data-i18n-attr="aria-label:gift.jarsAlt">
+              <img src="/assets/jars/sweet-1.png" width="480" height="694" alt="">
+              <img src="/assets/jars/smoky-1.png" width="480" height="694" alt="">
+              <img src="/assets/jars/spicy-1.png" width="480" height="694" alt="">
+            </div>
+          </div>
+          <div class="gift__body">
+            <h1 class="gift__eyebrow" data-i18n="reserve.title">Reserve your pirekua</h1>
+            <h2 class="gift__name" id="gift-name" data-i18n="gift.name">The Holiday Gift Box</h2>
+            <p class="gift__desc" data-i18n="gift.desc">One jar each of Sweet, Smoky and Spicy, plus an empty jar with its own label, so you can mix up your own: a vinaigrette, a spicy mayo, whatever you dream up. Comes with a mini whisk and a mini spatula.</p>
+            <h3 class="gift__inside-title" id="gift-inside" data-i18n="gift.inside">What’s inside</h3>
+            <ul class="gift__inside" aria-labelledby="gift-inside">
+              <li data-i18n="gift.i1">1 jar of Sweet</li>
+              <li data-i18n="gift.i2">1 jar of Smoky</li>
+              <li data-i18n="gift.i3">1 jar of Spicy</li>
+              <li data-i18n="gift.i4">1 empty mixing jar with its own label</li>
+              <li data-i18n="gift.i5">1 mini whisk</li>
+              <li data-i18n="gift.i6">1 mini spatula</li>
+            </ul>
+            <p class="price price--big" data-price-for="gift-box" hidden></p>
+            <div class="qty qty--gift">
+              <span class="qty__label" id="qty-label-gift-box" data-i18n="gift.qty">Gift boxes</span>
+              <div class="stepper" data-product="gift-box">
+              <button type="button" class="stepper__btn" data-step="-1" aria-label="Decrease The Holiday Gift Box"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+              <input class="stepper__input" id="qty-gift-box" type="number" inputmode="numeric" min="0" max="999" step="1" value="0" aria-labelledby="qty-label-gift-box">
+              <button type="button" class="stepper__btn" data-step="1" aria-label="Increase The Holiday Gift Box"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+            </div>
+            </div>
+            <p class="gift__bulk" data-bulk hidden data-i18n="gift.bulk">Gifting a crowd? Reserve as many boxes as you like. Clients, partners, the whole team: we’d love to make them.</p>
+          </div>
+        </section>
+
+        <!-- ============ SINGLE JARS ============ -->
+        <section class="jars" aria-labelledby="jars-title">
+          <h2 class="section-title jars__title" id="jars-title" data-i18n="jars.title">Or pick your jars</h2>
+          <div class="jars__grid">
+        <article class="rcard rcard--sweet" aria-labelledby="name-sweet">
+          <div class="rcard__window">
+            <img src="/assets/jars/sweet-1.png" width="480" height="694" loading="lazy"
+                 alt="A jar of pirekua Sweet Mexican chili crisp" data-i18n-attr="alt:products.sweet.alt">
+          </div>
+          <div class="rcard__body">
+            <h3 class="rcard__name" id="name-sweet">Sweet</h3>
+            <p class="rcard__tag" data-i18n="products.sweet.tag">Toasty chiles with a warm, honeyed finish.</p>
+            <div class="heat heat--inline" role="img" aria-label="Heat: none" data-i18n-attr="aria-label:products.heat.none"><img src="/assets/bloom-yellow.png" alt="" width="128" height="128" loading="lazy"><img src="/assets/bloom-outline.png" alt="" width="128" height="128" loading="lazy"><img src="/assets/bloom-outline.png" alt="" width="128" height="128" loading="lazy"></div>
+            <p class="price" data-price-for="sweet" hidden></p>
+            <div class="qty">
+              <span class="qty__label" id="qty-label-sweet" data-i18n="qty.label">Quantity</span>
+              <div class="stepper" data-product="sweet">
+              <button type="button" class="stepper__btn" data-step="-1" aria-label="Decrease Sweet"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+              <input class="stepper__input" id="qty-sweet" type="number" inputmode="numeric" min="0" max="999" step="1" value="0" aria-labelledby="name-sweet qty-label-sweet">
+              <button type="button" class="stepper__btn" data-step="1" aria-label="Increase Sweet"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+            </div>
+            </div>
+          </div>
+        </article>
+        <article class="rcard rcard--smoky" aria-labelledby="name-smoky">
+          <div class="rcard__window">
+            <img src="/assets/jars/smoky-1.png" width="480" height="694" loading="lazy"
+                 alt="A jar of pirekua Smoky Mexican chili crisp" data-i18n-attr="alt:products.smoky.alt">
+          </div>
+          <div class="rcard__body">
+            <h3 class="rcard__name" id="name-smoky">Smoky</h3>
+            <p class="rcard__tag" data-i18n="products.smoky.tag">Deep, roasty, a little moody.</p>
+            <div class="heat heat--inline" role="img" aria-label="Heat: medium" data-i18n-attr="aria-label:products.heat.medium"><img src="/assets/bloom-orange.png" alt="" width="128" height="128" loading="lazy"><img src="/assets/bloom-orange.png" alt="" width="128" height="128" loading="lazy"><img src="/assets/bloom-outline.png" alt="" width="128" height="128" loading="lazy"></div>
+            <p class="price" data-price-for="smoky" hidden></p>
+            <div class="qty">
+              <span class="qty__label" id="qty-label-smoky" data-i18n="qty.label">Quantity</span>
+              <div class="stepper" data-product="smoky">
+              <button type="button" class="stepper__btn" data-step="-1" aria-label="Decrease Smoky"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+              <input class="stepper__input" id="qty-smoky" type="number" inputmode="numeric" min="0" max="999" step="1" value="0" aria-labelledby="name-smoky qty-label-smoky">
+              <button type="button" class="stepper__btn" data-step="1" aria-label="Increase Smoky"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+            </div>
+            </div>
+          </div>
+        </article>
+        <article class="rcard rcard--spicy" aria-labelledby="name-spicy">
+          <div class="rcard__window">
+            <img src="/assets/jars/spicy-1.png" width="480" height="694" loading="lazy"
+                 alt="A jar of pirekua Spicy Mexican chili crisp" data-i18n-attr="alt:products.spicy.alt">
+          </div>
+          <div class="rcard__body">
+            <h3 class="rcard__name" id="name-spicy">Spicy</h3>
+            <p class="rcard__tag" data-i18n="products.spicy.tag">The bold one.</p>
+            <div class="heat heat--inline" role="img" aria-label="Heat: high" data-i18n-attr="aria-label:products.heat.high"><img src="/assets/bloom-red.png" alt="" width="128" height="128" loading="lazy"><img src="/assets/bloom-red.png" alt="" width="128" height="128" loading="lazy"><img src="/assets/bloom-red.png" alt="" width="128" height="128" loading="lazy"></div>
+            <p class="price" data-price-for="spicy" hidden></p>
+            <div class="qty">
+              <span class="qty__label" id="qty-label-spicy" data-i18n="qty.label">Quantity</span>
+              <div class="stepper" data-product="spicy">
+              <button type="button" class="stepper__btn" data-step="-1" aria-label="Decrease Spicy"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+              <input class="stepper__input" id="qty-spicy" type="number" inputmode="numeric" min="0" max="999" step="1" value="0" aria-labelledby="name-spicy qty-label-spicy">
+              <button type="button" class="stepper__btn" data-step="1" aria-label="Increase Spicy"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+            </div>
+            </div>
+          </div>
+        </article>
+        <article class="rcard rcard--oil" aria-labelledby="name-chili-oil">
+          <div class="rcard__window">
+            <img src="/assets/jars/oil-1.png" width="300" height="1082" loading="lazy"
+                 alt="A squeeze bottle of pirekua Mexican Chili Oil" data-i18n-attr="alt:products.oil.alt">
+          </div>
+          <div class="rcard__body">
+            <h3 class="rcard__name" id="name-chili-oil">Chili Oil</h3>
+            <p class="rcard__tag" data-i18n="products.oil.tag">All the flavor of the crisp, none of the crunch.</p>
+            <p class="price" data-price-for="chili-oil" hidden></p>
+            <div class="qty">
+              <span class="qty__label" id="qty-label-chili-oil" data-i18n="qty.label">Quantity</span>
+              <div class="stepper" data-product="chili-oil">
+              <button type="button" class="stepper__btn" data-step="-1" aria-label="Decrease Chili Oil"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+              <input class="stepper__input" id="qty-chili-oil" type="number" inputmode="numeric" min="0" max="999" step="1" value="0" aria-labelledby="name-chili-oil qty-label-chili-oil">
+              <button type="button" class="stepper__btn" data-step="1" aria-label="Increase Chili Oil"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+            </div>
+            </div>
+          </div>
+        </article>
+          </div>
+        </section>
+
+        <!-- ============ WHAT RESERVING MEANS ============ -->
+        <section class="means" aria-labelledby="means-title">
+          <h2 class="section-title" id="means-title" data-i18n="means.title">What reserving means</h2>
+          <p data-i18n="means.p1">This is our first batch, made in small runs for friends and family. Your reservation is how we decide how much of each flavor to make for the holidays, so we make enough for everyone and waste nothing. That’s why we ask before we cook.</p>
+          <p data-i18n="means.p2">There’s no payment today. Once we know the final numbers, we’ll email you with the details and how to pay before anything ships.</p>
+          <p data-i18n="means.p3">Thank you for trusting us with your spot. It really does help.</p>
+        </section>
+
+        <!-- ============ SUMMARY BAR (phones and tablets) ============ -->
+        <div class="rbar" data-rbar>
+          <p class="rbar__text"><span class="rbar__title" data-i18n="summary.title">Your reservation</span> <span class="rbar__count" data-count>Nothing yet</span></p>
+          <button type="button" class="rbar__view" data-open-sheet aria-haspopup="dialog" data-i18n="summary.view">View</button>
+          <a class="btn btn--primary rbar__go" href="#form-title" data-go-form data-i18n="form.button">Reserve</a>
+        </div>
+      </div>
+
+      <!-- ============ RESERVATION FORM ============ -->
+      <section class="rform" aria-labelledby="form-title">
+        <h2 class="section-title" id="form-title" tabindex="-1" data-i18n="form.title">Where should we send it?</h2>
+        <form class="rform__form" name="reservation" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+          <input type="hidden" name="form-name" value="reservation">
+          <input type="hidden" name="lang" value="en">
+          <input type="hidden" name="source" value="none">
+          <input type="hidden" name="gift_boxes" value="0">
+          <input type="hidden" name="sweet" value="0">
+          <input type="hidden" name="smoky" value="0">
+          <input type="hidden" name="spicy" value="0">
+          <input type="hidden" name="chili_oil" value="0">
+          <input type="hidden" name="order_summary" value="">
+          <p class="hp" aria-hidden="true">
+            <label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+          </p>
+
+          <div class="form-alert" id="form-alert" role="alert" tabindex="-1" hidden></div>
+
+          <fieldset class="rform__fields" data-fields>
+            <legend class="sr-only" data-i18n="form.title">Where should we send it?</legend>
+            <div class="rform__grid">
+              <div class="field field--half">
+                <label class="field__label" for="f-first" data-i18n="form.first">First name</label>
+                <input class="field__input" id="f-first" name="first_name" type="text" autocomplete="given-name" required aria-describedby="err-first">
+                <p class="field__error" id="err-first"></p>
+              </div>
+              <div class="field field--half">
+                <label class="field__label" for="f-last" data-i18n="form.last">Last name</label>
+                <input class="field__input" id="f-last" name="last_name" type="text" autocomplete="family-name" required aria-describedby="err-last">
+                <p class="field__error" id="err-last"></p>
+              </div>
+              <div class="field field--half">
+                <label class="field__label" for="f-email" data-i18n="form.email">Email</label>
+                <input class="field__input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" required aria-describedby="err-email">
+                <p class="field__error" id="err-email"></p>
+              </div>
+              <div class="field field--half">
+                <label class="field__label" for="f-phone" data-i18n="form.phone">Phone</label>
+                <input class="field__input" id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="err-phone">
+                <p class="field__error" id="err-phone"></p>
+              </div>
+              <div class="field field--full">
+                <label class="field__label" for="f-address" data-i18n="form.address">Address</label>
+                <input class="field__input" id="f-address" name="address" type="text" autocomplete="street-address" required aria-describedby="err-address">
+                <p class="field__error" id="err-address"></p>
+              </div>
+              <div class="field field--third">
+                <label class="field__label" for="f-city" data-i18n="form.city">City</label>
+                <input class="field__input" id="f-city" name="city" type="text" autocomplete="address-level2" required aria-describedby="err-city">
+                <p class="field__error" id="err-city"></p>
+              </div>
+              <div class="field field--third">
+                <label class="field__label" for="f-state" data-i18n="form.state">State</label>
+                <select class="field__input" id="f-state" name="state" autocomplete="address-level1" required aria-describedby="err-state">
+                  <option value="" data-i18n="form.stateDefault">Select a state</option>
+                  <option value="AL">Alabama</option>
+                  <option value="AK">Alaska</option>
+                  <option value="AZ">Arizona</option>
+                  <option value="AR">Arkansas</option>
+                  <option value="CA">California</option>
+                  <option value="CO">Colorado</option>
+                  <option value="CT">Connecticut</option>
+                  <option value="DE">Delaware</option>
+                  <option value="DC">District of Columbia</option>
+                  <option value="FL">Florida</option>
+                  <option value="GA">Georgia</option>
+                  <option value="HI">Hawaii</option>
+                  <option value="ID">Idaho</option>
+                  <option value="IL">Illinois</option>
+                  <option value="IN">Indiana</option>
+                  <option value="IA">Iowa</option>
+                  <option value="KS">Kansas</option>
+                  <option value="KY">Kentucky</option>
+                  <option value="LA">Louisiana</option>
+                  <option value="ME">Maine</option>
+                  <option value="MD">Maryland</option>
+                  <option value="MA">Massachusetts</option>
+                  <option value="MI">Michigan</option>
+                  <option value="MN">Minnesota</option>
+                  <option value="MS">Mississippi</option>
+                  <option value="MO">Missouri</option>
+                  <option value="MT">Montana</option>
+                  <option value="NE">Nebraska</option>
+                  <option value="NV">Nevada</option>
+                  <option value="NH">New Hampshire</option>
+                  <option value="NJ">New Jersey</option>
+                  <option value="NM">New Mexico</option>
+                  <option value="NY">New York</option>
+                  <option value="NC">North Carolina</option>
+                  <option value="ND">North Dakota</option>
+                  <option value="OH">Ohio</option>
+                  <option value="OK">Oklahoma</option>
+                  <option value="OR">Oregon</option>
+                  <option value="PA">Pennsylvania</option>
+                  <option value="RI">Rhode Island</option>
+                  <option value="SC">South Carolina</option>
+                  <option value="SD">South Dakota</option>
+                  <option value="TN">Tennessee</option>
+                  <option value="TX">Texas</option>
+                  <option value="UT">Utah</option>
+                  <option value="VT">Vermont</option>
+                  <option value="VA">Virginia</option>
+                  <option value="WA">Washington</option>
+                  <option value="WV">West Virginia</option>
+                  <option value="WI">Wisconsin</option>
+                  <option value="WY">Wyoming</option>
+                </select>
+                <p class="field__error" id="err-state"></p>
+              </div>
+              <div class="field field--third">
+                <label class="field__label" for="f-zip" data-i18n="form.zip">ZIP</label>
+                <input class="field__input" id="f-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="10" required aria-describedby="err-zip">
+                <p class="field__error" id="err-zip"></p>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="rform__submit">
+            <p class="rform__recap" data-recap hidden></p>
+            <p class="rform__note" id="empty-msg" role="alert"></p>
+            <p class="rform__note" id="send-msg" role="alert"></p>
+            <button type="submit" class="btn btn--primary btn--big" data-party data-reserve><span data-btn-label data-i18n="form.button">Reserve</span></button>
+            <p class="form-consent"><span data-i18n="form.consent">By reserving, you agree that pirekua may email and text you about your reservation. Reply STOP to opt out of texts.</span> <button type="button" class="link-btn" data-privacy data-i18n="footer.privacy">Privacy Policy</button></p>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <!-- ============ SUMMARY PANEL (desktop) ============ -->
+    <aside class="summary" aria-labelledby="summary-title">
+      <div class="summary__panel">
+        <h2 class="summary__title" id="summary-title" tabindex="-1" data-i18n="summary.title">Your reservation</h2>
+        <div data-summary></div>
+      </div>
+    </aside>
+  </div>
+
+  <p class="sr-only" aria-live="polite" data-live></p>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <ul class="footer__list">
+      <li data-i18n="footer.website">[WEBSITE URL]</li>
+      <li data-i18n="footer.social">[@SOCIAL]</li>
+      <li><button type="button" class="footer__link" data-privacy data-i18n="footer.privacy">Privacy Policy</button></li>
+      <li>© 2026 pirekua</li>
+    </ul>
+  </div>
+  <img class="footer__p" src="/assets/tall-p-white.png" alt="" width="708" height="1656" loading="lazy" aria-hidden="true">
+</footer>
+
+<!-- ============ SUMMARY SHEET (phones and tablets) ============ -->
+<dialog class="modal sheet" id="summary-sheet" aria-labelledby="sheet-title">
+  <div class="modal__panel sheet__panel">
+    <button type="button" class="modal__close" data-close aria-label="Close" data-i18n-attr="aria-label:modal.close"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+    <h2 class="summary__title" id="sheet-title" tabindex="-1" data-i18n="summary.title">Your reservation</h2>
+    <div data-summary></div>
+    <a class="btn btn--primary btn--block sheet__go" href="#form-title" data-go-form data-i18n="form.button">Reserve</a>
+  </div>
+</dialog>
+
+<!-- ============ RESERVATION CONFIRMED ============ -->
+<dialog class="modal done" id="done-modal" aria-labelledby="done-title">
+  <div class="modal__panel">
+    <button type="button" class="modal__close" data-close aria-label="Close" data-i18n-attr="aria-label:modal.close"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+    <img class="modal__leaf" src="/assets/leaf-1.png" alt="" width="252" height="144" aria-hidden="true">
+    <div class="modal__body done__body">
+      <img class="modal__mark" src="/assets/icon-mark.png" alt="" width="708" height="1656" aria-hidden="true">
+      <h2 class="modal__title" id="done-title" tabindex="-1" data-i18n="done.title">Reservation confirmed</h2>
+      <p class="done__text" data-done-text></p>
+      <h3 class="done__recap-title" data-i18n="done.recap">You reserved</h3>
+      <ul class="done__recap" data-done-recap></ul>
+      <a class="btn btn--primary btn--block" href="/" data-i18n="done.home">Back to home</a>
+    </div>
+  </div>
+</dialog>
+
+<!-- ============ PRIVACY POLICY ============ -->
+<dialog class="modal modal--doc" id="privacy-modal" aria-labelledby="privacy-title">
+  <div class="modal__panel" tabindex="0">
+    <button type="button" class="modal__close" data-close aria-label="Close" data-i18n-attr="aria-label:modal.close">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="modal__body policy">
+      <h2 class="modal__title" id="privacy-title" tabindex="-1" data-i18n="privacy.title">Privacy Policy</h2>
+      <p class="policy__date" data-i18n="privacy.updated">Last updated: [DATE]</p>
+      <h3 data-i18n="privacy.collectH">What we collect.</h3>
+      <p data-i18n="privacy.collect">If you sign up on this site, we collect the email address and/or phone number you enter, and which part of the site you signed up from. That's it.</p>
+      <h3 data-i18n="privacy.useH">How we use it.</h3>
+      <p data-i18n="privacy.use">We use it to send you a welcome email and occasional news from pirekua, such as when jars are ready, new flavors and recipes. If you give us a phone number, we may text you the same kind of news. We don't send much, and we're not here to spam you.</p>
+      <h3 data-i18n="privacy.whoH">Who sees it.</h3>
+      <p data-i18n="privacy.who">We don't sell or rent your information. It's stored with our website host (Netlify) and, for email, sent through our email provider (Resend) so we can deliver messages to you.</p>
+      <h3 data-i18n="privacy.choicesH">Your choices.</h3>
+      <p data-i18n="privacy.choices">You can opt out of emails or texts at any time by replying "stop" or by contacting us, and we'll remove you. You can also ask us to delete your information.</p>
+      <h3 data-i18n="privacy.cookiesH">Cookies and tracking.</h3>
+      <p data-i18n="privacy.cookies">This site doesn't use advertising or tracking cookies. If you choose a language, your browser remembers that choice on your device.</p>
+      <h3 data-i18n="privacy.kidsH">Kids.</h3>
+      <p data-i18n="privacy.kids">This site isn't meant for children under 13.</p>
+      <h3 data-i18n="privacy.contactH">Contact.</h3>
+      <p data-i18n="privacy.contact">[CONTACT EMAIL]</p>
+    </div>
+  </div>
+</dialog>
+</body>
+</html>
