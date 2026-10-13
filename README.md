@@ -27,7 +27,7 @@ Every call to action goes to the Reserve page: the hero and quiz "Reserve yours"
 5. The reservation form (all fields required) and the Reserve button
 6. Footer, with the same Privacy Policy dialog
 
-Plus "Your reservation": a sticky panel in a right-hand column on desktop (1024px and up); on phones and tablets a bar docked to the bottom of the screen with the item count, "View" (opens the summary as a sheet) and "Reserve" (jumps to the form). The bar only sticks while the products are on screen, so it never covers the form.
+Plus the basket button: pinned top right under the language toggle, with the item count. It opens "Your reservation" as an overlay (a panel on the right from 640px up, a bottom sheet on phones). That overlay is the only place the reservation shows: there is no side column and nothing pinned to the bottom of the screen (both removed in pass 8).
 
 Not built yet: payments, prices, shipping costs, taxes, inventory limits, order status, the real `/shop`, real cookbook pages, real making-of footage, real story copy, SMS automation, analytics.
 
@@ -36,13 +36,13 @@ Not built yet: payments, prices, shipping costs, taxes, inventory limits, order 
 | File | What it does |
 |---|---|
 | `index.html` | Home page markup and the privacy dialog |
-| `reserve/index.html` | Reserve page markup: products, form (Netlify detects it here), summary, sheet, confirmation and privacy dialogs |
+| `reserve/index.html` | Reserve page markup: basket button, products, form (Netlify detects it here), the "Your reservation" overlay, confirmation and privacy dialogs |
 | `styles.css` | Shared: brand tokens, buttons, fields, dialogs, toggle, footer, reduced-motion rules. Plus the home page layout |
 | `reserve.css` | Reserve page layout (loaded after `styles.css`) |
 | `i18n.js` | Shared, loaded first on every page: all strings (EN/ES, `I18N`), the language engine and the EN \| ES toggle with its touch swipe |
 | `common.js` | Shared, loaded second: missing-asset placeholders, chile confetti (and party links), dialogs, the privacy policy |
 | `script.js` | Home page only: jar art manifest, ristra swing, product card names, carousel, quiz |
-| `reserve.js` | Reserve page only: `PRODUCTS`, steppers, summary, form validation, sending, confirmation |
+| `reserve.js` | Reserve page only: `PRODUCTS`, steppers, basket button and overlay, "add to basket" flights, form validation, sending, confirmation |
 | `netlify/functions/submission-created.js` | After each reservation: saves it to Notion, then sends the confirmation email |
 | `netlify.toml` | Publish the repo root; functions live in `netlify/functions` |
 | `assets/` | Brand art (see below) |
@@ -76,6 +76,11 @@ Ristra physics (`STIFFNESS`, `DAMPING`, `GAIN`, `MAX_ANGLE`) are in the ristra b
 | `CURRENCY` | `USD` | Used only once prices are filled in |
 | `LIVE_DELAY_MS` | `600` | Quiet pause before a change is announced to screen readers ("Holiday Gift Box, 2 in your reservation") |
 | `DONE_DIALOG_DELAY_MS` | `700` | Lets the confetti play before "Reservation confirmed" opens (0 with reduced motion) |
+| `FLY_MS` | `650` | "Add to basket" flight time (ease-in-out) |
+| `FLY_ARC_PX` | `90` | How far the flight path rises above the straight line at its middle |
+| `FLY_MAX_AT_ONCE` | `6` | Flights in the air at once; beyond this the flight is skipped and the badge just updates |
+| `FLY_SIZE_PX` | `52` | Height of the flying copy as it sets off (it shrinks to 40% on arrival) |
+| `BUMP_MS` | `260` | The basket's bump (scale 1 → 1.12 → 1) when its count changes |
 | `SOURCES` | `hero, cookbook, quiz, sweet, smoky, spicy, chili-oil` | `?source=` values kept; anything else is saved as `none` |
 | `ADDABLE` | `gift-box, sweet, smoky, spicy, chili-oil` | `?add=` values that start that product at 1 |
 
@@ -105,20 +110,30 @@ The quantity max is `max` on each `PRODUCTS` entry (the inputs read it). The ser
 | `--lock-half` | `.hero` | Half the lockup width. Desktop jars measure their side bands from it |
 | `--bloom-spin` | `.hero` | One full turn of the sunrise bloom (`60s`) |
 | `--dot-lift` | `.hero` | How far the chile over the i is raised (`0.07em`) |
-| `--jw`, `--r`, `--y` | `.jar--1` … `.jar--12` | Hero jar width, rotation and vertical position (% of the hero) |
+| `--jw`, `--r`, `--y` | `.jar--1` … `.jar--12` | Hero jar width, rotation and vertical position. Desktop: % of the hero. Below 1024px: an anchor inside a jar band, `calc(Npx * var(--band-k))` from the top or `calc(100% - Npx * var(--band-k))` from the bottom |
+| `--jar-band-top`, `--jar-band` | `.hero` (below 1024px) | Hero button clear zone: the hero's top and bottom padding become bands for the upper jars + "pronounced" line and the lower jars + "delicious" line (phones 136 / 108px, 640–1023px 140 / 116px). Content can't enter padding, so nothing in a band can reach the button |
+| `--btn-clear` | `.hero` (below 1024px) | The minimum empty space kept around the hero button (`24px`). Lower-band items are placed so their top edge stays at least this far below the band's top |
+| `--band-k` | `.hero` (below 1024px) | Scales the bands and their jars together on short screens (`0.86` up to 760px tall, `0.76` up to 640px), so the hero still fits the first screen. The lockup width also subtracts the bands |
 | `--side`, `--f` (1024px and up) | `.jar--N` | Which side of the lockup (`-1` left, `1` right) and how far out into that side band (0 = lockup edge, 1 = page edge) |
 | `--left` (below 1024px) | `.jar--N` | Horizontal position as % of the hero. Jars 10–12 are hidden below 1024px |
-| Phone jar set (below 640px) | `@media (max-width: 639.98px)` block | Phones show 6 jars: 3 above (1 sweet, 2 smoky, 3 spicy) and 3 below (5 sweet, 6 spicy, 9 smoky). Jars 4, 7 and 8 are hidden there only. Edit that block's `--left/--y/--jw/--r` to move them; tablets (9 jars) and desktop (12) don't read it |
+| Phone jar set (below 640px) | `@media (max-width: 639.98px)` block | 6 jars: 3 in the upper band (1 sweet, 2 smoky, 3 spicy) and 3 in the lower band (5 sweet, 6 spicy, 9 smoky). Jars 4, 7 and 8 are hidden there only |
+| Tablet jar set (640–1023px) | `@media (min-width: 640px) and (max-width: 1023.98px)` block | 9 jars: 1, 2, 3, 4 and 8 in the upper band, 5, 6, 7 and 9 in the lower band, the "delicious" line at the right of the lower band |
 | `--jscale` | `.hero` | Shrinks every jar at once (`0.78` from 1024 to 1279px) |
 | `--left`/`--side`/`--f`, `--y`, `--r`, `--align`, `--aside-w` | `.hero__aside--tl`, `--br` | The two tilted asides: position, tilt, text alignment and max width (they wrap past it) |
 | `--rs-s`, `--rs-l`, `--rs-m`, `--rs-xl`, `--rs-s2` | `.ristra` | The five chile sizes, left to right |
 | `--x`, `--w` | each `.ristra__chile` in `index.html` | Chile position and size. `is-mirrored` flips a chile (chiles 2 and 5) |
 | `--products-pad-top`, `--products-pad-bottom`, `--products-title-gap` | `.products` | Lineup section spacing |
 | `--pcard-pad`, `--pcard-gap`, `--oil-col` | `.products` | Card padding, space between cards, and the Chili Oil column width (desktop) |
-| `--win-h` | `.products__grid` | Height of the product window on each card |
+| `--win-h` | `.products__grid` | Height of the product window on each card (`clamp(212px, 17vw + 12px, 248px)`) |
+| `--win-air` | `.products__grid` | Empty space above and below each jar inside its plate (`7%` of the window: about 15–17px) |
 | `--quiz-pad-top`, `--quiz-pad-bottom`, `--quiz-title-gap` | `.quiz` | Quiz section spacing |
-| `--basket-clip` | `.basket-scene` | Where the front copy of the basket starts hiding the jars |
-| `--r-max`, `--r-side`, `--r-gap`, `--r-radius` | `.rpage` (`reserve.css`) | Reserve page width, desktop summary column width, space between sections, panel corners |
+| `--basket-clip` | `.basket-scene` | Top of the rim band (32% of the basket image) |
+| `--basket-gap` | `.basket-scene` | How far the woven body is lifted toward the rim (`4px`): the art's 6px gap closes to a 2px line |
+| `--basket-rim-cut` | `.basket-scene` | Jars inside the basket are clipped this far above the scene's bottom, i.e. at the rim's lower edge (`90px`) |
+| `--r-max`, `--r-read`, `--r-gap`, `--r-radius` | `.rpage` (`reserve.css`) | Reserve page width (gift box and jars, `1200px`), reading width ("What reserving means" and the form, `720px`), space between sections, panel corners |
+| `--basket-size`, `--basket-icon` | `.rpage` (`reserve.css`) | The round basket button (`60px`) and the basket art inside it (`46px` wide) |
+| `--basket-under`, `--basket-top-min` | `.rpage` (`reserve.css`) | Gap under the toggle (`8px`), and where the button settles once the header scrolls away (`12px`) |
+| `--sheet-w` | `.rpage` (`reserve.css`) | Width of the "Your reservation" panel from 640px up (`420px`) |
 | `--stepper-size` | `.rpage` (`reserve.css`) | − and + button size (48px; 56px on the gift box) |
 
 ## Calls to action
@@ -168,6 +183,13 @@ To add a string:
 - **Hero jars:** each `<div class="jar jar--N">` in `index.html` names its image directly (comment above the jar layer). Change the filename to change the angle; change its placement variables in `styles.css` (see the CSS table above) to move it.
 - **Fallback chain:** `data-fallback="a|b"` tries each file in order. Jars go small cutout → full cutout → `render-{flavor}.png` with its old crop (`is-fallback`), then a dashed placeholder.
 - To replace the cutouts with your own exports, overwrite the files with the same names (and re-make the `small/` copies).
+
+## Pass 8 edits in one line each
+
+- **Hero button clear zone:** below 1024px the jars live in two bands (the hero's top and bottom padding), so no jar or small line can come within 24px of "Reserve yours" at any size. Checked by measurement at 14 widths × 5 heights plus three phones: zero overlaps. Desktop keeps its side bands; the "pronounced" line moved slightly so it clears every jar by 24px.
+- **Lineup windows:** each jar and the oil bottle sit inset by `--win-air` with equal air above and below; the windows are 12px taller so the jars barely shrink.
+- **Quiz basket:** the basket is drawn as three slices of `basket.png` (back, rim, body); the body is lifted by `--basket-gap`, so the rim gap is a 2px line. The jars inside are clipped at the rim's lower edge and the tumblers have their own unclipped layer. A 4px Cream Card plug (the stage's own color) sits behind the rim and body, over the jars, so even a tumbler passing behind the basket's edge never shows through the line. Positions and timings are unchanged.
+- **Reserve page:** the side column and the bottom bar are gone. The page is one full-width column; the reservation lives in the basket button's overlay. Adding with + flies the product to the basket.
 
 ## Pass 7 edits in one line each
 
@@ -238,7 +260,10 @@ Any missing file shows a dashed placeholder box with its filename, never substit
 ### Products, quantities and prices
 
 - Five steppers (gift box + four jars): − and + buttons (48 × 48px, named "Decrease Sweet" / "Increase Sweet"), and a number field you can type into (0–999; letters ignored; empty counts as 0).
-- Summary lines read "Holiday Gift Box × 2", each with Remove. Below them, the production total counts every gift box as one Sweet, one Smoky and one Spicy, plus "Plus N empty mixing jars" when there are gift boxes. "No payment today." always shows.
+- **Basket button:** pinned top right under the toggle, same look as the toggle. Its badge (Deep Chili Red, Warm Cream number, "99+" above 99) shows gift boxes plus jars and hides at 0. It bumps when the count changes, shows a "Your reservation" chip on desktop hover or focus, and its accessible name carries the count ("Your reservation, 3 items"; "… empty"). It's the first control after the header, steps aside on phones if it would sit over a field being typed into, and never covers the toggle or "Back to home".
+- **"Your reservation" overlay:** the basket opens the native `#summary-sheet` dialog. From 640px up it's a full-height panel on the right that slides in; on phones a bottom sheet (up to 85% tall) that slides up. The page doesn't move or scroll behind it (the page is padded by the scrollbar's width while it's open). Escape, the backdrop, X and "Keep browsing" close it, and focus returns to the basket. "Reserve" closes it and moves to the form; it's hidden when the reservation is empty.
+- **"Add to basket":** each + (and a typed number, once committed, if it went up) sends a small copy of that product along an arc to the basket: the gift box flies as its three front jars until `gift-box.png` exists, the others as their front cutout. The steppers, summary and hidden fields update at the click; the badge and the bump wait for the landing. Going down never flies. `?add=` on arrival just sets the badge.
+- Summary lines (in the overlay) read "Holiday Gift Box × 2", each with Remove. Below them, the production total counts every gift box as one Sweet, one Smoky and one Spicy, plus "Plus N empty mixing jars" when there are gift boxes. "No payment today." always shows.
 - Changes are announced politely to screen readers.
 - **Turning on prices later:** set `price` on each entry in `PRODUCTS` at the top of `reserve.js` (e.g. `price: 38`). The cards then show the price, each summary line shows its subtotal, and the summary shows a total (`CURRENCY` sets the format). Leave them all `null` and no prices appear anywhere. The "No payment today" line stays either way; change `summary.noPay` when payment starts.
 
@@ -333,10 +358,10 @@ Set these in Netlify (Site configuration → Environment variables), never in th
 
 - Real buttons and inputs throughout, visible focus rings, alt text that translates.
 - Dialogs: native `<dialog>`, focus trapped, Escape and backdrop click close them, focus returns to the button that opened them.
-- Reserve page: every input has a label (steppers are named by product, e.g. "Sweet Quantity"), errors use `aria-invalid` and `aria-describedby`, the top-of-form message and send errors are alerts, summary changes are announced politely, and Remove keeps focus in the summary. The whole page works by keyboard.
+- Reserve page: every input has a label (steppers are named by product, e.g. "Sweet Quantity"), errors use `aria-invalid` and `aria-describedby`, the top-of-form message and send errors are alerts, summary changes are announced politely, and Remove keeps focus in the overlay. The basket button is a real button with `aria-haspopup="dialog"` and a live accessible name; the overlay traps focus. The whole page works by keyboard.
 - Carousel: labelled region, "Slide N of 6" announced politely, 48px arrows, real dot buttons, left/right arrow keys, swipe.
 - Quiz: radios and a range input, results announced through a polite live region.
 - Lineup section and footer: cream on Leaf Green is 3.55:1. That fails the 4.5:1 target for normal text but passes the 3:1 bar for large text, so all footer text is set at 19px bold and the lineup heading is large. A strict 4.5:1 would need a darker green.
 - Hero jars and asides: jars are decorative (`aria-hidden`, `alt=""`, no pointer events); the asides are real text and translate.
 - Language toggle: on touch screens it can be swiped, but the two real buttons, `aria-pressed`, focus rings, Tab/Enter/Space and taps all work as before; arrow keys also switch.
-- `prefers-reduced-motion`: no bloom spin, confetti (party links navigate at once, the confirmation opens at once), summary sheet slide, ristra swing, drumroll, basket animation or transitions. The toggle thumb jumps instead of sliding, with no first-visit nudge and no haptic tick. The quiz shows its final state at once.
+- `prefers-reduced-motion`: no bloom spin, confetti (party links navigate at once, the confirmation opens at once), overlay slide, "add to basket" flight or basket bump (the badge updates at once with a brief static highlight), ristra swing, drumroll, basket animation or transitions. The toggle thumb jumps instead of sliding, with no first-visit nudge and no haptic tick. The quiz shows its final state at once.

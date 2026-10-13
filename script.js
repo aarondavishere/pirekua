@@ -247,7 +247,8 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
     const idle = stage.querySelector('.stage__idle');
     const showBtn = stage.querySelector('[data-quiz-show]');
     const numberEl = stage.querySelector('[data-quiz-number]');
-    const jarsEl = stage.querySelector('[data-basket-jars]');
+    const jarsEl = stage.querySelector('[data-basket-jars]');     // inside the basket: clipped at the rim
+    const spillEl = stage.querySelector('[data-basket-spill]') || jarsEl;   // tumblers: never clipped
     const joke = stage.querySelector('.stage__joke');
     const cta = stage.querySelector('.stage__cta');
     const again = stage.querySelector('[data-quiz-again]');
@@ -351,7 +352,7 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
       return { f, src: list.length ? list[Math.floor(pickRnd() * list.length)] : '' };
     });
 
-    function makeJar(i, cx, cy) {
+    function makeJar(i, cx, cy, layer) {
       const pick = JAR_PICKS[i % JAR_PICKS.length];
       const el = document.createElement('div');
       el.className = 'minijar';
@@ -372,11 +373,12 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
       if (chain.length === 1) el.classList.add('is-fallback');
       img.src = chain[0];
       el.appendChild(img);
-      jarsEl.appendChild(el);
+      (layer || jarsEl).appendChild(el);
       return el;
     }
     function playBasket(instant) {
       jarsEl.textContent = '';
+      spillEl.textContent = '';
       HEAP.inside.forEach((p, i) => {
         const el = makeJar(i, p.x, p.y);
         el.style.transform = 'rotate(' + p.r.toFixed(1) + 'deg)';
@@ -391,7 +393,7 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
       const tumbleDur = 1000;
       const tumbleStart = Math.max(0, BASKET_MS - tumbleDur - 140 * (HEAP.tumblers.length - 1) - 120);
       HEAP.tumblers.forEach((p, k) => {
-        const el = makeJar(BASKET_INSIDE_JARS + k, p.x, p.y);
+        const el = makeJar(BASKET_INSIDE_JARS + k, p.x, p.y, spillEl);
         el.classList.add('is-tumbler');
         el.style.transform = 'rotate(' + p.r.toFixed(1) + 'deg)';
         if (instant || !el.animate) return;
@@ -440,6 +442,7 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
       timers.forEach(clearTimeout); timers = [];
       anims.forEach((a) => a.cancel()); anims = [];
       jarsEl.textContent = '';
+      spillEl.textContent = '';
       joke.classList.remove('is-in');
       cta.classList.remove('is-in');
       numberEl.textContent = '';

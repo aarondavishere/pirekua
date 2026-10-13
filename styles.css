@@ -250,49 +250,68 @@ img { display: block; max-width: 100%; height: auto; }
   transform: translate(-50%, -50%) rotate(var(--r));
 }
 
-/* Phones and tablets share these angles; tablets set their own sizes and
-   positions below, and phones (under 640px) get their own six-jar set after that */
+/* Below 1024px: jar bands. The hero's top padding is a band for the upper jars and
+   the "it's pronounced" line (anchored from the hero's top), and its bottom padding
+   is a band for the lower jars and the "delicious" line (anchored from the hero's
+   bottom). Content (lockup → button) can never enter padding, so the button always
+   keeps at least --btn-clear of empty space. On short screens --band-k shrinks the
+   bands and the jars together, so the hero still fits the first screen.
+   Per jar: --jw width, --r angle, --left x (% of the hero), and --y as a top anchor
+   calc(Npx * k) or a bottom anchor calc(100% - Npx * k). */
 .jar--10, .jar--11, .jar--12 { display: none; }
-.jar--1 { --jw: 44px; --r: -18deg;  --left: 22%; --y: 17%; }
-.jar--2 { --jw: 36px; --r: 32deg;   --left: 57%; --y: 8%; }
-.jar--3 { --jw: 50px; --r: -8deg;   --left: 66%; --y: 17%; }
-.jar--4 { --jw: 32px; --r: 70deg;   --left: 88%; --y: 18%; }
-.jar--5 { --jw: 46px; --r: -28deg;  --left: 12%; --y: 87%; }
-.jar--6 { --jw: 38px; --r: 64deg;   --left: 27%; --y: 92%; }
-.jar--7 { --jw: 46px; --r: 12deg;   --left: 41%; --y: 87%; }
-.jar--8 { --jw: 34px; --r: -36deg;  --left: 88%; --y: 95%; }
-.jar--9 { --jw: 30px; --r: -96deg;  --left: 58%; --y: 95%; }
-.hero__aside { font-size: 0.875rem; --aside-w: 9.5rem; }
-.hero__aside--tl { --r: -4deg; --left: 23%; --y: 6.5%; --align: left; }
-.hero__aside--br { --r: 3deg;  --left: 76%; --y: 85%; --align: right; }
+.hero__aside--tl { --r: -4deg; --align: left; }
+.hero__aside--br { --r: 3deg;  --align: right; }
+@media (max-width: 1023.98px) {
+  .hero {
+    --band-k: 1;                       /* scale of the bands and their jars (short screens shrink it) */
+    --jscale: var(--band-k);
+    --jar-band-top: 136px;             /* upper band height */
+    --jar-band: 108px;                 /* lower band height, below the button */
+    --btn-clear: 24px;                 /* minimum empty space around the button */
+    --bands: calc((var(--jar-band-top) + var(--jar-band)) * var(--band-k));
+    padding-top: calc(var(--jar-band-top) * var(--band-k));
+    padding-bottom: calc(var(--jar-band) * var(--band-k));
+    --lockup-w: min(86vw, 820px, calc((100vh - var(--bands) - 230px) * 1.7));
+  }
+  @supports (height: 100svh) {
+    .hero { --lockup-w: min(86vw, 820px, calc((100svh - var(--bands) - 230px) * 1.7)); }
+  }
+}
+@media (max-width: 1023.98px) and (max-height: 760px) { .hero { --band-k: 0.86; } }
+@media (max-width: 1023.98px) and (max-height: 640px) { .hero { --band-k: 0.76; } }
 
-/* Phones only: 6 jars, 3 above and 3 below, 2 of each flavor.
+/* Phones: 6 jars, 3 above and 3 below, 2 of each flavor.
    Above: 1 sweet, 2 smoky, 3 spicy. Below: 5 sweet, 6 spicy, 9 smoky. */
 @media (max-width: 639.98px) {
   .lockup__img { transform: translateZ(0); }   /* wordmark on its own layer, above the spinning bloom */
   .jar--4, .jar--7, .jar--8 { display: none; }
-  .jar--1 { --jw: 46px; --r: -18deg; --left: 19%; --y: 20%; }
-  .jar--2 { --jw: 34px; --r: 34deg;  --left: 57%; --y: 11%; }
-  .jar--3 { --jw: 50px; --r: -9deg;  --left: 80%; --y: 19%; }
-  .jar--5 { --jw: 50px; --r: -26deg; --left: 15%; --y: 88%; }
-  .jar--6 { --jw: 38px; --r: 62deg;  --left: 41%; --y: 94%; }
-  .jar--9 { --jw: 32px; --r: -98deg; --left: 66%; --y: 96%; }
-  .hero__aside--br { --y: 87%; }   /* a little more air under the button */
+  .jar--1 { --jw: 44px; --r: -80deg; --left: 20%; --y: calc(78px + 26px * var(--band-k)); }   /* 24px under the "pronounced" line */
+  .jar--2 { --jw: 34px; --r: 34deg;  --left: 58%; --y: calc(44px * var(--band-k)); }
+  .jar--3 { --jw: 46px; --r: 78deg;  --left: 80%; --y: calc(74px + 26px * var(--band-k)); }   /* stays under the toggle */
+  .jar--5 { --jw: 42px; --r: -80deg; --left: 11%; --y: calc(100% - 34px * var(--band-k)); }
+  .jar--6 { --jw: 34px; --r: 62deg;  --left: 27%; --y: calc(100% - 50px * var(--band-k)); }
+  .jar--9 { --jw: 30px; --r: -98deg; --left: 43%; --y: calc(100% - 30px * var(--band-k)); }
+  .hero__aside { font-size: 0.875rem; --aside-w: 9.5rem; }
+  .hero__aside--tl { --left: 23%; --y: 28px; }
+  .hero__aside--br { --left: 79%; --y: calc(100% - 50px * var(--band-k)); }
 }
 
-@media (min-width: 640px) {
-  .jar--1 { --jw: 64px; --left: 20%; --y: 15%; }
-  .jar--2 { --jw: 48px; --left: 47%; --y: 8%; }
-  .jar--3 { --jw: 72px; --left: 62%; --y: 14%; }
-  .jar--4 { --jw: 44px; --left: 84%; --y: 17%; }
-  .jar--5 { --jw: 76px; --left: 10%; --y: 88%; }
-  .jar--6 { --jw: 50px; --left: 25%; --y: 92%; }
-  .jar--7 { --jw: 60px; --left: 40%; --y: 92%; }
-  .jar--8 { --jw: 46px; --left: 92%; --y: 94%; }
-  .jar--9 { --jw: 40px; --left: 55%; --y: 94%; }
-  .hero__aside { font-size: 0.9375rem; --aside-w: 14rem; }
-  .hero__aside--tl { --left: 21%; --y: 5%; }
-  .hero__aside--br { --left: 78%; --y: 86%; }
+/* Tablets and small windows (640–1023px): 9 jars. Upper band: 1 sweet, 2 smoky,
+   3 spicy, 4 smoky, 8 sweet. Lower band: 5 sweet, 6 spicy, 7 spicy, 9 smoky. */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .hero { --jar-band-top: 140px; --jar-band: 116px; }
+  .jar--1 { --jw: 44px; --r: -84deg; --left: 14%; --y: calc(70px + 26px * var(--band-k)); }   /* 24px under the "pronounced" line */
+  .jar--2 { --jw: 44px; --r: 28deg;  --left: 51%; --y: calc(58px * var(--band-k)); }
+  .jar--3 { --jw: 58px; --r: -12deg; --left: 64%; --y: calc(70px * var(--band-k)); }
+  .jar--4 { --jw: 40px; --r: 70deg;  --left: 88%; --y: calc(72px + 26px * var(--band-k)); }   /* stays under the toggle */
+  .jar--8 { --jw: 34px; --r: -40deg; --left: 76%; --y: calc(94px * var(--band-k)); }
+  .jar--5 { --jw: 56px; --r: -82deg; --left: 9%;  --y: calc(100% - 38px * var(--band-k)); }
+  .jar--6 { --jw: 46px; --r: 64deg;  --left: 23%; --y: calc(100% - 49px * var(--band-k)); }
+  .jar--7 { --jw: 54px; --r: 96deg;  --left: 38%; --y: calc(100% - 35px * var(--band-k)); }
+  .jar--9 { --jw: 40px; --r: -14deg; --left: 52%; --y: calc(100% - 50px * var(--band-k)); }
+  .hero__aside { font-size: 0.9375rem; --aside-w: 12rem; }
+  .hero__aside--tl { --aside-w: 16rem; --left: 21%; --y: 26px; }   /* one line */
+  .hero__aside--br { --left: 80%; --y: calc(100% - 54px * var(--band-k)); }
 }
 
 /* Desktop: 12 jars in the bands either side of the lockup */
@@ -312,8 +331,13 @@ img { display: block; max-width: 100%; height: auto; }
   .jar--11 { --side: 1;  --f: 0.24; --y: 75%; --jw: 48px; --r: -66deg; }
   .jar--12 { --side: 1;  --f: 0.84; --y: 76%; --jw: 40px; --r: 30deg; }
   .hero__aside { --aside-w: 13rem; }
-  .hero__aside--tl { --side: -1; --f: 0.55; --y: 13%; }
+  .hero__aside--tl { --side: -1; --f: 0.45; --y: 13%; }
   .hero__aside--br { --side: 1;  --f: 0.50; --y: 90%; }
+}
+/* Short desktop windows: lift the "pronounced" line clear of the top-left jar */
+@media (min-width: 1024px) and (max-height: 760px) {
+  .hero__aside--tl { --y: 64px; }
+  .hero__aside--br { --y: 93%; }
 }
 /* Small laptops: a slightly smaller lockup and jars, so the side bands have room */
 @media (min-width: 1024px) and (max-width: 1279px) {
@@ -545,7 +569,8 @@ img { display: block; max-width: 100%; height: auto; }
 .products__title { color: var(--cream); margin-bottom: var(--products-title-gap); }
 
 .products__grid {
-  --win-h: clamp(200px, 17vw, 236px);   /* product window height */
+  --win-h: clamp(212px, calc(17vw + 12px), 248px);   /* product window height */
+  --win-air: 7%;                        /* empty space above and below each jar inside its plate (% of the window) */
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   /* Each card spans two rows (window, text) through subgrid, so names line up
@@ -610,14 +635,15 @@ img { display: block; max-width: 100%; height: auto; }
   border-radius: 16px;
   background: var(--card);
 }
-/* Out of flow so the tall cutouts never stretch the window past --win-h */
+/* Out of flow so the tall cutouts never stretch the window past --win-h.
+   Inset by --win-air top and bottom, so every jar has the same air in its plate. */
 .pcard__crop {
   position: absolute;
-  left: 0; right: 0; bottom: 0;
+  left: 0; right: 0; bottom: var(--win-air);
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  height: 94%;
+  height: calc(100% - 2 * var(--win-air));
 }
 .pcard__crop img { height: 100%; width: auto; max-width: 100%; object-fit: contain; object-position: 50% 100%; }
 /* Fallback when a cutout is missing: the studio render with its old crop */
@@ -1095,6 +1121,8 @@ img { display: block; max-width: 100%; height: auto; }
 .basket-scene {
   --bs: 1.08;                         /* scene scale */
   --basket-clip: 32%;                 /* top of the rim band, as a share of the basket image height */
+  --basket-gap: 4px;                  /* how far the woven body moves up toward the rim (the art's 6px gap → a 2px line) */
+  --basket-rim-cut: 90px;             /* jars inside the basket stop here: scene bottom → rim's lower edge (172px × 270/516) */
   position: relative;
   width: 280px;
   height: 250px;
@@ -1113,13 +1141,41 @@ img { display: block; max-width: 100%; height: auto; }
   height: 172px;                      /* basket.png is 600 × 516 (1.16 : 1) */
   max-width: none;
 }
-.basket-scene__back { z-index: 1; }
-.basket-scene__front { z-index: 3; clip-path: inset(var(--basket-clip) 0 0 0); }
+/* basket.png rows (of 516): rim band 165–245, a transparent gap 246–263, woven body 264–503.
+   Back copy: everything above the gap (handle side and rim), behind the jars.
+   Front copy: the rim band only. Body: a third copy, the woven body only, lifted by
+   --basket-gap so the gap closes to a thin line. The jars inside the basket are
+   clipped at the rim's lower edge, so nothing shows through that line or the weave. */
+.basket-scene__back { z-index: 1; clip-path: inset(0 0 52.326% 0); }
+.basket-scene__front { z-index: 3; clip-path: inset(var(--basket-clip) 0 52.326% 0); }
+/* Plug: a 4px strip in the stage's own color (Cream Card) behind the rim and body,
+   over the jars, so the thin line between them never shows a jar (even a tumbler
+   passing behind the basket's edge). It looks exactly like the line it fills. */
+.basket-scene__plug { position: absolute; z-index: 3; left: 60px; width: 160px; top: 159px; height: 4px; background: var(--card); }
+.basket-scene__body {
+  position: absolute;
+  z-index: 3;
+  left: 40px;
+  bottom: 0;
+  width: 200px;
+  height: 172px;
+  max-width: none;
+  clip-path: inset(51.163% 0 0 0);
+  transform: translateY(calc(-1 * var(--basket-gap)));
+}
 /* Fallback while basket.png is missing: the drawn basket.svg (4 : 3) */
 .basket-scene.is-fallback-basket { --basket-clip: 28.4%; }
 .basket-scene.is-fallback-basket .basket-scene__back,
 .basket-scene.is-fallback-basket .basket-scene__front { height: 150px; }
-.basket-scene__jars { position: absolute; inset: 0; z-index: 2; will-change: transform; }
+.basket-scene.is-fallback-basket .basket-scene__back { clip-path: none; }
+.basket-scene.is-fallback-basket .basket-scene__front { clip-path: inset(var(--basket-clip) 0 0 0); }
+.basket-scene.is-fallback-basket .basket-scene__body,
+.basket-scene.is-fallback-basket .basket-scene__plug { display: none; }
+.basket-scene.is-fallback-basket .basket-scene__jars { clip-path: none; }
+.basket-scene__jars,
+.basket-scene__spill { position: absolute; inset: 0; z-index: 2; will-change: transform; }
+/* Inside jars: nothing renders below the rim's lower edge (the heap above is untouched) */
+.basket-scene__jars { clip-path: inset(-600px -300px var(--basket-rim-cut) -300px); }
 .minijar {
   position: absolute;
   width: 26px;

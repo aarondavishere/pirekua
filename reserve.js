@@ -24,6 +24,12 @@ const DONE_DIALOG_DELAY_MS = 700; // let the confetti play before the confirmati
 const SOURCES = ['hero', 'cookbook', 'quiz', 'sweet', 'smoky', 'spicy', 'chili-oil'];
 // ?add= values that start a product at 1.
 const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
+// "Add to basket": a small copy of the product flies from the + to the basket button.
+const FLY_MS = 650;          // flight time
+const FLY_ARC_PX = 90;       // how far the path rises above the straight line at its middle
+const FLY_MAX_AT_ONCE = 6;   // more flights than this at once: skip the flight, just update the badge
+const FLY_SIZE_PX = 52;      // height of the flying copy when it sets off
+const BUMP_MS = 260;         // the basket's bump when the count changes
 
 (() => {
   'use strict';
@@ -71,7 +77,7 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
     input.max = String(p.max);
     steppers[p.id] = { el, input, dec, inc };
     dec.addEventListener('click', () => setQty(p.id, qty[p.id] - 1, { announce: true }));
-    inc.addEventListener('click', () => setQty(p.id, qty[p.id] + 1, { announce: true }));
+    inc.addEventListener('click', () => setQty(p.id, qty[p.id] + 1, { announce: true, from: inc }));
     // Typing: digits only; empty counts as 0 while typing and shows 0 once you leave.
     input.addEventListener('keydown', (e) => {
       if (['e', 'E', '+', '-', '.', ','].includes(e.key)) e.preventDefault();
@@ -82,7 +88,16 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
       if (n > p.max) { n = p.max; input.value = String(n); }
       setQty(p.id, n, { announce: true, typing: true });
     });
-    input.addEventListener('blur', () => { input.value = String(qty[p.id]); });
+    // A typed number counts for the basket once it's committed (blur or Enter):
+    // one flight if it went up, otherwise the badge just catches up.
+    let before = 0;
+    input.addEventListener('focus', () => { before = qty[p.id]; });
+    const commit = () => {
+      if (qty[p.id] > before) flyOrSync(p.id, input); else badge.sync();
+      before = qty[p.id];
+    };
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(); } });
+    input.addEventListener('blur', () => { input.value = String(qty[p.id]); commit(); });
   });
 
   function nameSteppers() {
@@ -100,7 +115,6 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
   const form = document.querySelector('form[name="reservation"]');
   const liveEl = document.querySelector('[data-live]');
   const bulkEl = document.querySelector('[data-bulk]');
-  const countEl = document.querySelector('[data-count]');
   const recapEl = document.querySelector('[data-recap]');
   const emptyMsg = document.getElementById('empty-msg');
   let liveTimer = 0, locked = false;
@@ -110,11 +124,17 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
     if (!p || locked) return;
     const n = clamp(Number.isFinite(value) ? Math.floor(value) : 0, p);
     const changed = n !== qty[id];
+    const up = n > qty[id];
     qty[id] = n;
     const s = steppers[id];
     if (s && !(opts && opts.typing)) s.input.value = String(n);
     if (changed && opts && opts.announce) announce(p);
     render();
+    // The badge: going up with a pressed + flies first and updates on landing;
+    // typing waits for the commit; everything else updates it right away.
+    if (opts && opts.typing) return;
+    if (up && opts && opts.from) flyOrSync(id, opts.from);
+    else badge.sync();
   }
 
   function announce(p) {
@@ -147,10 +167,6 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
       if (show) el.textContent = money(p.price);
     });
 
-    // count in the bar
-    const n = itemCount();
-    countEl.textContent = n === 0 ? t('summary.count0') : n === 1 ? t('summary.count1') : t('summary.countN', { n });
-
     // recap above the Reserve button
     const lines = linesNow();
     recapEl.hidden = !lines.length;
@@ -158,6 +174,7 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
     if (lines.length && emptyMsg.dataset.key) showNote(emptyMsg, '');
 
     document.querySelectorAll('[data-summary]').forEach(renderSummary);
+    document.querySelectorAll('.sheet__go').forEach((a) => { a.hidden = !lines.length; });
   }
 
   // The summary itself, drawn into the desktop panel and the phone sheet.
@@ -207,7 +224,7 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
     const target = next && box.querySelector('[data-remove="' + next + '"]');
     if (target) target.focus();
     else {
-      const head = box.parentElement.querySelector('.summary__title');
+      const head = box.closest('dialog, .summary').querySelector('.summary__title');
       if (head) head.focus();
     }
   }
@@ -233,8 +250,16 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
      Summary sheet (phones and tablets) and the "Reserve" shortcuts
      --------------------------------------------------------------- */
   const sheetEl = document.getElementById('summary-sheet');
-  const sheet = sheetEl && P.createDialog(sheetEl, { initialFocus: () => sheetEl.querySelector('.summary__title') });
-  document.querySelectorAll('[data-open-sheet]').forEach((b) => b.addEventListener('click', () => sheet.open(b)));
+  // While it's open the page can't scroll: pad the page by the scrollbar's width so
+  // nothing behind it moves when the scrollbar goes away.
+  const root = document.documentElement;
+  const sheet = sheetEl && P.createDialog(sheetEl, {
+    initialFocus: () => sheetEl.querySelector('.summary__title'),
+    beforeOpen: () => { const sw = window.innerWidth - root.clientWidth; if (sw > 0) root.style.paddingRight = sw + 'px'; },
+  });
+  if (sheetEl) sheetEl.addEventListener('close', () => { root.style.paddingRight = ''; });
+  const basketBtn = document.querySelector('[data-basket-btn]');
+  if (basketBtn && sheet) basketBtn.addEventListener('click', () => sheet.open(basketBtn));
 
   const formTitle = document.getElementById('form-title');
   document.querySelectorAll('[data-go-form]').forEach((a) => a.addEventListener('click', (e) => {
@@ -247,6 +272,131 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
     if (sheetEl && sheetEl.open) { sheetEl.addEventListener('close', go, { once: true }); sheet.close(); }
     else go();
   }));
+
+  /* ---------------------------------------------------------------
+     Basket button: pinned under the toggle, badge, bump
+     --------------------------------------------------------------- */
+  const badgeEl = document.querySelector('[data-basket-badge]');
+  const badge = {
+    shown: -1,
+    // Show the current count (called on landing, or straight away when nothing flies).
+    sync() {
+      const n = itemCount();
+      if (!basketBtn) return;
+      basketBtn.setAttribute('aria-label', n === 0 ? t('basket.ariaEmpty') : n === 1 ? t('basket.ariaOne') : t('basket.aria', { n }));
+      if (n === this.shown) return;
+      const first = this.shown < 0;
+      this.shown = n;
+      badgeEl.hidden = n === 0;
+      badgeEl.textContent = n > 99 ? '99+' : String(n);
+      if (!first) bump();
+    },
+  };
+  function bump() {
+    if (!basketBtn) return;
+    if (P.reduceMotion() || !basketBtn.animate) {      // no bump: a static highlight for a moment
+      basketBtn.classList.add('is-flash');
+      clearTimeout(bump.t); bump.t = setTimeout(() => basketBtn.classList.remove('is-flash'), 900);
+      return;
+    }
+    basketBtn.querySelector('.basket-btn__icon').animate(
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }],
+      { duration: BUMP_MS, easing: 'ease-out' });
+  }
+
+  // Where it sits: just under the toggle; as the header scrolls away it eases up to
+  // --basket-top-min. Right edge lines up with the toggle's.
+  const toggleEl = document.querySelector('.lang-toggle');
+  const cssPx = (name, fallback) => parseFloat(getComputedStyle(document.body).getPropertyValue(name)) || fallback;
+  function placeBasket() {
+    if (!basketBtn || !toggleEl) return;
+    const tr = toggleEl.getBoundingClientRect();
+    const minTop = cssPx('--basket-top-min', 12), under = cssPx('--basket-under', 8);
+    basketBtn.style.top = 'calc(' + Math.max(minTop, tr.bottom + under) + 'px + env(safe-area-inset-top, 0px))';
+    // From the left, so the right edges line up exactly whatever the scrollbar does
+    basketBtn.style.right = 'auto';
+    basketBtn.style.left = 'min(' + (tr.right - basketBtn.offsetWidth) + 'px, calc(100vw - ' + basketBtn.offsetWidth + 'px - env(safe-area-inset-right, 0px)))';
+    duck();
+  }
+  // Never sit on a form field someone is typing into (phones): step aside while it overlaps.
+  function duck() {
+    if (!basketBtn) return;
+    const f = document.activeElement;
+    let hide = false;
+    if (f && f.closest && f.closest('.rform__form') && f.matches('input, select, textarea')) {
+      const a = f.getBoundingClientRect(), b = basketBtn.getBoundingClientRect(), m = 8;
+      hide = a.left < b.right + m && a.right > b.left - m && a.top < b.bottom + m && a.bottom > b.top - m;
+    }
+    basketBtn.classList.toggle('is-ducked', hide);
+  }
+  let placeQueued = false;
+  const queuePlace = () => { if (placeQueued) return; placeQueued = true; requestAnimationFrame(() => { placeQueued = false; placeBasket(); }); };
+  window.addEventListener('scroll', queuePlace, { passive: true });
+  window.addEventListener('resize', queuePlace);
+  document.addEventListener('focusin', queuePlace);
+  document.addEventListener('focusout', () => setTimeout(queuePlace));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(queuePlace);
+
+  /* ---------------------------------------------------------------
+     "Add to basket": a small copy of the product flies to the basket
+     --------------------------------------------------------------- */
+  const FLY_ART = {
+    sweet: ['/assets/jars/small/sweet-1.png'],
+    smoky: ['/assets/jars/small/smoky-1.png'],
+    spicy: ['/assets/jars/small/spicy-1.png'],
+    'chili-oil': ['/assets/jars/oil-1.png'],
+    // Until assets/gift-box.png exists, the three front jars fly as a tight cluster.
+    'gift-box': ['/assets/jars/small/sweet-1.png', '/assets/jars/small/smoky-1.png', '/assets/jars/small/spicy-1.png'],
+  };
+  let flying = 0;
+  function flyOrSync(id, fromEl) {
+    if (!fly(id, fromEl)) badge.sync();
+  }
+  function fly(id, fromEl) {
+    if (P.reduceMotion() || !basketBtn || !fromEl || flying >= FLY_MAX_AT_ONCE) return false;
+    const end = basketBtn.getBoundingClientRect();
+    const start = fromEl.getBoundingClientRect();
+    if (!end.width || basketBtn.classList.contains('is-ducked') || !start.width) return false;
+    const node = document.createElement('div');
+    node.className = 'fly';
+    node.setAttribute('aria-hidden', 'true');
+    const box = id === 'gift-box' && giftArt && giftArt.classList.contains('has-box') ? ['/assets/gift-box.png'] : FLY_ART[id];
+    if (box.length > 1) node.classList.add('fly--cluster');
+    box.forEach((src) => {
+      const img = document.createElement('img');
+      img.alt = ''; img.src = src;
+      img.onerror = () => img.remove();   // never a substitute: a missing file just doesn't fly
+      node.appendChild(img);
+    });
+    const h = FLY_SIZE_PX;
+    node.style.height = h + 'px';
+    document.body.appendChild(node);
+    const w = node.getBoundingClientRect().width || h * 0.7;
+    const x0 = start.left + start.width / 2 - w / 2, y0 = start.top + start.height / 2 - h / 2;
+    const x2 = end.left + end.width / 2 - w / 2, y2 = end.top + end.height / 2 - h / 2;
+    // a gentle arc: the control point sits FLY_ARC_PX above the middle of the straight line
+    const x1 = (x0 + x2) / 2, y1 = Math.min(y0, y2) - FLY_ARC_PX;
+    const turn = (x2 >= x0 ? 1 : -1) * 20;
+    const frames = [];
+    const STEPS = 12;
+    for (let i = 0; i <= STEPS; i++) {
+      const u = i / STEPS, v = 1 - u;
+      const x = v * v * x0 + 2 * v * u * x1 + u * u * x2;
+      const y = v * v * y0 + 2 * v * u * y1 + u * u * y2;
+      frames.push({
+        offset: u,
+        transform: 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + (turn * u).toFixed(1) + 'deg) scale(' + (1 - 0.6 * u).toFixed(3) + ')',
+        opacity: u <= 0.85 ? 1 : Math.max(0, (1 - u) / 0.15),
+      });
+    }
+    flying += 1;
+    let done = false;
+    const land = () => { if (done) return; done = true; flying -= 1; node.remove(); badge.sync(); };
+    const anim = node.animate(frames, { duration: FLY_MS, easing: 'ease-in-out', fill: 'forwards' });
+    anim.onfinish = land;
+    anim.oncancel = land;
+    return true;
+  }
 
   /* ---------------------------------------------------------------
      Form: validation, sending, confirmation
@@ -374,6 +524,7 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
     submitted = false;
     form.elements.source.value = source;         // form.reset() restores the default; keep the visit's source
     render();
+    badge.sync();
     sending = false;
     done.show(email, lines);
   });
@@ -402,6 +553,7 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
   P.onLang(() => {
     nameSteppers();
     render();
+    badge.sync();
     if (alertEl.dataset.n) showAlert(Number(alertEl.dataset.n));
     [emptyMsg, sendMsg].forEach((n) => { if (n.dataset.key) n.textContent = t(n.dataset.key); });
     form.querySelectorAll('.field__error').forEach((m) => { if (m.dataset.key) m.textContent = t(m.dataset.key); });
@@ -422,4 +574,6 @@ const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
 
   nameSteppers();
   render();
+  badge.sync();
+  placeBasket();
 })();

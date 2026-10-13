@@ -31,12 +31,21 @@
   </div>
 </header>
 
+<!-- ============ BASKET (your reservation) ============
+     Pinned top right, under the language toggle; opens #summary-sheet.
+     First control after the header, so keyboard users reach it early. -->
+<button type="button" class="basket-btn" data-basket-btn aria-haspopup="dialog" aria-controls="summary-sheet" aria-label="Your reservation, empty">
+  <span class="basket-btn__chip" aria-hidden="true" data-i18n="basket.open">Your reservation</span>
+  <span class="basket-btn__icon"><img src="/assets/basket.png" alt="" width="600" height="516"></span>
+  <span class="basket-btn__badge" aria-hidden="true" data-basket-badge hidden>0</span>
+</button>
+
 <main id="main" class="reserve">
   <div class="reserve__layout">
     <div class="reserve__main">
 
-      <!-- Products + "What reserving means". The phone/tablet summary bar sticks to the
-           bottom of the screen only while this block is on screen, so it never covers the form. -->
+      <!-- Products + "What reserving means". The reservation itself lives only in the
+           basket overlay; nothing on the page is sticky or pinned to the bottom. -->
       <div class="reserve__shop">
 
         <!-- ============ THE HOLIDAY GIFT BOX ============ -->
@@ -170,12 +179,6 @@
           <p data-i18n="means.p3">Thank you for trusting us with your spot. It really does help.</p>
         </section>
 
-        <!-- ============ SUMMARY BAR (phones and tablets) ============ -->
-        <div class="rbar" data-rbar>
-          <p class="rbar__text"><span class="rbar__title" data-i18n="summary.title">Your reservation</span> <span class="rbar__count" data-count>Nothing yet</span></p>
-          <button type="button" class="rbar__view" data-open-sheet aria-haspopup="dialog" data-i18n="summary.view">View</button>
-          <a class="btn btn--primary rbar__go" href="#form-title" data-go-form data-i18n="form.button">Reserve</a>
-        </div>
       </div>
 
       <!-- ============ RESERVATION FORM ============ -->
@@ -306,14 +309,6 @@
         </form>
       </section>
     </div>
-
-    <!-- ============ SUMMARY PANEL (desktop) ============ -->
-    <aside class="summary" aria-labelledby="summary-title">
-      <div class="summary__panel">
-        <h2 class="summary__title" id="summary-title" tabindex="-1" data-i18n="summary.title">Your reservation</h2>
-        <div data-summary></div>
-      </div>
-    </aside>
   </div>
 
   <p class="sr-only" aria-live="polite" data-live></p>
@@ -332,13 +327,23 @@
   <img class="footer__p" src="/assets/tall-p-white.png" alt="" width="708" height="1656" loading="lazy" aria-hidden="true">
 </footer>
 
-<!-- ============ SUMMARY SHEET (phones and tablets) ============ -->
+<!-- ============ YOUR RESERVATION (overlay) ============
+     Opened by the basket button. A panel on the right from 640px up, a bottom sheet on phones.
+     The one [data-summary] target: reserve.js draws the lines, totals and empty state here. -->
 <dialog class="modal sheet" id="summary-sheet" aria-labelledby="sheet-title">
-  <div class="modal__panel sheet__panel">
-    <button type="button" class="modal__close" data-close aria-label="Close" data-i18n-attr="aria-label:modal.close"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
-    <h2 class="summary__title" id="sheet-title" tabindex="-1" data-i18n="summary.title">Your reservation</h2>
-    <div data-summary></div>
-    <a class="btn btn--primary btn--block sheet__go" href="#form-title" data-go-form data-i18n="form.button">Reserve</a>
+  <div class="sheet__panel">
+    <span class="sheet__handle" aria-hidden="true"></span>
+    <div class="sheet__head">
+      <h2 class="summary__title" id="sheet-title" tabindex="-1" data-i18n="summary.title">Your reservation</h2>
+      <button type="button" class="modal__close" data-close aria-label="Close" data-i18n-attr="aria-label:modal.close"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="sheet__body">
+      <div data-summary></div>
+    </div>
+    <div class="sheet__foot">
+      <a class="btn btn--primary btn--block sheet__go" href="#form-title" data-go-form data-i18n="form.button">Reserve</a>
+      <button type="button" class="link-btn sheet__keep" data-close data-i18n="summary.keep">Keep browsing</button>
+    </div>
   </div>
 </dialog>
 
