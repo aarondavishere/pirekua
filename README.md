@@ -1,6 +1,6 @@
 # pirekua — marketing site
 
-Static site with two pages: the home page (`/`) and the Reserve page (`/reserve/`). Plain HTML, CSS and vanilla JS. No framework, no build step, no dependencies.
+Static site with two pages: the home page (`/`) and the Reserve page (`/reserve/`). Plain HTML, CSS and vanilla JS. No framework, no build step. The only package is `@netlify/database`, used by the QR scan counter.
 Deploys from the repo root on Netlify (see `netlify.toml`).
 
 ## Home page order
@@ -44,6 +44,10 @@ Not built yet: payments, prices, shipping costs, taxes, inventory limits, order 
 | `script.js` | Home page only: jar art manifest, ristra swing, product card names, carousel, quiz |
 | `reserve.js` | Reserve page only: `PRODUCTS`, steppers, basket button and overlay, "add to basket" flights, form validation, sending, confirmation |
 | `netlify/functions/submission-created.js` | After each reservation: saves it to Notion, then sends the confirmation email |
+| `netlify/functions/qr.mjs` | The QR short links (`/q/pack`, `/q/promo`): counts each scan, then redirects. Destinations live in `CODES` |
+| `netlify/functions/qr-stats.mjs` | Private scan counts page: `/qr-stats?key=…` (needs `QR_STATS_KEY`) |
+| `netlify/database/migrations/` | Netlify Database schema (the `qr_scans` table) |
+| `marketing/qr/` | Print-ready QR codes (SVG + PNG). Rebuild with `npm run qr` (`scripts/make-qr.mjs`) |
 | `netlify.toml` | Publish the repo root; functions live in `netlify/functions` |
 | `assets/` | Brand art (see below) |
 
@@ -365,3 +369,14 @@ Set these in Netlify (Site configuration → Environment variables), never in th
 - Hero jars and asides: jars are decorative (`aria-hidden`, `alt=""`, no pointer events); the asides are real text and translate.
 - Language toggle: on touch screens it can be swiped, but the two real buttons, `aria-pressed`, focus rings, Tab/Enter/Space and taps all work as before; arrow keys also switch.
 - `prefers-reduced-motion`: no bloom spin, confetti (party links navigate at once, the confirmation opens at once), overlay slide, "add to basket" flight or basket bump (the badge updates at once with a brief static highlight), ristra swing, drumroll, basket animation or transitions. The toggle thumb jumps instead of sliding, with no first-visit nudge and no haptic tick. The quiz shows its final state at once.
+
+## QR codes
+
+Two codes, both in `marketing/qr/` (SVG for print, 2000px PNG for everything else), in Mole Ink on Warm Cream:
+
+| Code | Encodes | Sends people to | Use it for |
+|---|---|---|---|
+| `qr-packaging` | `https://mexicanchilicrisp.com/q/pack` | `/reserve/` | Jars and packaging: counts customers coming back after a purchase |
+| `qr-marketing` | `https://mexicanchilicrisp.com/q/promo` | `/` | Flyers, posters, markets, social |
+
+Every scan is counted (code, country, time; nothing personal) and the visitor lands on the page with `utm_*` tags. To change where a code goes, edit `CODES` in `netlify/functions/qr.mjs`: the printed codes stay the same. To see the counts, set the `QR_STATS_KEY` environment variable to a long random value and open `/qr-stats?key=<that value>`. For print, keep the code at least 2 cm (0.8 in) wide and keep the cream border around it.

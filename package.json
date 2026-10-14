@@ -1,0 +1,13 @@
+{
+  "name": "pirekua",
+  "private": true,
+  "scripts": {
+    "qr": "node scripts/make-qr.mjs"
+  },
+  "dependencies": {
+    "@netlify/database": "^2.0.1"
+  },
+  "devDependencies": {
+    "uqr": "^0.1.3"
+  }
+}
