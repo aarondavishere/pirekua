@@ -360,6 +360,29 @@
   <img class="footer__p" src="assets/tall-p-white.png" alt="" width="708" height="1656" loading="lazy" aria-hidden="true">
 </footer>
 
+<!-- ============ COOKBOOK LIGHTBOX ============
+     A cookbook page as large as the screen allows. script.js fills it from
+     COOKBOOK_PAGES (the same files as the carousel, loaded when it opens). -->
+<dialog class="lightbox" id="cookbook-lightbox" aria-label="Cookbook page" data-lightbox>
+  <div class="lightbox__stage">
+    <div class="lightbox__frame">
+      <img class="lightbox__img" alt="" width="2400" height="2400" data-lightbox-img>
+    </div>
+    <div class="lightbox__bar">
+      <button type="button" class="lightbox__arrow" data-lightbox-prev aria-label="Previous page" data-i18n-attr="aria-label:s3.prev">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <p class="lightbox__count" aria-live="polite" data-lightbox-count></p>
+      <button type="button" class="lightbox__arrow" data-lightbox-next aria-label="Next page" data-i18n-attr="aria-label:s3.next">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <button type="button" class="lightbox__close" data-close aria-label="Close" data-i18n-attr="aria-label:cookbook.close">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+  </button>
+</dialog>
+
 <!-- ============ PRIVACY POLICY MODAL ============ -->
 <dialog class="modal modal--doc" id="privacy-modal" aria-labelledby="privacy-title">
   <div class="modal__panel" tabindex="0">

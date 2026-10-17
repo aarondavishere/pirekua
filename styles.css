@@ -772,7 +772,16 @@ img { display: block; max-width: 100%; height: auto; }
 }
 
 /* Cookbook carousel */
-.carousel { position: relative; max-width: 560px; margin: 0 auto; width: 100%; }
+.carousel {
+  --carousel-max: 620px;                    /* the carousel's widest size (desktop) */
+  --dot-btn: clamp(18px, 6vw, 32px);        /* tap width of each dot: 9 fit on one line at 320px */
+  --dot: clamp(8px, 2.6vw, 12px);           /* inactive dot */
+  --dot-active: clamp(18px, 6vw, 26px);     /* active dot, a wider pill */
+  position: relative;
+  max-width: var(--carousel-max);
+  margin: 0 auto;
+  width: 100%;
+}
 .carousel__viewport {
   border: 3px solid var(--ink);
   border-radius: var(--radius-lg);
@@ -825,7 +834,52 @@ img { display: block; max-width: 100%; height: auto; }
   width: 100%;
   height: 100%;
   max-width: none;
-  object-fit: cover;
+  object-fit: contain;
+}
+/* Each page is a real button that opens it large */
+.carousel__open {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+.carousel__open.is-missing { cursor: default; }
+.carousel__open:focus-visible { outline: 3px solid var(--ink); outline-offset: -6px; border-radius: calc(var(--radius-lg) - 6px); }
+/* small magnifier in the corner: the "tap to enlarge" cue */
+.carousel__zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  pointer-events: none;
+}
+.carousel__open.is-missing .carousel__zoom { display: none; }
+/* first visit on touch screens only: a chip on page 1 */
+.carousel__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  font: 700 0.875rem/1.2 var(--sans);
+  white-space: nowrap;
+  pointer-events: none;
 }
 .carousel__controls {
   display: flex;
@@ -850,11 +904,11 @@ img { display: block; max-width: 100%; height: auto; }
 .carousel__arrow:hover { background: var(--yellow); }
 .carousel__arrow:active { transform: scale(0.94); }
 .carousel__arrow:focus-visible { border-radius: 999px; }
-.carousel__dots { display: flex; flex-wrap: wrap; justify-content: center; }
+.carousel__dots { display: flex; flex-wrap: nowrap; justify-content: center; min-width: 0; }
 .carousel__dot {
   display: grid;
   place-items: center;
-  width: 32px;
+  width: var(--dot-btn);
   height: 44px;
   padding: 0;
   border: 0;
@@ -863,14 +917,63 @@ img { display: block; max-width: 100%; height: auto; }
 }
 .carousel__dot::before {
   content: "";
-  width: 12px;
-  height: 12px;
+  width: var(--dot);
+  height: var(--dot);
   border: 2px solid var(--ink);
   border-radius: 999px;
   background: var(--cream);
   transition: width 200ms ease, background-color 200ms ease;
 }
-.carousel__dot[aria-current="true"]::before { width: 26px; background: var(--orange); }
+.carousel__dot[aria-current="true"]::before { width: var(--dot-active); background: var(--orange); }
+
+/* Cookbook lightbox: a page as large as fits, on a dimmed Mole Ink backdrop */
+.lightbox {
+  --lb-bar: 72px;                           /* room for the prev / count / next bar */
+  --lb-top: 64px;                           /* room for the close button */
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cream);
+  overflow: hidden;
+}
+.lightbox::backdrop { background: rgba(58, 20, 6, 0.7); }
+.lightbox[open] { display: grid; place-items: center; animation: lightbox-in 180ms ease-out; }
+@keyframes lightbox-in { from { opacity: 0; transform: scale(0.98); } }
+.lightbox__stage { display: grid; justify-items: center; gap: 8px; padding-top: var(--lb-top); }
+.lightbox__frame {
+  /* square, never cropped: the largest square that fits between the close button and the bar */
+  width: min(100vw - 16px, 100dvh - var(--lb-top) - var(--lb-bar) - 8px);
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  background: var(--card);
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;           /* horizontal swipes turn the page */
+}
+.lightbox__img { display: block; width: 100%; height: 100%; max-width: none; object-fit: contain; opacity: 0; }
+.lightbox__img.is-loaded { opacity: 1; }
+.lightbox__bar { display: flex; align-items: center; justify-content: center; gap: 16px; height: var(--lb-bar); }
+.lightbox__count { min-width: 5.5em; margin: 0; text-align: center; color: var(--cream); font: 700 1rem/1 var(--sans); }
+.lightbox__arrow,
+.lightbox__close {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  cursor: pointer;
+}
+.lightbox__arrow:hover, .lightbox__close:hover { background: var(--yellow); }
+.lightbox__arrow:focus-visible, .lightbox__close:focus-visible { outline: 3px solid var(--cream); outline-offset: 3px; }
+.lightbox__close { position: absolute; top: 8px; right: 8px; }
 .carousel__dot:focus-visible { outline-offset: -2px; border-radius: 10px; }
 
 /* ============ 5. HOW MUCH SHOULD I GET? (QUIZ) ============ */
@@ -886,7 +989,7 @@ img { display: block; max-width: 100%; height: auto; }
 .quiz__title {
   margin: 0 0 var(--quiz-title-gap);
   font-weight: 800;
-  font-size: clamp(1.75rem, 7.4vw, 5rem);    /* one line from 375px up */
+  font-size: clamp(1.5rem, 7.4vw, 5rem);    /* one line at every width, 320px up */
   line-height: 1;
   letter-spacing: -0.035em;
   white-space: nowrap;
@@ -1541,4 +1644,6 @@ select.field__input {
   .btn--primary:hover, .btn--primary:active { transform: none; }
   .lockup__bloom img { animation: none !important; }
   .lang-toggle__thumb { transition: none !important; }   /* the thumb jumps, no slide */
+  .lightbox[open] { animation: none !important; }       /* the page appears at once */
+  .carousel__track { scroll-behavior: auto; }
 }

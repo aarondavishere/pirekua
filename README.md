@@ -61,7 +61,10 @@ Not built yet: payments, prices, shipping costs, taxes, inventory limits, order 
 | `BASKET_TUMBLERS` | `8` | Jars that spill over the rim and land beside the basket |
 | `BASKET_DROP_STAGGER_MS` | `70` | Gap between jars landing inside |
 | `BASKET_SEED` | `7` | Seed for the heap's small random offsets. Same seed, same heap every run |
-| `COOKBOOK_PAGES` | 6 entries | One entry per cookbook slide (see below) |
+| `COOKBOOK_PAGES` | 9 entries | One `{ src, title }` per cookbook page, in order (see "Cookbook carousel") |
+| `COOKBOOK_TAP_SLOP_PX` | `8` | A press on a page that moves less than this opens it large; more is a swipe |
+| `COOKBOOK_SWIPE_PX` | `40` | Lightbox: a horizontal swipe longer than this turns the page |
+| `COOKBOOK_HINT_KEY` | `pirekua-cookbook-hint` | `localStorage` key: the "Tap a page to enlarge" chip has done its job |
 | `JAR_ART` | 7 per flavor | Jar cutout manifest (see "Jar art" below). The quiz basket picks its angles from here |
 | `OIL_ART` | 5 entries | Chili Oil cutouts, same idea |
 
@@ -126,6 +129,9 @@ The quantity max is `max` on each `PRODUCTS` entry (the inputs read it). The ser
 | `--pcard-pad`, `--pcard-gap`, `--oil-col` | `.products` | Card padding, space between cards, and the Chili Oil column width (desktop) |
 | `--win-h` | `.products__grid` | Height of the product window on each card (`clamp(212px, 17vw + 12px, 248px)`) |
 | `--win-air` | `.products__grid` | Empty space above and below each jar inside its plate (`7%` of the window: about 15–17px) |
+| `--carousel-max` | `.carousel` | The cookbook carousel's widest size (`620px`; it also never grows past its column) |
+| `--dot-btn`, `--dot`, `--dot-active` | `.carousel` | Dot tap width, inactive dot and active pill; they shrink on narrow screens so 9 dots fit on one line at 320px |
+| `--lb-top`, `--lb-bar` | `.lightbox` | Room kept for the close button and the prev / count / next bar; the page is the largest square that fits between them |
 | `--quiz-pad-top`, `--quiz-pad-bottom`, `--quiz-title-gap` | `.quiz` | Quiz section spacing |
 | `--basket-clip` | `.basket-scene` | Top of the rim band (32% of the basket image) |
 | `--basket-gap` | `.basket-scene` | How far the woven body is lifted toward the rim (`4px`): the art's 6px gap closes to a 2px line |
@@ -170,9 +176,26 @@ To add a string:
 
 ## Cookbook carousel
 
-- Slides come from `COOKBOOK_PAGES` in `script.js`, one `{ src }` per page.
-- Each slide shows its image if the file exists. Otherwise it shows its branded "Cookbook image N" placeholder.
-- To add the real pages, drop `page-1.png`, `page-2.png` and so on into `assets/cookbook/`. Square images, 1200 × 1200 or larger.
+- **The 9 pages** live in `assets/cookbook/` as `page-1.png` … `page-9.png` (square, 2400 × 2400, used as supplied). `COOKBOOK_PAGES` at the top of `script.js` lists them in order, each `{ src, title }`:
+
+| # | File | Title key | Page |
+|---|---|---|---|
+| 1 | `page-1.png` | `cookbook.p1` | Cover |
+| 2 | `page-2.png` | `cookbook.p2` | How to mix |
+| 3 | `page-3.png` | `cookbook.p3` | Building Blocks: The Schmear, Spicy Mayo, The Zhuzh |
+| 4 | `page-4.png` | `cookbook.p4` | Bagel with the Schmear |
+| 5 | `page-5.png` | `cookbook.p5` | pirekua Egg Breakfast Tacos |
+| 6 | `page-6.png` | `cookbook.p6` | Chorizo Feta Flatbread |
+| 7 | `page-7.png` | `cookbook.p7` | Lime Shrimp Salad with Chili Crisp Vinaigrette |
+| 8 | `page-8.png` | `cookbook.p8` | Salmon Avocado Rice Bowl with Spicy Mayo |
+| 9 | `page-9.png` | `cookbook.p9` | The Vaquero with Cilantro Chimichurri Zhuzh |
+
+  The order and titles follow the pages themselves (their printed page numbers 01–09). That differs from the pass 9 brief's list: page 4 is Bagel with the Schmear, so the brief's recipes move down one, and page 9 is The Vaquero (the brief said "The Cowboy Cut").
+- **Change a page:** overwrite its file (any extension works: change `src` to `.jpg` if you use one). **Change a title:** edit its `cookbook.pN` line in the "Cookbook page titles" block of `i18n.js` (English and Spanish; dish names stay in English, like the pages). **Reorder, add or remove:** edit `COOKBOOK_PAGES`; the dots, "Slide N of 9" and the counters all follow its length. A page without a `title` falls back to "Cookbook page N of 9".
+- A page whose file is missing keeps its branded "Cookbook image N" placeholder card (and can't be opened large). The placeholder shows until each image has loaded, in the same square, so nothing jumps.
+- Loading: page 1 loads right away; the rest are lazy, and the pages either side of the active one are fetched as soon as it becomes active, so a swipe never shows a blank card.
+- **Tap to enlarge (lightbox):** each page is a real button ("Open cookbook page 4: Recipe: Bagel with the Schmear, larger") with a small magnifier in its corner. A tap or click opens the page in a native dialog, as large as the screen allows (square, never cropped), on a Mole Ink 70% backdrop, with ×, Previous / Next, a "4 of 9" counter, arrow keys and swipe. Escape, the backdrop and × close it; focus stays inside while it's open and returns to the page you were on, and the carousel stays on that page. It uses the same files as the carousel. A press that moves 8px or more is a swipe and never opens it. On a phone held upright the page is the screen's width; pinch-zoom works, and a pan while zoomed in never turns the page.
+- On touch screens, page 1 shows a "Tap a page to enlarge" chip on the first visit, gone after the first open or the first swipe.
 
 ## Jar art
 
@@ -183,6 +206,12 @@ To add a string:
 - **Hero jars:** each `<div class="jar jar--N">` in `index.html` names its image directly (comment above the jar layer). Change the filename to change the angle; change its placement variables in `styles.css` (see the CSS table above) to move it.
 - **Fallback chain:** `data-fallback="a|b"` tries each file in order. Jars go small cutout → full cutout → `render-{flavor}.png` with its old crop (`is-fallback`), then a dashed placeholder.
 - To replace the cutouts with your own exports, overwrite the files with the same names (and re-make the `small/` copies).
+
+## Pass 9 edits in one line each
+
+- **Cookbook:** the 9 real pages replace the placeholders, in the pages' own order, with English and Spanish alt text; dots shrink to fit 9 on one line at 320px; the carousel can grow to `--carousel-max` (620px).
+- **Tap to enlarge:** a lightbox with prev / next, counter, swipe, arrow keys and focus handling, in step with the carousel.
+- **Quiz heading:** its smallest size dropped from 28px to 24px so it stays on one line at 320px without making the page scroll sideways (no change from about 378px up).
 
 ## Pass 8 edits in one line each
 
@@ -250,7 +279,7 @@ To add a string:
 | `bloom-yellow.png`, `bloom-orange.png`, `bloom-red.png`, `bloom-outline.png` | Included | Brand book heat blooms (Icons board), rasterized at 128px |
 | `basket.svg` | Fallback only | The earlier drawn basket. Used only if `basket.png` is missing. Safe to delete later |
 | `making-of-placeholder.jpg` | **Still needed** | Owner drops in a stand-in photo (4:5). Shows a dashed placeholder until then |
-| `cookbook/page-1.png` … `page-6.png` | **Still needed** | Slides show branded placeholders until then |
+| `cookbook/page-1.png` … `page-9.png` | Included | The real cookbook pages, square 2400 × 2400, as supplied (see "Cookbook carousel") |
 | `gift-box.png` | **Still needed** | The Holiday Gift Box render for the Reserve page, about 1200 × 900 (4:3), transparent or on cream. Until it exists, a labeled placeholder shows with the Sweet, Smoky and Spicy front cutouts standing in it; once it loads, the jars step aside |
 
 Any missing file shows a dashed placeholder box with its filename, never substitute art.
@@ -359,9 +388,9 @@ Set these in Netlify (Site configuration → Environment variables), never in th
 - Real buttons and inputs throughout, visible focus rings, alt text that translates.
 - Dialogs: native `<dialog>`, focus trapped, Escape and backdrop click close them, focus returns to the button that opened them.
 - Reserve page: every input has a label (steppers are named by product, e.g. "Sweet Quantity"), errors use `aria-invalid` and `aria-describedby`, the top-of-form message and send errors are alerts, summary changes are announced politely, and Remove keeps focus in the overlay. The basket button is a real button with `aria-haspopup="dialog"` and a live accessible name; the overlay traps focus. The whole page works by keyboard.
-- Carousel: labelled region, "Slide N of 6" announced politely, 48px arrows, real dot buttons, left/right arrow keys, swipe.
+- Carousel: labelled region, "Slide N of 9" announced politely (the count follows `COOKBOOK_PAGES`), 48px arrows, real dot buttons, left/right arrow keys, swipe. Each page is a button that opens the lightbox (a native dialog with a focus trap, Escape, arrow keys and focus return); alt text and labels translate.
 - Quiz: radios and a range input, results announced through a polite live region.
 - Lineup section and footer: cream on Leaf Green is 3.55:1. That fails the 4.5:1 target for normal text but passes the 3:1 bar for large text, so all footer text is set at 19px bold and the lineup heading is large. A strict 4.5:1 would need a darker green.
 - Hero jars and asides: jars are decorative (`aria-hidden`, `alt=""`, no pointer events); the asides are real text and translate.
 - Language toggle: on touch screens it can be swiped, but the two real buttons, `aria-pressed`, focus rings, Tab/Enter/Space and taps all work as before; arrow keys also switch.
-- `prefers-reduced-motion`: no bloom spin, confetti (party links navigate at once, the confirmation opens at once), overlay slide, "add to basket" flight or basket bump (the badge updates at once with a brief static highlight), ristra swing, drumroll, basket animation or transitions. The toggle thumb jumps instead of sliding, with no first-visit nudge and no haptic tick. The quiz shows its final state at once.
+- `prefers-reduced-motion`: no cookbook lightbox animation, no smooth carousel scroll, no bloom spin, confetti (party links navigate at once, the confirmation opens at once), overlay slide, "add to basket" flight or basket bump (the badge updates at once with a brief static highlight), ristra swing, drumroll, basket animation or transitions. The toggle thumb jumps instead of sliding, with no first-visit nudge and no haptic tick. The quiz shows its final state at once.

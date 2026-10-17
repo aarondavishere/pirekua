@@ -77,6 +77,23 @@ const I18N = {
     's3.slideOf': '{n} of {total}',
     's3.status': 'Slide {n} of {total}',
 
+    // ---- Cookbook page titles: one per page, in COOKBOOK_PAGES order (script.js).
+    //      Dish and product names stay in English, like the pages themselves. ----
+    'cookbook.p1': 'The pirekua cookbook cover',
+    'cookbook.p2': 'How to mix Sweet, Smoky and Spicy into your own blend',
+    'cookbook.p3': 'The three staples: The Schmear, Spicy Mayo and The Zhuzh',
+    'cookbook.p4': 'Recipe: Bagel with the Schmear',
+    'cookbook.p5': 'Recipe: pirekua Egg Breakfast Tacos',
+    'cookbook.p6': 'Recipe: Chorizo Feta Flatbread',
+    'cookbook.p7': 'Recipe: Lime Shrimp Salad with Chili Crisp Vinaigrette',
+    'cookbook.p8': 'Recipe: Salmon Avocado Rice Bowl with Spicy Mayo',
+    'cookbook.p9': 'Recipe: The Vaquero with Cilantro Chimichurri Zhuzh',
+    // ---- end of cookbook page titles ----
+    'cookbook.pageOf': 'Cookbook page {n} of {total}',
+    'cookbook.open': 'Open cookbook page {n}: {title}, larger',
+    'cookbook.close': 'Close',
+    'cookbook.hint': 'Tap a page to enlarge',
+
     's4.title': 'How much should I get?',
     'quiz.q1': 'Do you like sunrises or sunsets?',
     'quiz.q1a': 'Sunrises',
@@ -252,6 +269,23 @@ const I18N = {
     's3.slideAlt': 'Página {n} del recetario',
     's3.slideOf': '{n} de {total}',
     's3.status': 'Diapositiva {n} de {total}',
+
+    // ---- Títulos de las páginas del recetario: uno por página, en el orden de COOKBOOK_PAGES.
+    //      Los nombres de platillos y productos quedan en inglés, como en las páginas. ----
+    'cookbook.p1': 'Portada del recetario de pirekua',
+    'cookbook.p2': 'Cómo mezclar Sweet, Smoky y Spicy para crear tu propia mezcla',
+    'cookbook.p3': 'Los tres básicos: The Schmear, Spicy Mayo y The Zhuzh',
+    'cookbook.p4': 'Receta: Bagel with the Schmear',
+    'cookbook.p5': 'Receta: pirekua Egg Breakfast Tacos',
+    'cookbook.p6': 'Receta: Chorizo Feta Flatbread',
+    'cookbook.p7': 'Receta: Lime Shrimp Salad with Chili Crisp Vinaigrette',
+    'cookbook.p8': 'Receta: Salmon Avocado Rice Bowl with Spicy Mayo',
+    'cookbook.p9': 'Receta: The Vaquero with Cilantro Chimichurri Zhuzh',
+    // ---- fin de los títulos del recetario ----
+    'cookbook.pageOf': 'Página {n} de {total} del recetario',
+    'cookbook.open': 'Abrir la página {n} del recetario: {title}, más grande',
+    'cookbook.close': 'Cerrar',
+    'cookbook.hint': 'Toca una página para ampliarla',
 
     's4.title': '¿Cuántos debo llevar?',
     'quiz.q1': '¿Te gustan más los amaneceres o los atardeceres?',

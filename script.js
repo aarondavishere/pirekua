@@ -17,16 +17,25 @@ const BASKET_TUMBLERS = 8;
 const BASKET_DROP_STAGGER_MS = 70;   // gap between jars landing inside
 const BASKET_SEED = 7;               // change for a different (but repeatable) heap
 
-// Cookbook carousel: one entry per page. A page shows its image when the file
-// exists, otherwise its labeled placeholder. Add or remove entries freely.
+// Cookbook carousel: one entry per page, in order. `src` is the file in
+// assets/cookbook/ (any extension: .png or .jpg), `title` is its I18N key (the
+// "Cookbook page titles" block in i18n.js), used for alt text and the
+// "Open cookbook page N: …" label. A page whose file is missing keeps its
+// branded placeholder card. Add, remove or reorder pages here.
 const COOKBOOK_PAGES = [
-  { src: 'assets/cookbook/page-1.png' },
-  { src: 'assets/cookbook/page-2.png' },
-  { src: 'assets/cookbook/page-3.png' },
-  { src: 'assets/cookbook/page-4.png' },
-  { src: 'assets/cookbook/page-5.png' },
-  { src: 'assets/cookbook/page-6.png' },
+  { src: 'assets/cookbook/page-1.png', title: 'cookbook.p1' },   // cover
+  { src: 'assets/cookbook/page-2.png', title: 'cookbook.p2' },   // How to mix
+  { src: 'assets/cookbook/page-3.png', title: 'cookbook.p3' },   // Building Blocks (the three staples)
+  { src: 'assets/cookbook/page-4.png', title: 'cookbook.p4' },   // Bagel with the Schmear
+  { src: 'assets/cookbook/page-5.png', title: 'cookbook.p5' },   // pirekua Egg Breakfast Tacos
+  { src: 'assets/cookbook/page-6.png', title: 'cookbook.p6' },   // Chorizo Feta Flatbread
+  { src: 'assets/cookbook/page-7.png', title: 'cookbook.p7' },   // Lime Shrimp Salad with Chili Crisp Vinaigrette
+  { src: 'assets/cookbook/page-8.png', title: 'cookbook.p8' },   // Salmon Avocado Rice Bowl with Spicy Mayo
+  { src: 'assets/cookbook/page-9.png', title: 'cookbook.p9' },   // The Vaquero with Cilantro Chimichurri Zhuzh
 ];
+const COOKBOOK_TAP_SLOP_PX = 8;              // a press that moves less than this opens the page large; more is a swipe
+const COOKBOOK_SWIPE_PX = 40;                // lightbox: a horizontal swipe longer than this turns the page
+const COOKBOOK_HINT_KEY = 'pirekua-cookbook-hint';   // localStorage: the "Tap a page to enlarge" chip has done its job
 
 // Jar cutouts (transparent, no shadow) in assets/jars/, named <flavor>-<angle>.png.
 // -1 is always the straight-on front view. The quiz basket picks angles from these
@@ -147,14 +156,23 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
     const dotsWrap = carousel.querySelector('[data-carousel-dots]');
     const status = carousel.querySelector('[data-carousel-status]');
     const total = COOKBOOK_PAGES.length;
-    const slides = [], dots = [];
+    const slides = [], dots = [], opens = [], imgs = [];
+    const missing = new Set();
     let index = 0;
+    const coarse = window.matchMedia('(pointer: coarse)');
+    const titleOf = (i) => (COOKBOOK_PAGES[i].title ? t(COOKBOOK_PAGES[i].title) : t('cookbook.pageOf', { n: i + 1, total }));
+    const ZOOM_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M15.5 15.5L20 20M10.5 7.75v5.5M7.75 10.5h5.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
 
     COOKBOOK_PAGES.forEach((page, i) => {
       const n = i + 1;
       const li = document.createElement('li');
       li.className = 'carousel__slide';
       li.setAttribute('role', 'group');
+
+      // The whole page is one real button: a tap or click opens it large.
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'carousel__open';
 
       // Branded placeholder, shown until (unless) the real page loads
       const ph = document.createElement('div');
@@ -164,22 +182,44 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
         '<img class="cb-page__chile" src="assets/' + ['chile-smoky', 'chile-spicy', 'chile-sweet'][i % 3] + '.png" alt="" width="132" height="240" loading="lazy" aria-hidden="true">' +
         '<img class="cb-page__leaf" src="assets/leaf-' + (i % 2 ? 2 : 1) + '.png" alt="" width="252" height="144" loading="lazy" aria-hidden="true">' +
         '<p class="cb-page__label"></p>';
-      li.appendChild(ph);
+      btn.appendChild(ph);
 
+      let img = null;
       if (page.src) {
-        const img = new Image();
+        img = new Image();
         img.className = 'carousel__img';
-        img.width = 1200; img.height = 1200;
-        img.loading = 'lazy';
+        img.width = 2400; img.height = 2400;     // square pages; the slide reserves the space, so nothing shifts
+        img.loading = i === 0 ? 'eager' : 'lazy';
         img.decoding = 'async';
         img.hidden = true;
         img.onload = () => { img.hidden = false; ph.hidden = true; };
-        img.onerror = () => img.remove();
+        img.onerror = () => { img.remove(); missing.add(i); btn.classList.add('is-missing'); };
         img.src = page.src;
-        li.appendChild(img);
+        btn.appendChild(img);
+      } else {
+        missing.add(i);
+        btn.classList.add('is-missing');
       }
+      const zoom = document.createElement('span');
+      zoom.className = 'carousel__zoom';
+      zoom.innerHTML = ZOOM_SVG;
+      btn.appendChild(zoom);
+      li.appendChild(btn);
       track.appendChild(li);
-      slides.push(li);
+      slides.push(li); opens.push(btn); imgs.push(img);
+
+      // Only a tap/click opens it: a press that travels is a swipe.
+      let downX = 0, downY = 0, moved = false;
+      btn.addEventListener('pointerdown', (e) => { downX = e.clientX; downY = e.clientY; moved = false; });
+      btn.addEventListener('pointermove', (e) => {
+        if (Math.abs(e.clientX - downX) > COOKBOOK_TAP_SLOP_PX || Math.abs(e.clientY - downY) > COOKBOOK_TAP_SLOP_PX) moved = true;
+      });
+      btn.addEventListener('click', (e) => {
+        if (moved) { moved = false; e.preventDefault(); return; }
+        if (missing.has(i)) return;
+        if (index !== i) goTo(i);
+        lightbox.open(i, btn);
+      });
 
       const dot = document.createElement('button');
       dot.type = 'button';
@@ -189,29 +229,56 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
       dots.push(dot);
     });
 
+    // First visit on a touch screen: a small "Tap a page to enlarge" chip on page 1,
+    // gone after the first open or the first swipe.
+    let hintEl = null;
+    const hintDone = () => { try { return window.localStorage.getItem(COOKBOOK_HINT_KEY) === '1'; } catch (e) { return true; } };
+    function dropHint() {
+      if (!hintEl) return;
+      hintEl.remove(); hintEl = null;
+      try { window.localStorage.setItem(COOKBOOK_HINT_KEY, '1'); } catch (e) { /* fine */ }
+    }
+    if (coarse.matches && !hintDone() && slides[0]) {
+      hintEl = document.createElement('span');
+      hintEl.className = 'carousel__hint';
+      hintEl.setAttribute('aria-hidden', 'true');
+      slides[0].appendChild(hintEl);
+    }
+
     function label() {
       slides.forEach((li, i) => {
         const vars = { n: i + 1, total };
         li.setAttribute('aria-roledescription', t('s3.slideRole'));
         li.setAttribute('aria-label', t('s3.slideOf', vars));
         li.querySelector('.cb-page__label').textContent = t('s3.slideLabel', vars);
-        const img = li.querySelector('.carousel__img');
-        if (img) img.alt = t('s3.slideAlt', vars);
+        opens[i].setAttribute('aria-label', t('cookbook.open', { n: i + 1, title: titleOf(i) }));
+        if (imgs[i]) imgs[i].alt = titleOf(i);
       });
       dots.forEach((d, i) => d.setAttribute('aria-label', t('s3.dot', { n: i + 1 })));
+      if (hintEl) hintEl.textContent = t('cookbook.hint');
+      lightbox.relabel();
+    }
+    // Make sure the pages next to the active one are on their way, so a swipe never shows a blank card.
+    function warm(i) {
+      [i, (i + 1) % total, (i - 1 + total) % total].forEach((k) => {
+        const im = imgs[k];
+        if (im && im.isConnected && im.loading !== 'eager') im.loading = 'eager';
+      });
     }
     function setIndex(i, announce) {
       if (i === index && !announce) return;
+      if (i !== index) dropHint();
       index = i;
       dots.forEach((d, j) => d.setAttribute('aria-current', String(j === i)));
       if (announce) status.textContent = t('s3.status', { n: i + 1, total });
+      warm(i);
     }
     // While a button-driven scroll is in flight, the scroll position is not the answer.
     let lockUntil = 0;
-    function goTo(i) {
+    function goTo(i, instant) {
       const next = (i + total) % total;
       lockUntil = performance.now() + 700;
-      track.scrollTo({ left: next * track.clientWidth, behavior: reduceMotion() ? 'auto' : 'smooth' });
+      track.scrollTo({ left: next * track.clientWidth, behavior: instant || reduceMotion() ? 'auto' : 'smooth' });
       setIndex(next, true);
     }
     let scrollRaf = 0;
@@ -232,8 +299,70 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
     });
     track.tabIndex = 0;
 
+    /* Lightbox: the page as large as the screen allows, in step with the carousel */
+    const lightbox = (() => {
+      const dlg = document.querySelector('[data-lightbox]');
+      if (!dlg || !P.createDialog) return { open() {}, relabel() {} };
+      const big = dlg.querySelector('[data-lightbox-img]');
+      const count = dlg.querySelector('[data-lightbox-count]');
+      const root = document.documentElement;
+      let at = 0;
+      const dialog = P.createDialog(dlg, {
+        initialFocus: () => dlg.querySelector('.lightbox__close'),
+        // the page behind can't scroll while it's open; pad for the scrollbar so nothing moves
+        beforeOpen: () => { const sw = window.innerWidth - root.clientWidth; if (sw > 0) root.style.paddingRight = sw + 'px'; },
+      });
+      function show(i) {
+        at = (i + total) % total;
+        if (missing.has(at)) { at = (at + 1) % total; }       // skip a page whose file is missing
+        big.classList.remove('is-loaded');
+        big.onload = () => big.classList.add('is-loaded');
+        big.src = COOKBOOK_PAGES[at].src;                       // the same file as the slide (already cached)
+        if (big.complete && big.naturalWidth) big.classList.add('is-loaded');
+        relabel();
+        const nxt = COOKBOOK_PAGES[(at + 1) % total];
+        if (nxt && nxt.src) { const pre = new Image(); pre.src = nxt.src; }
+        if (at !== index) goTo(at, true);                       // the carousel follows behind
+      }
+      function relabel() {
+        if (!count) return;
+        count.textContent = t('s3.slideOf', { n: at + 1, total });
+        big.alt = titleOf(at);
+        dlg.setAttribute('aria-label', titleOf(at));
+      }
+      const step = (d) => { let k = at; for (let s = 0; s < total; s++) { k = (k + d + total) % total; if (!missing.has(k)) break; } show(k); };
+      dlg.querySelector('[data-lightbox-prev]').addEventListener('click', () => step(-1));
+      dlg.querySelector('[data-lightbox-next]').addEventListener('click', () => step(1));
+      dlg.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+      });
+      // swipe left/right on the page
+      let sx = 0, sy = 0, swiping = false;
+      const frame = dlg.querySelector('.lightbox__frame');
+      frame.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; swiping = true; });
+      frame.addEventListener('pointerup', (e) => {
+        if (!swiping) return; swiping = false;
+        if (window.visualViewport && window.visualViewport.scale > 1.01) return;   // pinch-zoomed in: a pan reads the page, it doesn't turn it
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        if (Math.abs(dx) > COOKBOOK_SWIPE_PX && Math.abs(dx) > Math.abs(dy) * 1.2) step(dx < 0 ? 1 : -1);
+      });
+      frame.addEventListener('pointercancel', () => { swiping = false; });
+      // closing: focus lands on the slide now showing, and the carousel stays on it
+      dlg.addEventListener('close', () => {
+        root.style.paddingRight = '';
+        opens[at].focus({ preventScroll: true });
+        goTo(at, true);
+      });
+      return {
+        open(i, trigger) { dropHint(); show(i); dialog.open(trigger); },
+        relabel,
+      };
+    })();
+
     label();
     setIndex(0, false);
+    warm(0);
     dots[0] && dots[0].setAttribute('aria-current', 'true');
     P.onLang(() => { label(); });
   }
