@@ -29,7 +29,7 @@ const I18N = {
     'lang.group': 'Language',
     'lockup.alt': 'pirekua, Mexican chili crisp',
     'hero.sub': 'It started with two friends, a stove, and a lot of laughing.',
-    'hero.asideTl': 'it’s pronounced <span class="nobr">“perry-KOO-a”</span>',
+    'hero.asideTl': 'it’s pronounced <span class="nobr">“pea-REC-kwa”</span>',
     'hero.asideBr': 'but you can just call us delicious',
     'cta.know': 'Reserve yours',
 
@@ -222,7 +222,7 @@ const I18N = {
     'lang.group': 'Idioma',
     'lockup.alt': 'pirekua, chili crisp mexicano',
     'hero.sub': 'Todo empezó con dos amigos, una estufa y un montón de risas.',
-    'hero.asideTl': 'Se pronuncia <span class="nobr">“perry-KOO-a”</span>',
+    'hero.asideTl': 'Se pronuncia <span class="nobr">“pea-REC-kwa”</span>',
     'hero.asideBr': 'pero puedes decirnos deliciosos',
     'cta.know': 'Reserva el tuyo',
 
