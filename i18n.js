@@ -434,6 +434,7 @@ const I18N = {
   function applyLang(next) {
     lang = I18N[next] ? next : 'en';
     document.documentElement.lang = lang;
+    document.documentElement.classList.remove('i18n-pending');   // see the inline script in each page's <head>
     document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
     document.querySelectorAll('[data-i18n-html]').forEach((el) => { el.innerHTML = t(el.dataset.i18nHtml); });
     document.querySelectorAll('[data-i18n-attr]').forEach((el) => {

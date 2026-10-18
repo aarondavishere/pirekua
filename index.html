@@ -1,8 +1,25 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The site has its own EN | ES toggle: keep browsers from auto-translating it -->
+  <meta name="google" content="notranslate">
+  <!-- Remembered language, set before the first paint: lang is truthful from the start,
+       and a Spanish visit stays hidden (at most 1.5s) until i18n.js has filled in the Spanish -->
+  <style>html.i18n-pending body { visibility: hidden; }</style>
+  <script>
+    (function () {
+      try {
+        if (window.localStorage.getItem('pirekua-lang') === 'es') {
+          var root = document.documentElement;
+          root.lang = 'es';
+          root.classList.add('i18n-pending');
+          setTimeout(function () { root.classList.remove('i18n-pending'); }, 1500);
+        }
+      } catch (e) { /* no storage: English, as the markup says */ }
+    })();
+  </script>
   <title data-i18n="meta.title">pirekua · Mexican chili crisp</title>
   <meta name="description" content="pirekua Mexican chili crisp. Made with amor y risas. Reserve yours for the holidays." data-i18n-attr="content:meta.description">
   <meta name="theme-color" content="#FFF8EC">
