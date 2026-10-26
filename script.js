@@ -116,7 +116,9 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
     const build = () => {
       if (iframe) return;
       const q = new URLSearchParams({ badge: '0', autopause: '0', muted: '1' });
-      if (!still) { q.set('loop', '1'); q.set('autoplay', '1'); }
+      // background=1: Vimeo's background mode, no controls and no "Unmute" prompt (the reel has
+      // no sound). With reduced motion it's left off so Vimeo's play button can start the video.
+      if (!still) { q.set('loop', '1'); q.set('autoplay', '1'); q.set('background', '1'); }
       q.set('playsinline', '1');
       q.set('dnt', '1');
       iframe = document.createElement('iframe');

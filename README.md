@@ -276,9 +276,9 @@ To add a string:
 
 - A vertical (9:16) Vimeo video, [vimeo.com/1239342140](https://vimeo.com/1239342140), inside the existing `.media-slot` (chile scatter backdrop, ink border, orange shadow). The markup is just an empty `<div class="media-slot__video" data-taste-video>` plus a `<noscript>` "Watch the video on Vimeo" link; there's no Vimeo `<script>` in the HTML.
 - **Change the video:** edit `id` in `TASTE_VIDEO` at the top of `script.js`, and the `<noscript>` link in `index.html`.
-- **Loading:** nothing loads until the section is within 300px of the screen. Then `script.js` adds the iframe (`player.vimeo.com/video/<id>?badge=0&autopause=0&muted=1&loop=1&autoplay=1&playsinline=1&dnt=1`, title from `s2.videoTitle`) and loads Vimeo's Player API (`player.js`) once.
-- **Playback:** always muted. It plays while at least 40% of the frame is on screen and pauses when it leaves. If the visitor pauses it, scrolling back doesn't restart it. Sound only through Vimeo's own controls; the script never unmutes.
-- **Reduced motion:** the iframe is built without `autoplay` and `loop`, and nothing plays on scroll; the visitor starts it with Vimeo's play button.
+- **Loading:** nothing loads until the section is within 300px of the screen. Then `script.js` adds the iframe (`player.vimeo.com/video/<id>?badge=0&autopause=0&muted=1&loop=1&autoplay=1&background=1&playsinline=1&dnt=1`, title from `s2.videoTitle`) and loads Vimeo's Player API (`player.js`) once.
+- **Playback:** always muted. It plays while at least 40% of the frame is on screen and pauses when it leaves. The reel has no sound, so it uses Vimeo's background mode (`background=1`): no player controls and no "Unmute" prompt. The script never unmutes. Background mode needs the Vimeo account to be on a paid plan (Plus or higher); on a free account Vimeo ignores it and the controls come back.
+- **Reduced motion:** the iframe is built without `autoplay`, `loop` and `background`, and nothing plays on scroll; the visitor starts it with Vimeo's play button (the normal player, so that button is there).
 - **Size:** the frame reserves its 9:16 space before anything loads (no layout shift) and shows a solid Mole Ink tint on Cream Card (`#EFDFC9`) until the player paints. Width = `min(100%, --taste-video-max, 78svh × 9/16)`, so it's never wider than its column and never taller than 78% of the screen. On phones it sits below the text.
 
 ## Section 6 story
