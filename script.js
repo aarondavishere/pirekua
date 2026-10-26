@@ -3,6 +3,19 @@
 
 /* ---------------- Tuning knobs ---------------- */
 
+// Sizzle reel ("What does it taste like?"): a 9:16 Vimeo video. To use a different
+// video, change `id` (the number in vimeo.com/<id>) and the link in the <noscript>
+// in index.html. `title` and `noscript` are I18N keys. The player is built only
+// when the section comes within `loadMarginPx` of the screen, plays (muted, looping)
+// while at least `playAt` of it is visible and pauses when it leaves.
+const TASTE_VIDEO = {
+  id: '1239342140',
+  title: 's2.videoTitle',
+  noscript: 's2.videoNoscript',
+  loadMarginPx: 300,
+  playAt: 0.4,
+};
+
 // Quiz: the result is a random whole number in this range (answers never matter).
 const QUIZ_MIN = 52;
 const QUIZ_MAX = 93;
@@ -59,6 +72,88 @@ const smallJar = (src) => src.replace('assets/jars/', 'assets/jars/small/');
   const P = window.pirekua;
   const t = P.t;
   const reduceMotion = P.reduceMotion;
+
+  /* ---------------------------------------------------------------
+     Sizzle reel: Vimeo player, lazy and muted. Nothing loads until the
+     section is near the screen; the Player API (player.js) is fetched
+     once, then. Never unmuted from here: Vimeo's own controls do that.
+     --------------------------------------------------------------- */
+  const videoSlot = document.querySelector('[data-taste-video]');
+  if (videoSlot) {
+    const frame = videoSlot.parentElement;
+    const still = reduceMotion();          // reduced motion: no autoplay, no loop, no play on scroll
+    let iframe = null;
+    let player = null;
+    let inView = false;
+    let userPaused = false;                // the visitor paused it: don't restart it on scroll
+    let ourPause = false;
+
+    const loadPlayerApi = () => {
+      if (window.Vimeo && window.Vimeo.Player) return Promise.resolve(window.Vimeo);
+      if (!loadPlayerApi.p) {
+        loadPlayerApi.p = new Promise((resolve, reject) => {
+          const js = document.createElement('script');
+          js.src = 'https://player.vimeo.com/api/player.js';
+          js.async = true;
+          js.onload = () => (window.Vimeo ? resolve(window.Vimeo) : reject());
+          js.onerror = reject;
+          document.head.appendChild(js);
+        });
+      }
+      return loadPlayerApi.p;
+    };
+
+    const sync = () => {
+      if (!player) return;
+      if (inView) {
+        if (!still && !userPaused) player.play().catch(() => {});
+      } else {
+        ourPause = true;
+        player.pause().catch(() => {}).finally(() => { ourPause = false; });
+      }
+    };
+
+    const build = () => {
+      if (iframe) return;
+      const q = new URLSearchParams({ badge: '0', autopause: '0', muted: '1' });
+      if (!still) { q.set('loop', '1'); q.set('autoplay', '1'); }
+      q.set('playsinline', '1');
+      q.set('dnt', '1');
+      iframe = document.createElement('iframe');
+      iframe.src = 'https://player.vimeo.com/video/' + encodeURIComponent(TASTE_VIDEO.id) + '?' + q.toString();
+      iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share');
+      iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('loading', 'lazy');
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.title = t(TASTE_VIDEO.title);
+      videoSlot.appendChild(iframe);
+      loadPlayerApi().then((Vimeo) => {
+        player = new Vimeo.Player(iframe);
+        player.on('pause', () => { if (!ourPause && inView) userPaused = true; });
+        player.on('play', () => { userPaused = false; });
+        player.ready().then(sync).catch(() => {});
+      }).catch(() => { /* no API: the video still plays on its own; just no pause off-screen */ });
+    };
+
+    P.onLang(() => { if (iframe) iframe.title = t(TASTE_VIDEO.title); });
+
+    if ('IntersectionObserver' in window) {
+      const near = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) { build(); near.disconnect(); }
+      }, { rootMargin: TASTE_VIDEO.loadMarginPx + 'px 0px' });
+      near.observe(frame);
+      const seen = new IntersectionObserver((entries) => {
+        const e = entries[entries.length - 1];
+        const now = e.isIntersecting && e.intersectionRatio >= TASTE_VIDEO.playAt - 0.001;
+        if (now !== inView) { inView = now; sync(); }
+      }, { threshold: [0, TASTE_VIDEO.playAt, 1] });
+      seen.observe(frame);
+    } else {
+      inView = true;
+      build();
+    }
+  }
 
   /* ---------------------------------------------------------------
      Ristra: five hanging chiles, damped-spring pendulums

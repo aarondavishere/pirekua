@@ -73,11 +73,11 @@
           <img src="assets/bloom-sunrise.png" alt="" width="1400" height="1400">
         </div>
         <img class="lockup__img" src="assets/lockup-primary.svg" data-fallback="assets/lockup-primary.png"
-             alt="pirekua, Mexican chili crisp" data-i18n-attr="alt:lockup.alt" width="1536" height="693" fetchpriority="high">
+             alt="pirekua, Mexican chili crisp" data-i18n-attr="alt:lockup.alt" width="3168" height="1482" fetchpriority="high">
       </div>
 
       <!-- Fixed tagline: never translated. One line; the chile over the i is anchored to .tagline__dotted -->
-      <h1 class="tagline" id="hero-title" aria-label="Made with amor y risas.">Made with <span class="tagline__dotted">amor y r<span class="tagline__i">i</span>sas.<img class="tagline__chile" src="assets/chile-dot.png" alt="" width="160" height="239"></span></h1>
+      <h1 class="tagline" id="hero-title" aria-label="Made with amor y risas.">Made with <span class="tagline__dotted">amor y r<span class="tagline__i">i</span>sas.<img class="tagline__chile" src="assets/chile-dot.png" alt="" width="947" height="1642"></span></h1>
 
       <p class="hero__sub" data-i18n="hero.sub">It started with two friends, a stove, and a lot of laughing.</p>
 
@@ -93,23 +93,23 @@
   <div class="ristra" aria-hidden="true">
     <div class="ristra__line"></div>
     <div class="ristra__chile" style="--x: 8%;  --w: var(--rs-s);" data-chile>
-      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
+      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="1416" height="3312" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
     <div class="ristra__chile is-mirrored" style="--x: 25%; --w: var(--rs-l);" data-chile>
-      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
+      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="1416" height="3312" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
     <div class="ristra__chile" style="--x: 46%; --w: var(--rs-m);" data-chile>
-      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
+      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="1416" height="3312" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
     <div class="ristra__chile" style="--x: 65%; --w: var(--rs-xl);" data-chile>
-      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
+      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="1416" height="3312" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
     <div class="ristra__chile is-mirrored" style="--x: 86%; --w: var(--rs-s2);" data-chile>
-      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="708" height="1656" loading="lazy"></div>
+      <div class="ristra__swing"><img src="assets/icon-mark.png" alt="" width="1416" height="3312" loading="lazy"></div>
       <span class="ristra__thread"></span>
     </div>
   </div>
@@ -139,18 +139,13 @@
   <section class="taste" aria-labelledby="taste-title">
     <div class="taste__inner">
       <div class="taste__media">
-        <!-- MEDIA SLOT
-             Swap the <img class="media-slot__media"> below for any of these, keeping the
-             .media-slot wrapper (it sets the size, shape and chile backdrop):
-               <video class="media-slot__media" src="assets/making-of.mp4" autoplay muted loop playsinline></video>
-               <img class="media-slot__media" src="assets/making-of.gif" alt="…">
-               a small photo carousel inside .media-slot__frame
-             Delete the caption chip when the real footage is in. -->
+        <!-- SIZZLE REEL: a 9:16 Vimeo video. script.js (TASTE_VIDEO) builds the player
+             inside .media-slot__video once the section is near the screen. The
+             .media-slot wrapper sets the chile backdrop; the frame reserves the space. -->
         <div class="media-slot" data-bg="assets/chile-scatter.png">
-          <div class="media-slot__frame">
-            <img class="media-slot__media" src="assets/making-of-placeholder.jpg" width="1200" height="1500" loading="lazy"
-                 alt="Mexican chili crisp being made in a home kitchen" data-i18n-attr="alt:s2.mediaAlt">
-            <p class="media-slot__chip" data-i18n="s2.chip">[PLACEHOLDER: real footage of the chili crisp being made, coming in November]</p>
+          <div class="media-slot__frame media-slot__frame--video">
+            <div class="media-slot__video" data-taste-video></div>
+            <noscript><a class="media-slot__noscript" href="https://vimeo.com/1239342140">Watch the video on Vimeo</a></noscript>
           </div>
         </div>
       </div>
@@ -344,20 +339,44 @@
     </div>
   </section>
 
-  <!-- ============ 6. WHAT IS SPECIAL ABOUT PIREKUA? ============ -->
+  <!-- ============ 6. WHAT IS SPECIAL ABOUT pirekua? ============ -->
   <section class="story" aria-labelledby="story-title">
     <div class="story__panel">
       <img class="story__leaf story__leaf--1" src="assets/leaf-2.png" alt="" width="200" height="202" loading="lazy" aria-hidden="true">
       <img class="story__leaf story__leaf--2" src="assets/leaf-1.png" alt="" width="252" height="144" loading="lazy" aria-hidden="true">
-      <div class="story__text">
+      <!-- Story copy lives in i18n.js ("Story copy" block, s5.p1 … s5.p12 and s5.sub).
+           Photos: assets/story/story-1.jpg … story-4.jpg, shown at their natural ratio. -->
+      <div class="story__part1">
         <h2 class="section-title" id="story-title" data-i18n="s5.title">What is special about pirekua?</h2>
-        <p class="placeholder-copy" data-i18n="s5.body">[STORY COPY: to be written with Emma]</p>
+        <p data-i18n="s5.p1">Every great story begins with a dream — and ours began in Morelia, Michoacán, Mexico, with a group of friends who believed in the beauty of handcrafted Mexican products.</p>
+        <p data-i18n="s5.p2">After an earlier venture came to an end, Emma and Fernando weren’t ready to give up. When a family member introduced them to an unforgettable salsa macha, Fernando began experimenting with a recipe of his own.</p>
+        <p class="story__pull" data-i18n="s5.p3">But every creative mind needs a dreamer who sees what an idea could become.</p>
+        <p data-i18n="s5.p4">Fernando perfected the recipe, while Emma saw its potential. With her determination, hard work, and belief in what they were building, she began making the salsa, sharing it with others, and turning their little idea into a growing business. Together, they transformed a recipe into a shared dream.</p>
+        <p data-i18n="s5.p5">They named it pirekua, meaning “song” in Purépecha, honoring their roots in Michoacán. What began with Facebook orders and the support of friends and family grew one jar at a time, through personal recommendations, hard work, and a community that believed in them.</p>
+        <p data-i18n="s5.p6">Along the way, Emma’s best friend, Elizabeth, became an essential source of encouragement, always supporting her growth and reminding her of the possibilities ahead.</p>
+        <p data-i18n="s5.p7">Even during the pandemic, when the world slowed down, pirekua found a way to bring people a little joy, delivering its salsa straight to their doors.</p>
+        <p data-i18n="s5.p8">Today, pirekua is more than salsa. It’s a story of partnership, friendship, resilience, and the people who believe in a dream before the world knows its name.</p>
+        <p class="story__sign" data-i18n="s5.p9">Rooted in Michoacán. Made with love. Always meant to be shared.</p>
       </div>
-      <div class="story__photo">
-        <!-- PHOTO SLOT: replace this div with <img class="story__img" src="assets/…" width="…" height="…" alt="…"> -->
-        <div class="photo-slot" role="img" aria-label="[PHOTO: Emma and her friend in the kitchen]" data-i18n-attr="aria-label:s5.photo">
-          <span data-i18n="s5.photo">[PHOTO: Emma and her friend in the kitchen]</span>
+      <div class="story__photos">
+        <div class="story__col">
+          <img class="story__img story__img--2" src="assets/story/story-2.jpg" width="960" height="1280" loading="lazy"
+               alt="A tasting table in a shopping center with tiered shelves of pirekua jars, bottles of oil and a bowl of chili crisp with a wooden spoon" data-i18n-attr="alt:s5.alt2">
+          <img class="story__img story__img--3" src="assets/story/story-3.jpg" width="1107" height="1301" loading="lazy"
+               alt="Two girls in navy school uniforms hugging in a classroom, vintage photograph" data-i18n-attr="alt:s5.alt3">
         </div>
+        <div class="story__col story__col--nudge">
+          <img class="story__img story__img--1" src="assets/story/story-1.jpg" width="1536" height="1546" loading="lazy"
+               alt="A man in a white cap and a woman in a light blouse smiling in front of shimmering silver lattice panels" data-i18n-attr="alt:s5.alt1">
+          <img class="story__img story__img--4" src="assets/story/story-4.jpg" width="1364" height="2048" loading="lazy"
+               alt="A smiling girl in a white graduation cap and gown with classmates behind her, vintage photograph" data-i18n-attr="alt:s5.alt4">
+        </div>
+      </div>
+      <div class="story__part2">
+        <h3 class="story__sub" data-i18n="s5.sub">And the story continues…</h3>
+        <p data-i18n="s5.p10">Every dream grows with the people who believe in it. And just when we think we know where the journey will take us, someone new comes along, sees the potential, and helps us imagine what comes next.</p>
+        <p data-i18n="s5.p11">pirekua has always been a story of people believing in something made with heart. And today, that story continues with new possibilities, new connections, and another reason to dream a little bigger.</p>
+        <p class="story__pull" data-i18n="s5.p12">Here’s to the people who believe, the dreams that keep growing, and all the beautiful things still to come. Who knows what the next chapter will bring?</p>
       </div>
     </div>
   </section>
@@ -410,15 +429,17 @@
       <h2 class="modal__title" id="privacy-title" tabindex="-1" data-i18n="privacy.title">Privacy Policy</h2>
       <p class="policy__date" data-i18n="privacy.updated">Last updated: [DATE]</p>
       <h3 data-i18n="privacy.collectH">What we collect.</h3>
-      <p data-i18n="privacy.collect">If you sign up on this site, we collect the email address and/or phone number you enter, and which part of the site you signed up from. That's it.</p>
+      <p data-i18n="privacy.collect">When you reserve on this site, we collect your name, email address, phone number and delivery address, what you reserved, and which part of the site you came from. That's it.</p>
       <h3 data-i18n="privacy.useH">How we use it.</h3>
-      <p data-i18n="privacy.use">We use it to send you a welcome email and occasional news from pirekua, such as when jars are ready, new flavors and recipes. If you give us a phone number, we may text you the same kind of news. We don't send much, and we're not here to spam you.</p>
+      <p data-i18n="privacy.use">We use it to plan how much of each product to make, to contact you about your reservation (including how to pay before anything ships), and to send you confirmation emails and texts. We don't send much, and we're not here to spam you.</p>
       <h3 data-i18n="privacy.whoH">Who sees it.</h3>
-      <p data-i18n="privacy.who">We don't sell or rent your information. It's stored with our website host (Netlify) and, for email, sent through our email provider (Resend) so we can deliver messages to you.</p>
+      <p data-i18n="privacy.who">We don't sell or rent your information. It's stored with Notion (where we keep reservations), Netlify (our website host) and Resend (our email provider), who process it for us so we can plan production and send you messages.</p>
+      <h3 data-i18n="privacy.videoH">Video.</h3>
+      <p data-i18n="privacy.video">The video on our home page is hosted by Vimeo. When it loads, Vimeo receives basic technical information from your browser, such as your IP address, as with any embedded video. We don't share your reservation details with Vimeo, and Vimeo's own privacy policy applies to what it collects.</p>
       <h3 data-i18n="privacy.choicesH">Your choices.</h3>
-      <p data-i18n="privacy.choices">You can opt out of emails or texts at any time by replying "stop" or by contacting us, and we'll remove you. You can also ask us to delete your information.</p>
+      <p data-i18n="privacy.choices">You can opt out of emails or texts at any time by replying "stop" or by contacting us. You can also ask us to change or delete your information.</p>
       <h3 data-i18n="privacy.cookiesH">Cookies and tracking.</h3>
-      <p data-i18n="privacy.cookies">This site doesn't use advertising or tracking cookies. If you choose a language, your browser remembers that choice on your device.</p>
+      <p data-i18n="privacy.cookies">This site doesn't use advertising or tracking cookies. If you choose a language, your browser remembers that choice on your device. We also ask Vimeo not to track you through the embedded video.</p>
       <h3 data-i18n="privacy.kidsH">Kids.</h3>
       <p data-i18n="privacy.kids">This site isn't meant for children under 13.</p>
       <h3 data-i18n="privacy.contactH">Contact.</h3>

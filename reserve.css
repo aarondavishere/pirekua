@@ -30,12 +30,15 @@
   padding: 12px var(--gutter);
 }
 .rhead__home { display: block; flex: 0 0 auto; border-radius: 8px; }
-.rhead__home img { width: clamp(96px, 20vw, 156px); height: auto; }
-.rhead__home .asset-ph { width: clamp(96px, 20vw, 156px) !important; aspect-ratio: 1536 / 693 !important; }
+.rhead__home { --rh-logo: clamp(96px, 20vw, 156px); }   /* width of the lockup art */
+/* lockup-primary.png (3168 × 1482, Oct 2026) has a 64px transparent margin: scale it by
+   33/32 and pull the margin out, so the art keeps the size and place it had */
+.rhead__home img { width: calc(var(--rh-logo) * 1.03125); max-width: none; height: auto; margin: calc(var(--rh-logo) * -0.015625); }
+.rhead__home .asset-ph { width: var(--rh-logo) !important; aspect-ratio: 1536 / 693 !important; }
 /* Very narrow phones: a little smaller, so lockup, link and toggle fit on one row */
 @media (max-width: 359.98px) {
   .rhead { gap: 6px; }
-  .rhead__home img { width: 72px; }
+  .rhead__home { --rh-logo: 72px; }
   .rhead__back { font-size: 0.8125rem; }
 }
 .rhead__back {
@@ -374,7 +377,7 @@
 .sheet {
   width: 100%;
   max-width: none;
-  height: auto;
+  height: fit-content;   /* hug the content so margin-top:auto seats it on the bottom edge */
   max-height: 85dvh;
   margin: auto 0 0;
   padding: 0;

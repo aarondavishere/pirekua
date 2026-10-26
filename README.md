@@ -9,11 +9,11 @@ Deploys from the repo root on Netlify (see `netlify.toml`).
 2. Hero: fills the first screen. Lockup with sunrise bloom, scattered jars, two tilted asides, fixed tagline "Made with amor y risas.", "Reserve yours" party link
 3. Ristra divider: five hanging icon marks that swing, just below the first screen
 4. Section 1: What is Mexican chili crisp?
-5. Section 2: What does it taste like? + Not your usual chili crisp (media slot)
+5. Section 2: What does it taste like? + Not your usual chili crisp, with the sizzle reel (Vimeo)
 6. Section 3: Meet the lineup (Sweet, Smoky, Spicy, Chili Oil cards)
 7. Section 4: What do I use it for? + cookbook carousel + cookbook button
 8. Section 5: How much should I get? (the quiz)
-9. Section 6: What is special about pirekua? (story copy and photo still to come)
+9. Section 6: What is special about pirekua? (the story, in two parts, beside a four-photo collage)
 10. Footer, with the Privacy Policy dialog
 
 Every call to action goes to the Reserve page: the hero and quiz "Reserve yours" links, the four lineup cards and "Get the cookbook" (see "Calls to action" below). There is no signup modal any more.
@@ -29,7 +29,7 @@ Every call to action goes to the Reserve page: the hero and quiz "Reserve yours"
 
 Plus the basket button: pinned top right under the language toggle, with the item count. It opens "Your reservation" as an overlay (a panel on the right from 640px up, a bottom sheet on phones). That overlay is the only place the reservation shows: there is no side column and nothing pinned to the bottom of the screen (both removed in pass 8).
 
-Not built yet: payments, prices, shipping costs, taxes, inventory limits, order status, the real `/shop`, real cookbook pages, real making-of footage, real story copy, SMS automation, analytics.
+Not built yet: payments, prices, shipping costs, taxes, inventory limits, order status, the real `/shop`, SMS automation, analytics.
 
 ## Files
 
@@ -41,7 +41,7 @@ Not built yet: payments, prices, shipping costs, taxes, inventory limits, order 
 | `reserve.css` | Reserve page layout (loaded after `styles.css`) |
 | `i18n.js` | Shared, loaded first on every page: all strings (EN/ES, `I18N`), the language engine and the EN \| ES toggle with its touch swipe |
 | `common.js` | Shared, loaded second: missing-asset placeholders, chile confetti (and party links), dialogs, the privacy policy |
-| `script.js` | Home page only: jar art manifest, ristra swing, product card names, carousel, quiz |
+| `script.js` | Home page only: sizzle reel player, jar art manifest, ristra swing, product card names, carousel, quiz |
 | `reserve.js` | Reserve page only: `PRODUCTS`, steppers, basket button and overlay, "add to basket" flights, form validation, sending, confirmation |
 | `netlify/functions/submission-created.js` | After each reservation: saves it to Notion, then sends the confirmation email |
 | `netlify.toml` | Publish the repo root; functions live in `netlify/functions` |
@@ -51,6 +51,7 @@ Not built yet: payments, prices, shipping costs, taxes, inventory limits, order 
 
 | Constant | Default | What it does |
 |---|---|---|
+| `TASTE_VIDEO` | `{ id: '1239342140', … }` | The sizzle reel in section 2 (see "Section 2 sizzle reel"). **To change the video, edit `id`** (and the `<noscript>` link in `index.html`). `title` / `noscript` are I18N keys; `loadMarginPx` (`300`) is how close the section gets before anything loads; `playAt` (`0.4`) is how much of the frame must be on screen for it to play |
 | `QUIZ_MIN` | `52` | Lowest possible quiz result |
 | `QUIZ_MAX` | `93` | Highest possible quiz result |
 | `DRUMROLL_MS` | `2500` | Anticipation beat after "Show me my results" |
@@ -125,6 +126,12 @@ The quantity max is `max` on each `PRODUCTS` entry (the inputs read it). The ser
 | `--left`/`--side`/`--f`, `--y`, `--r`, `--align`, `--aside-w` | `.hero__aside--tl`, `--br` | The two tilted asides: position, tilt, text alignment and max width (they wrap past it) |
 | `--rs-s`, `--rs-l`, `--rs-m`, `--rs-xl`, `--rs-s2` | `.ristra` | The five chile sizes, left to right |
 | `--x`, `--w` | each `.ristra__chile` in `index.html` | Chile position and size. `is-mirrored` flips a chile (chiles 2 and 5) |
+| `--taste-video-max` | `.taste` | Widest the sizzle reel gets (`340px`). Its height follows at 9:16, and it's also capped at 78% of the screen height (`78svh × 9/16` wide) and at its column |
+| `--story-pad-y`, `--story-pad-x` | `.story__panel` | Story panel padding: top/bottom (`clamp(32px, 5vw, 72px)`, a little under before because the story is long) and sides (`clamp(32px, 6vw, 88px)`, as before) |
+| `--story-photos-max` | `.story__panel` | Widest the photo collage gets (`460px`) |
+| `--story-frame` | `.story__panel` | Warm Cream frame around each story photo (`8px`) |
+| `--story-photo-tilt` | `.story__panel` | Multiplies the photos' tilts (−1.5°, 1.2°, 1°, −1°). `1` as designed, `0` straight; it's `0` under 360px wide and with reduced motion |
+| `--story-part-gap` | `.story__panel` | Space above "And the story continues…" on desktop (`48px`) |
 | `--products-pad-top`, `--products-pad-bottom`, `--products-title-gap` | `.products` | Lineup section spacing |
 | `--pcard-pad`, `--pcard-gap`, `--oil-col` | `.products` | Card padding, space between cards, and the Chili Oil column width (desktop) |
 | `--win-h` | `.products__grid` | Height of the product window on each card (`clamp(212px, 17vw + 12px, 248px)`) |
@@ -209,6 +216,14 @@ To add a string:
 - **Fallback chain:** `data-fallback="a|b"` tries each file in order. Jars go small cutout → full cutout → `render-{flavor}.png` with its old crop (`is-fallback`), then a dashed placeholder.
 - To replace the cutouts with your own exports, overwrite the files with the same names (and re-make the `small/` copies).
 
+## Pass 12 edits in one line each
+
+- **Sizzle reel:** the Vimeo video replaces the section 2 placeholder: lazy, muted, plays only in view, no autoplay with reduced motion (see "Section 2 sizzle reel").
+- **Story:** the real story (12 paragraphs, EN and draft ES) and four photos replace the section 6 placeholders, text beside a sticky collage on desktop (see "Section 6 story").
+- **Brand assets:** new lockup, icon mark (ristra, favicon, confirmation), i-dot chile and chile scatter from the Oct 2026 brand book; every piece sits where the old one did (checked by measurement at 320 to 1920 wide: under 0.03px of drift).
+- **Privacy Policy:** a "Video." section about Vimeo between "Who sees it." and "Your choices.", a sentence about Vimeo at the end of "Cookies and tracking.", and the English text written into both pages' HTML now matches `i18n.js` (it still described the old signup list).
+- **Mobile basket sheet:** the bottom sheet hugs its content and sits on the bottom edge (it used to float with a gap of page below it).
+
 ## Pass 9 edits in one line each
 
 - **Cookbook:** the 9 real pages replace the placeholders, in the pages' own order, with English and Spanish alt text; dots shrink to fit 9 on one line at 320px; the carousel can grow to `--carousel-max` (620px).
@@ -257,17 +272,42 @@ To add a string:
 - The heat meter (bottom corner of each jar card) uses `bloom-yellow/orange/red/outline.png`. It's named "Heat: none / medium / high" for screen readers.
 - Hover or keyboard focus: the card lifts slightly and an inset frame appears. On touch screens, a quieter frame shows at rest and the card presses down on tap. Reduced motion keeps the frame and drops the lift.
 
-## Section 2 media slot
+## Section 2 sizzle reel
 
-`.media-slot` holds `making-of-placeholder.jpg` today. To use a video, GIF or small photo carousel instead, swap the `<img class="media-slot__media">` (the HTML comment there shows how) and delete the caption chip.
+- A vertical (9:16) Vimeo video, [vimeo.com/1239342140](https://vimeo.com/1239342140), inside the existing `.media-slot` (chile scatter backdrop, ink border, orange shadow). The markup is just an empty `<div class="media-slot__video" data-taste-video>` plus a `<noscript>` "Watch the video on Vimeo" link; there's no Vimeo `<script>` in the HTML.
+- **Change the video:** edit `id` in `TASTE_VIDEO` at the top of `script.js`, and the `<noscript>` link in `index.html`.
+- **Loading:** nothing loads until the section is within 300px of the screen. Then `script.js` adds the iframe (`player.vimeo.com/video/<id>?badge=0&autopause=0&muted=1&loop=1&autoplay=1&playsinline=1&dnt=1`, title from `s2.videoTitle`) and loads Vimeo's Player API (`player.js`) once.
+- **Playback:** always muted. It plays while at least 40% of the frame is on screen and pauses when it leaves. If the visitor pauses it, scrolling back doesn't restart it. Sound only through Vimeo's own controls; the script never unmutes.
+- **Reduced motion:** the iframe is built without `autoplay` and `loop`, and nothing plays on scroll; the visitor starts it with Vimeo's play button.
+- **Size:** the frame reserves its 9:16 space before anything loads (no layout shift) and shows a solid Mole Ink tint on Cream Card (`#EFDFC9`) until the player paints. Width = `min(100%, --taste-video-max, 78svh × 9/16)`, so it's never wider than its column and never taller than 78% of the screen. On phones it sits below the text.
+
+## Section 6 story
+
+- **Layout:** three parts inside the existing `.story__panel` (radius, Cream Card background and both leaves kept): `.story__part1` (heading and paragraphs 1–9), `.story__photos` (the collage) and `.story__part2` ("And the story continues…" and paragraphs 10–12).
+  - From 860px: two columns, text about 60% (max 56ch) and photos about 40% (max `--story-photos-max`). The collage spans both text rows and is sticky, so it stays beside the text while reading.
+  - Below 860px: one column, in the order text, photos, "And the story continues…". Not sticky.
+- **Type:** body Poppins 400; the two pull lines (`p.story__pull`, paragraphs 3 and 12) Poppins 700 with a 4px Cempasúchil Orange rule on the left, ink text; the sign-off (`p.story__sign`, paragraph 9) Poppins 800; "And the story continues…" is the section's only `<h3>`, Poppins 800, under a short orange rule.
+- **Copy:** every paragraph is its own key in the "Story copy" block of `i18n.js` (`s5.p1` … `s5.p12`, `s5.sub`, and the photo alt text `s5.alt1` … `s5.alt4`). A copy edit is a one-line change there (English and Spanish); the same text sits in `index.html` as the default. The brand name is lowercase throughout. **The Spanish story is a draft for native-speaker review.**
+- **Photos** (`assets/story/`, shown at their natural ratio, never cropped; Warm Cream frame, soft ink shadow, slight tilts; no captions):
+
+| File | Size | Collage spot | Alt key | Shows |
+|---|---|---|---|---|
+| `story-1.jpg` | 1536 × 1546 | Right column, top | `s5.alt1` | A man in a white cap and a woman in a light blouse in front of silver lattice panels |
+| `story-2.jpg` | 960 × 1280 | Left column, top | `s5.alt2` | A tasting table with tiered shelves of pirekua jars, oil and a bowl of chili crisp |
+| `story-3.jpg` | 1107 × 1301 | Left column, bottom | `s5.alt3` | Two girls in navy school uniforms hugging, vintage photo |
+| `story-4.jpg` | 1364 × 2048 | Right column, bottom | `s5.alt4` | A girl in a white graduation cap and gown, vintage photo |
+
+  The right column sits 24px lower than the left. `story-1.jpg` and `story-2.jpg` arrived as PNGs and were saved as JPEG (quality 86, same pixel size); the other two are the files as supplied.
 
 ## Assets
 
 | File | Status | Notes |
 |---|---|---|
-| `lockup-primary.png` | Included | Exported from brand book board 01 |
-| `lockup-primary.svg` | **Still needed** | The page tries the SVG first and falls back to the PNG |
-| `icon-mark.png`, `chile-dot.png`, `bloom-sunrise.png` | Included | |
+| `lockup-primary.png` | Updated Oct 2026, from brand book | 3168 × 1482. From the brand assets zip: `01-logo/pirekua-primary-lockup.png` (the full-color lockup without the sunrise; the page draws its own bloom). Same artwork as before with a wider transparent margin, so the hero's `.lockup__img` and the Reserve header logo (`--rh-logo` in `reserve.css`) are scaled 33/32 and pulled out by that margin: the letters sit exactly where they did. The confirmation email (fixed 280px wide, function unchanged) shows the art about 3% smaller |
+| `lockup-primary.svg` | **Still needed** | The zip has no SVG of the lockup. The page tries the SVG first and falls back to the PNG. An SVG export must keep the PNG's margin (64 of 3168 on every side) or the `.lockup__img` offsets need re-measuring |
+| `icon-mark.png` | Updated Oct 2026, from brand book | 1416 × 3312. From `02-icon-mark/pirekua-icon-mark-full-color.png` (the full-color icon mark). The ristra chiles, the favicon and the Reserve confirmation mark. Same proportions as before (height / width 2.339), so `--ratio` and the ristra are unchanged |
+| `chile-dot.png` | Updated Oct 2026, from brand book | 947 × 1642. From `02-icon-mark/pirekua-i-dot-chile-full-color.png` (the full-color i-dot chile). Same chile with a wider margin; `.tagline__chile`'s offsets were re-measured so it sits exactly where the old one did over the i |
+| `bloom-sunrise.png` | Included | Not part of this update (the zip's `pirekua-sunrise.png` was left out, as asked) |
 | `chile-sweet.png`, `chile-smoky.png`, `chile-spicy.png` (+ `-flip`) | Included | |
 | `leaf-1.png`, `leaf-2.png` | Included | |
 | `jars/sweet-1.png` … `sweet-7.png`, `smoky-1` … `7`, `spicy-1` … `7` | Included | Shadow-free cutouts, 480px wide, cut from the no-shadow renders in the Perikua Labels canvas. Side views (6, 7) show placeholder label text ([UPC], nutrition) until the real label art is final |
@@ -276,15 +316,17 @@ To add a string:
 | `render-sweet.png`, `render-smoky.png`, `render-spicy.png`, `render-chili-oil.png` | Fallback only | Shown with their old crop only if a cutout is missing |
 | `render-lineup.png` | Not used | Section 1 now builds the lineup from the three front cutouts plus the oil. Safe to delete later |
 | `basket.png` | Included | Brand book "Woven market basket" (Icon set board, Market basket, the empty one), exported at 600 × 516 |
-| `chile-scatter.png` | Included | Brand book chile scatter tile, 600 × 600, shown at 300px |
+| `chile-scatter.png` | Updated Oct 2026, from brand book | 2400 × 2400. From `05-patterns-and-baskets/pirekua-chile-scatter-tile.png` (the seamless tile). Still shown at 300px. It carries its own Warm Cream background, the same color as the backdrop behind it |
 | `tall-p-white.png` | Included | Brand book Treatment A, white stem and leaves (Leaf Green version) |
 | `bloom-yellow.png`, `bloom-orange.png`, `bloom-red.png`, `bloom-outline.png` | Included | Brand book heat blooms (Icons board), rasterized at 128px |
 | `basket.svg` | Fallback only | The earlier drawn basket. Used only if `basket.png` is missing. Safe to delete later |
-| `making-of-placeholder.jpg` | **Still needed** | Owner drops in a stand-in photo (4:5). Shows a dashed placeholder until then |
+| `story/story-1.jpg` … `story-4.jpg` | Included | Section 6 photos (see "Section 6 story") |
 | `cookbook/page-1.png` … `page-9.png` | Included | The real cookbook pages, square 2400 × 2400, as supplied (see "Cookbook carousel") |
 | `gift-box.png` | **Still needed** | The Holiday Gift Box render for the Reserve page, about 1200 × 900 (4:3), transparent or on cream. Until it exists, a labeled placeholder shows with the Sweet, Smoky and Spicy front cutouts standing in it; once it loads, the jars step aside |
 
 Any missing file shows a dashed placeholder box with its filename, never substitute art.
+
+The Oct 2026 brand assets zip was used only for the four files marked "Updated Oct 2026" above. Nothing else in it was added to the site (the zip's dedicated `06-treatments/pirekua-ristra.png` is not used: the ristra has always been built from the icon mark). No art was redrawn, recolored or re-exported. The favicon is the full 1416 × 3312 icon mark (about 560 KB); a small favicon export from the brand book would load faster.
 
 ## Reserve page
 
@@ -395,4 +437,4 @@ Set these in Netlify (Site configuration → Environment variables), never in th
 - Lineup section and footer: cream on Leaf Green is 3.55:1. That fails the 4.5:1 target for normal text but passes the 3:1 bar for large text, so all footer text is set at 19px bold and the lineup heading is large. A strict 4.5:1 would need a darker green.
 - Hero jars and asides: jars are decorative (`aria-hidden`, `alt=""`, no pointer events); the asides are real text and translate.
 - Language toggle: on touch screens it can be swiped, but the two real buttons, `aria-pressed`, focus rings, Tab/Enter/Space and taps all work as before; arrow keys also switch.
-- `prefers-reduced-motion`: no cookbook lightbox animation, no smooth carousel scroll, no bloom spin, confetti (party links navigate at once, the confirmation opens at once), overlay slide, "add to basket" flight or basket bump (the badge updates at once with a brief static highlight), ristra swing, drumroll, basket animation or transitions. The toggle thumb jumps instead of sliding, with no first-visit nudge and no haptic tick. The quiz shows its final state at once.
+- `prefers-reduced-motion`: no cookbook lightbox animation, no smooth carousel scroll, no bloom spin, confetti (party links navigate at once, the confirmation opens at once), overlay slide, "add to basket" flight or basket bump (the badge updates at once with a brief static highlight), ristra swing, drumroll, basket animation or transitions. The toggle thumb jumps instead of sliding, with no first-visit nudge and no haptic tick. The quiz shows its final state at once. The sizzle reel doesn't autoplay or loop (Vimeo's play button starts it), and the story photos sit straight.
