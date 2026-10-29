@@ -68,8 +68,10 @@
         <!-- ============ THE HOLIDAY GIFT BOX ============ -->
         <section class="gift" aria-labelledby="gift-name">
           <div class="gift__art" data-gift-art>
-            <!-- GIFT BOX ART: assets/gift-box.png. Until it exists, a labeled placeholder plus the three jars show. -->
-            <img class="gift__img" src="/assets/gift-box.png" width="1200" height="900" alt="The pirekua Holiday Gift Box" data-i18n-attr="alt:gift.alt">
+            <!-- GIFT BOX ART: assets/gift-box.jpg (a 3D mockup, so it carries a "Mockup" label).
+                 If the file is missing, a labeled placeholder plus the three jars show. -->
+            <img class="gift__img" src="/assets/gift-box.jpg" width="2400" height="1600" alt="Mockup of the pirekua Holiday Gift Box: one jar each of Sweet, Smoky and Spicy and an empty mixing jar in a kraft box" data-i18n-attr="alt:gift.alt">
+            <span class="gift__mockup" aria-hidden="true" data-i18n="gift.mockup">Mockup</span>
             <div class="gift__jars" role="img" aria-label="One jar each of pirekua Sweet, Smoky and Spicy" data-i18n-attr="aria-label:gift.jarsAlt">
               <img src="/assets/jars/sweet-1.png" width="480" height="694" alt="">
               <img src="/assets/jars/smoky-1.png" width="480" height="694" alt="">
@@ -335,8 +337,6 @@
 <footer class="footer">
   <div class="footer__inner">
     <ul class="footer__list">
-      <li data-i18n="footer.website">[WEBSITE URL]</li>
-      <li data-i18n="footer.social">[@SOCIAL]</li>
       <li><button type="button" class="footer__link" data-privacy data-i18n="footer.privacy">Privacy Policy</button></li>
       <li>© 2026 pirekua</li>
     </ul>

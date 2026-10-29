@@ -14,7 +14,7 @@ Deploys from the repo root on Netlify (see `netlify.toml`).
 7. Section 4: What do I use it for? + cookbook carousel + cookbook button
 8. Section 5: How much should I get? (the quiz)
 9. Section 6: What is special about pirekua? (the story, in two parts, beside a four-photo collage)
-10. Footer, with the Privacy Policy dialog
+10. Footer: one short Leaf Green band with the Privacy Policy link and © line (and the tall p cropped at the right)
 
 Every call to action goes to the Reserve page: the hero and quiz "Reserve yours" links, the four lineup cards and "Get the cookbook" (see "Calls to action" below). There is no signup modal any more.
 
@@ -185,7 +185,7 @@ To add a string:
 
 ## Cookbook carousel
 
-- **The 9 pages** live in `assets/cookbook/` as `page-1.png` … `page-9.png` (square, 2400 × 2400, used as supplied). `COOKBOOK_PAGES` at the top of `script.js` lists them in order, each `{ src, title }`:
+- **The 9 pages** live in `assets/cookbook/` as `page-1.png` … `page-9.png`, square and used as supplied: page 1 (cover) is 2400 × 2400; pages 2–9 are the final images (Oct 2026), 2000 × 2000, 1–4 MB each. `COOKBOOK_PAGES` at the top of `script.js` lists them in order, each `{ src, title }`:
 
 | # | File | Title key | Page |
 |---|---|---|---|
@@ -215,6 +215,12 @@ To add a string:
 - **Hero jars:** each `<div class="jar jar--N">` in `index.html` names its image directly (comment above the jar layer). Change the filename to change the angle; change its placement variables in `styles.css` (see the CSS table above) to move it.
 - **Fallback chain:** `data-fallback="a|b"` tries each file in order. Jars go small cutout → full cutout → `render-{flavor}.png` with its old crop (`is-fallback`), then a dashed placeholder.
 - To replace the cutouts with your own exports, overwrite the files with the same names (and re-make the `small/` copies).
+
+## Pass 13 edits in one line each
+
+- **Cookbook:** the final images replace pages 2–9; the cover is unchanged (the final set has none).
+- **Footer:** "[WEBSITE URL]" and "[@SOCIAL]" are gone (and their strings); the footer is one short band, about 90–120px tall instead of 230–370px. `--pw` (the tall p, now `clamp(96px, 11vw, 128px)`) sets its height; `--footer-pad` the space around the links.
+- **Gift box:** the mockup image is in, with a "Mockup" label (see Assets).
 
 ## Pass 12 edits in one line each
 
@@ -321,8 +327,8 @@ To add a string:
 | `bloom-yellow.png`, `bloom-orange.png`, `bloom-red.png`, `bloom-outline.png` | Included | Brand book heat blooms (Icons board), rasterized at 128px |
 | `basket.svg` | Fallback only | The earlier drawn basket. Used only if `basket.png` is missing. Safe to delete later |
 | `story/story-1.jpg` … `story-4.jpg` | Included | Section 6 photos (see "Section 6 story") |
-| `cookbook/page-1.png` … `page-9.png` | Included | The real cookbook pages, square 2400 × 2400, as supplied (see "Cookbook carousel") |
-| `gift-box.png` | **Still needed** | The Holiday Gift Box render for the Reserve page, about 1200 × 900 (4:3), transparent or on cream. Until it exists, a labeled placeholder shows with the Sweet, Smoky and Spicy front cutouts standing in it; once it loads, the jars step aside |
+| `cookbook/page-1.png` … `page-9.png` | Included | The real cookbook pages, as supplied (see "Cookbook carousel"). Pages 2–9 are the final images (Oct 2026, 2000 × 2000, files `1.png` … `8.png` of the final set, printed pages 02–09); the cover (page 1, 2400 × 2400) is unchanged because the final set has no cover. The final PNGs are 1–4 MB each; they load lazily, but JPEG copies would make the carousel much lighter |
+| `gift-box.jpg` | Included | The Holiday Gift Box mockup for the Reserve page, 2400 × 1600 (3:2). Supplied as a 5.6 MB PNG with an opaque background and saved as JPEG (quality 86, about 600 KB, same pixels) because it's the first image on the page. It's a 3D mockup, so a small "Mockup" label (`gift.mockup`, ES "Maqueta") sits on its top-left corner and the alt text starts with "Mockup of…". If the file goes missing, a labeled placeholder shows with the Sweet, Smoky and Spicy front cutouts standing in it, and the label hides |
 
 Any missing file shows a dashed placeholder box with its filename, never substitute art.
 
@@ -335,7 +341,7 @@ The Oct 2026 brand assets zip was used only for the four files marked "Updated O
 - Five steppers (gift box + four jars): − and + buttons (48 × 48px, named "Decrease Sweet" / "Increase Sweet"), and a number field you can type into (0–999; letters ignored; empty counts as 0).
 - **Basket button:** pinned top right under the toggle, same look as the toggle. Its badge (Deep Chili Red, Warm Cream number, "99+" above 99) shows gift boxes plus jars and hides at 0. It bumps when the count changes, shows a "Your reservation" chip on desktop hover or focus, and its accessible name carries the count ("Your reservation, 3 items"; "… empty"). It's the first control after the header, steps aside on phones if it would sit over a field being typed into, and never covers the toggle or "Back to home".
 - **"Your reservation" overlay:** the basket opens the native `#summary-sheet` dialog. From 640px up it's a full-height panel on the right that slides in; on phones a bottom sheet (up to 85% tall) that slides up. The page doesn't move or scroll behind it (the page is padded by the scrollbar's width while it's open). Escape, the backdrop, X and "Keep browsing" close it, and focus returns to the basket. "Reserve" closes it and moves to the form; it's hidden when the reservation is empty.
-- **"Add to basket":** each + (and a typed number, once committed, if it went up) sends a small copy of that product along an arc to the basket: the gift box flies as its three front jars until `gift-box.png` exists, the others as their front cutout. The steppers, summary and hidden fields update at the click; the badge and the bump wait for the landing. Going down never flies. `?add=` on arrival just sets the badge.
+- **"Add to basket":** each + (and a typed number, once committed, if it went up) sends a small copy of that product along an arc to the basket: the gift box flies as its three front jars (its art is a mockup with a background, not a cutout), the others as their front cutout. The steppers, summary and hidden fields update at the click; the badge and the bump wait for the landing. Going down never flies. `?add=` on arrival just sets the badge.
 - Summary lines (in the overlay) read "Holiday Gift Box × 2", each with Remove. Below them, the production total counts every gift box as one Sweet, one Smoky and one Spicy, plus "Plus N empty mixing jars" when there are gift boxes. "No payment today." always shows.
 - Changes are announced politely to screen readers.
 - **Turning on prices later:** set `price` on each entry in `PRODUCTS` at the top of `reserve.js` (e.g. `price: 38`). The cards then show the price, each summary line shows its subtotal, and the summary shows a total (`CURRENCY` sets the format). Leave them all `null` and no prices appear anywhere. The "No payment today" line stays either way; change `summary.noPay` when payment starts.

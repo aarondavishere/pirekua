@@ -236,7 +236,7 @@ const BUMP_MS = 260;         // the basket's bump when the count changes
   }
 
   /* ---------------------------------------------------------------
-     Gift box art: the three jars stand in until assets/gift-box.png exists
+     Gift box art: the three jars stand in if assets/gift-box.jpg is missing
      --------------------------------------------------------------- */
   const giftArt = document.querySelector('[data-gift-art]');
   const giftImg = giftArt && giftArt.querySelector('.gift__img');
@@ -345,7 +345,8 @@ const BUMP_MS = 260;         // the basket's bump when the count changes
     smoky: ['/assets/jars/small/smoky-1.png'],
     spicy: ['/assets/jars/small/spicy-1.png'],
     'chili-oil': ['/assets/jars/oil-1.png'],
-    // Until assets/gift-box.png exists, the three front jars fly as a tight cluster.
+    // The gift box flies as its three front jars, a tight cluster (the gift box art is a
+    // photo-style mockup with a background, so it doesn't make a good flying cutout).
     'gift-box': ['/assets/jars/small/sweet-1.png', '/assets/jars/small/smoky-1.png', '/assets/jars/small/spicy-1.png'],
   };
   let flying = 0;
@@ -360,7 +361,7 @@ const BUMP_MS = 260;         // the basket's bump when the count changes
     const node = document.createElement('div');
     node.className = 'fly';
     node.setAttribute('aria-hidden', 'true');
-    const box = id === 'gift-box' && giftArt && giftArt.classList.contains('has-box') ? ['/assets/gift-box.png'] : FLY_ART[id];
+    const box = FLY_ART[id];
     if (box.length > 1) node.classList.add('fly--cluster');
     box.forEach((src) => {
       const img = document.createElement('img');

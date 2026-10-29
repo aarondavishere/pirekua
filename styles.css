@@ -1431,23 +1431,29 @@ img { display: block; max-width: 100%; height: auto; }
 
 /* ============ FOOTER ============ */
 .footer {
-  --pw: clamp(176px, 30vw, 360px);       /* width of the tall p */
+  --pw: clamp(96px, 11vw, 128px);        /* width of the tall p; the footer is as tall as its visible top */
+  --footer-pad: clamp(18px, 2.4vw, 28px); /* space above and below the links */
   position: relative;
   overflow: hidden;
-  min-height: max(220px, calc(var(--pw) * 0.92 + 40px));
+  min-height: calc(var(--pw) * 0.92);
+  display: grid;
+  align-content: center;
   background: var(--green);
   color: var(--cream);
 }
 .footer__inner {
   position: relative;
   z-index: 1;
+  width: 100%;               /* grid item: fill the row, then cap and center */
   max-width: 1200px;
   margin: 0 auto;
-  padding: clamp(40px, 5vw, 64px) calc(var(--pw) * 0.9 + var(--gutter)) clamp(40px, 5vw, 64px) var(--gutter);
+  padding: var(--footer-pad) calc(var(--pw) * 0.9 + var(--gutter)) var(--footer-pad) var(--gutter);
 }
 .footer__list {
-  display: grid;
-  gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 28px;
   margin: 0;
   padding: 0;
   list-style: none;

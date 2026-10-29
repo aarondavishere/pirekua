@@ -135,8 +135,6 @@ const I18N = {
     's5.alt4': "A smiling girl in a white graduation cap and gown with classmates behind her, vintage photograph",
     // ---- end of story copy ----
 
-    'footer.website': '[WEBSITE URL]',
-    'footer.social': '[@SOCIAL]',
     'footer.privacy': 'Privacy Policy',
 
     'modal.close': 'Close',
@@ -169,7 +167,8 @@ const I18N = {
 
     'gift.name': 'The Holiday Gift Box',
     'gift.short': 'Holiday Gift Box',
-    'gift.alt': 'The pirekua Holiday Gift Box',
+    'gift.alt': 'Mockup of the pirekua Holiday Gift Box: one jar each of Sweet, Smoky and Spicy and an empty mixing jar in a kraft box',
+    'gift.mockup': 'Mockup',
     'gift.jarsAlt': 'One jar each of pirekua Sweet, Smoky and Spicy',
     'gift.desc': 'One jar each of Sweet, Smoky and Spicy, plus an empty jar with its own label, so you can mix up your own: a vinaigrette, a spicy mayo, whatever you dream up. Comes with a mini whisk and a mini spatula.',
     'gift.inside': 'What’s inside',
@@ -347,8 +346,6 @@ const I18N = {
     's5.alt4': "Una joven sonriente con birrete y toga blancos y compañeras detrás, fotografía antigua",
     // ---- fin del texto de la historia ----
 
-    'footer.website': '[URL DEL SITIO WEB]',
-    'footer.social': '[@REDES SOCIALES]',
     'footer.privacy': 'Política de privacidad',
 
     'modal.close': 'Cerrar',
@@ -381,7 +378,8 @@ const I18N = {
 
     'gift.name': 'La caja de regalo navideña',
     'gift.short': 'Caja de regalo navideña',
-    'gift.alt': 'La caja de regalo navideña de pirekua',
+    'gift.alt': 'Maqueta de la caja de regalo navideña de pirekua: un frasco de Sweet, Smoky y Spicy y un frasco vacío para mezclar en una caja de cartón',
+    'gift.mockup': 'Maqueta',
     'gift.jarsAlt': 'Un frasco de cada uno de pirekua Sweet, Smoky y Spicy',
     'gift.desc': 'Un frasco de cada uno: Sweet, Smoky y Spicy, más un frasco vacío con su propia etiqueta para que prepares lo tuyo: una vinagreta, una mayonesa picante, lo que se te ocurra. Incluye un mini batidor y una mini espátula.',
     'gift.inside': 'Qué incluye',

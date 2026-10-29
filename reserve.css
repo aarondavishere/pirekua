@@ -85,7 +85,25 @@
   overflow: hidden;
 }
 .gift__img { width: 100%; height: auto; }
-/* While assets/gift-box.png is missing: the labeled placeholder, with the three jars standing in it */
+/* "Mockup" label: the gift box art is a 3D mockup, not a photo. Shows only once the art has loaded */
+.gift__mockup {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  left: 12px;
+  padding: 3px 10px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+.gift__art:not(.has-box) .gift__mockup { display: none; }
+/* If assets/gift-box.jpg is missing: the labeled placeholder, with the three jars standing in it */
 .gift__art .asset-ph {
   grid-area: 1 / 1;
   width: 100% !important;
