@@ -1,0 +1,8 @@
+{
+  "name": "pirekua",
+  "private": true,
+  "description": "pirekua marketing site. Static pages plus Netlify functions.",
+  "dependencies": {
+    "@netlify/blobs": "^11.1.9"
+  }
+}

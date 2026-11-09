@@ -29,7 +29,7 @@ Every call to action goes to the Reserve page: the hero and quiz "Reserve yours"
 
 Plus the basket button: pinned top right under the language toggle, with the item count. It opens "Your reservation" as an overlay (a panel on the right from 640px up, a bottom sheet on phones). That overlay is the only place the reservation shows: there is no side column and nothing pinned to the bottom of the screen (both removed in pass 8).
 
-Not built yet: payments, prices, shipping costs, taxes, inventory limits, order status, the real `/shop`, SMS automation, analytics.
+Not built yet: payments, prices, shipping costs, taxes, inventory limits, order status, the real `/shop`, SMS automation.
 
 ## Files
 
@@ -432,6 +432,22 @@ Set these in Netlify (Site configuration → Environment variables), never in th
 | `SITE_URL` | Recommended | `https://pirekua.netlify.app` | Base URL, used for the logo in the email |
 | `COOKBOOK_URL` | Optional | `https://…` | Cookbook link. Leave empty to drop that line |
 | `OWNER_NOTIFY_EMAIL` | Optional | `emma@…, aaron@…` | Owners' address(es), comma-separated: "New reservation" emails and Notion-failure alerts |
+
+## Site analytics (nightly, into Notion)
+
+A cookieless page counter, kept on our own stack (no third-party analytics).
+
+| Piece | What it does |
+|---|---|
+| `analytics.js` | One tiny beacon per page load to `/api/collect`. Skipped for Do Not Track, Global Privacy Control and localhost |
+| `netlify/functions/collect.mjs` | Saves one record per view in Netlify Blobs: a visitor hash that changes daily, the page path and the referring host. Ignores bots and any host not in `ANALYTICS_HOSTS` (so deploy previews don't count). No IP address or user agent is stored |
+| `netlify/functions/analytics-nightly.mjs` | Scheduled, 06:05 UTC. Totals each finished day, counts that day's reservations, writes one row per day to the **Site Analytics** database in Notion, then deletes the raw records. If Notion fails the records are kept and retried the next night |
+| `netlify/lib/analytics.mjs` | Pure helpers (time zone, cleaning, totals) |
+| `package.json` | Adds `@netlify/blobs` (Netlify installs it on deploy) |
+
+Site Analytics columns (must match): `Name` (title, the date), `Date`, `Pageviews`, `Unique visitors`, `Reserve page views`, `Reservations`, `Top sources`, `Top pages`. "Unique visitors" is per day: the same person on two days counts twice.
+
+New environment variable: `NOTION_ANALYTICS_DATABASE_ID` (the Site Analytics database). Optional: `ANALYTICS_HOSTS` (default `mexicanchilicrisp.com,www.mexicanchilicrisp.com`), `ANALYTICS_SALT` (any random string). The existing Notion integration must also be connected to the Site Analytics database (••• → Connections). Logs start with `[analytics]`. Days are in Chicago time.
 
 ## Accessibility and motion
 
