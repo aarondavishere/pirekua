@@ -1,45 +1,79 @@
 // Netlify runs a function named "submission-created" after every verified form
-// submission. This one handles the "reservation" form only:
+// submission. This one handles three forms, each on its own path (a problem in
+// one never touches the others):
+//
+// "reservation" (Reserve page), logged as [reserve]:
 //   1. writes the reservation to Notion (the source of truth), skipping it if a
 //      page with the same Submission ID already exists (a retry never duplicates);
 //   2. only after Notion succeeds, sends the customer's confirmation email through
 //      Resend and records the outcome on the Notion page (Email status);
 //   3. if OWNER_NOTIFY_EMAIL is set, emails the owners a short "New reservation".
-// If the Notion write fails, no customer email goes out; the owners get an alert
+//
+// "stay-in-the-loop" and "cookbook" (home page sign-up dialogs), logged as [signup]:
+//   1. checks the email and first name (honeypot hits are ignored), then writes the
+//      sign-up to the Signups database in Notion, skipping a Submission ID it already has;
+//   2. sends the thank-you email ("Thank you for signing up" or "Here's the cookbook")
+//      and records Email status;
+//   3. if OWNER_NOTIFY_EMAIL is set and NOTIFY_OWNERS_ON_SIGNUP is true, emails the
+//      owners "New sign-up: <type>", with the note ("Anything we should know?").
+//   Without NOTION_SIGNUPS_DATABASE_ID, sign-ups are logged and skipped.
+//
+// If a Notion write fails, no customer email goes out; the owners get an alert
 // (when OWNER_NOTIFY_EMAIL is set) and the Netlify Forms copy is the backup.
-// Plain Node 18+, built-in fetch, no dependencies. Logs never include secrets or
-// full personal details: just the submission id, the step and the outcome.
+// Plain Node 18+, built-in fetch, no dependencies. Logs never include secrets,
+// notes or full personal details: just the submission id, the step and the outcome.
 //
 // Environment variables (Netlify → Site configuration → Environment variables):
-//   NOTION_TOKEN        Notion internal integration secret (required)
-//   NOTION_DATABASE_ID  The reservations database id (required)
-//   RESEND_API_KEY      Resend API key (required for email)
-//   FROM_EMAIL          Sender, e.g. "pirekua <hello@yourdomain.com>" (required for email)
-//   REPLY_TO            Where replies go (recommended)
-//   SITE_URL            Base URL of the site, for the logo in the email (recommended)
-//   COOKBOOK_URL        Cookbook link (optional: leave empty to drop that line)
-//   OWNER_NOTIFY_EMAIL  Owners' address(es), comma-separated (optional)
+//   NOTION_TOKEN                Notion internal integration secret (required)
+//   NOTION_DATABASE_ID          The reservations database id (required for reservations)
+//   NOTION_SIGNUPS_DATABASE_ID  The Signups database id (required for sign-ups)
+//   RESEND_API_KEY              Resend API key (required for email)
+//   FROM_EMAIL                  Sender, e.g. "pirekua <hello@yourdomain.com>" (required for email)
+//   REPLY_TO                    Where replies go (recommended)
+//   SITE_URL                    Base URL of the site, for the logo and links in the emails (recommended)
+//   COOKBOOK_URL                Cookbook link (optional: empty drops it from the reservation
+//                               email; the cookbook email then links to SITE_URL/#cookbook)
+//   OWNER_NOTIFY_EMAIL          Owners' address(es), comma-separated (optional)
+
+// Sign-ups: also email the owners "New sign-up: <type>" (needs OWNER_NOTIFY_EMAIL).
+const NOTIFY_OWNERS_ON_SIGNUP = true;
+// Longest "Anything we should know?" note we keep.
+const SIGNUP_NOTE_MAX = 500;
 
 const NOTION_VERSION = '2022-06-28';
 const MAX_QTY = 999;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const LOG = (msg) => console.log('[reserve] ' + msg);
+const SLOG = (msg) => console.log('[signup] ' + msg);
+// Sign-up forms → the Notion "Type" option.
+const SIGNUP_FORMS = { 'stay-in-the-loop': 'Stay in the loop', cookbook: 'Cookbook' };
 
 exports.handler = async (event) => {
   let payload;
   try {
     payload = JSON.parse(event.body || '{}').payload || {};
   } catch (err) {
-    LOG('could not parse submission body');
+    console.log('[submission] could not parse submission body');
     return { statusCode: 400, body: 'Bad request' };
   }
 
   const formName = payload.form_name || (payload.data && payload.data['form-name']);
-  if (formName !== 'reservation') {
-    LOG('skipped: form "' + formName + '" is not reservation');
-    return { statusCode: 200, body: 'Ignored' };
+  if (formName === 'reservation') return handleReservation(payload);
+  if (SIGNUP_FORMS[formName]) {
+    try {
+      return await handleSignup(payload, formName);
+    } catch (err) {
+      SLOG('unexpected error (' + err.message + ')');
+      return { statusCode: 500, body: 'Sign-up failed' };
+    }
   }
+  console.log('[submission] skipped: form "' + formName + '" is not handled');
+  return { statusCode: 200, body: 'Ignored' };
+};
 
+/* ---------------- Reservations ---------------- */
+
+async function handleReservation(payload) {
   const id = String(payload.id || payload.number || '').trim();
   if (!id) {
     LOG('no submission id: cannot de-duplicate, stopping');
@@ -111,7 +145,7 @@ exports.handler = async (event) => {
   }
 
   return { statusCode: 200, body: status === 'Sent' ? 'Saved and sent' : 'Saved, email failed' };
-};
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -122,6 +156,7 @@ function readEnv() {
     missing,
     notionToken: String(e.NOTION_TOKEN || '').trim(),
     databaseId: String(e.NOTION_DATABASE_ID || '').trim(),
+    signupsDatabaseId: String(e.NOTION_SIGNUPS_DATABASE_ID || '').trim(),
     resendKey: String(e.RESEND_API_KEY || '').trim(),
     from: String(e.FROM_EMAIL || '').trim(),
     replyTo: String(e.REPLY_TO || '').trim(),
@@ -186,8 +221,8 @@ async function notion(env, method, path, body) {
   return json;
 }
 
-async function findPage(env, id) {
-  const out = await notion(env, 'POST', '/databases/' + env.databaseId + '/query', {
+async function findPage(env, id, databaseId) {
+  const out = await notion(env, 'POST', '/databases/' + (databaseId || env.databaseId) + '/query', {
     filter: { property: 'Submission ID', rich_text: { equals: id } },
     page_size: 1,
   });
@@ -261,7 +296,7 @@ const COPY = {
     thanks: 'Thank you for reserving your spot. This tells us how much we need to make for the holiday season, and we really appreciate it.',
     reserved: 'What you reserved',
     gift1: 'Holiday Gift Box', giftN: 'Holiday Gift Boxes',
-    giftNote: 'Each gift box has one jar each of Sweet, Smoky and Spicy, an empty mixing jar with its own label, a mini whisk and a mini spatula.',
+    giftNote: 'Each gift box has one jar each of Sweet, Smoky and Spicy, an empty mixing jar with its own label and a mini whisk.',
     noPay: "Nothing is charged today. Once we know the final numbers, we'll email you with the details and how to pay before anything ships.",
     shipTo: 'Shipping to',
     change: 'Need to change something? Just reply to this email.',
@@ -277,7 +312,7 @@ const COPY = {
     thanks: 'Gracias por reservar tu lugar. Esto nos dice cuánto necesitamos hacer para las fiestas, y te lo agradecemos de corazón.',
     reserved: 'Lo que reservaste',
     gift1: 'Caja de regalo navideña', giftN: 'Cajas de regalo navideñas',
-    giftNote: 'Cada caja de regalo trae un frasco de Sweet, uno de Smoky y uno de Spicy, un frasco vacío para mezclar con su propia etiqueta, un mini batidor y una mini espátula.',
+    giftNote: 'Cada caja de regalo trae un frasco de Sweet, uno de Smoky y uno de Spicy, un frasco vacío para mezclar con su propia etiqueta y un mini batidor.',
     noPay: 'Hoy no se cobra nada. Cuando sepamos los números finales, te escribiremos con los detalles y cómo pagar antes de enviar nada.',
     shipTo: 'Se enviará a',
     change: '¿Necesitas cambiar algo? Solo responde a este correo.',
@@ -303,10 +338,11 @@ const INK = '#3A1406', CREAM = '#FFF8EC', CARD = '#FFF1DA', ORANGE = '#F48500';
 const FONT = "Poppins, 'Helvetica Neue', Helvetica, Arial, sans-serif";
 const P = (html, extra) => '<p style="margin:0 0 18px;font-family:' + FONT + ';font-size:17px;line-height:1.6;color:' + INK + ';' + (extra || '') + '">' + html + '</p>';
 
-function shell({ lang, title, logo, logoAlt, inner, footer }) {
+function shell({ lang, title, logo, logoAlt, inner, footer, preheader }) {
   return '<!doctype html><html lang="' + lang + '"><head><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width, initial-scale=1"><title>' + escapeHtml(title) + '</title></head>' +
     '<body style="margin:0;padding:0;background:' + CREAM + ';">' +
+    (preheader ? '<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">' + escapeHtml(preheader) + '</div>' : '') +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="' + CREAM + '" style="background:' + CREAM + ';">' +
     '<tr><td align="center" style="padding:32px 16px;">' +
     '<table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:560px;">' +
@@ -406,6 +442,244 @@ function buildOwnerAlert(id, r, why) {
   return { subject, html, text: plain };
 }
 
+/* ---------------- Sign-ups ("stay-in-the-loop", "cookbook") ---------------- */
+
+async function handleSignup(payload, formName) {
+  const type = SIGNUP_FORMS[formName];
+  const id = String(payload.id || payload.number || '').trim();
+  if (!id) {
+    SLOG('no submission id: cannot de-duplicate, stopping');
+    return { statusCode: 400, body: 'No submission id' };
+  }
+  const env = readEnv();
+  if (!env.notionToken || !env.signupsDatabaseId) {
+    SLOG(id + ' config: ' + (!env.notionToken ? 'NOTION_TOKEN' : 'NOTION_SIGNUPS_DATABASE_ID') + ' missing; sign-up skipped (the Netlify Forms copy has it)');
+    return { statusCode: 200, body: 'Sign-ups not configured' };
+  }
+  const s = parseSignup(payload.data || {}, formName);
+  if (s.honeypot) {
+    SLOG(id + ' ignored: honeypot filled');
+    return { statusCode: 200, body: 'Ignored' };
+  }
+  if (!s.first) {
+    SLOG(id + ' rejected: no first name');
+    return { statusCode: 200, body: 'No name' };
+  }
+  if (!EMAIL_RE.test(s.email) || s.email.length > 254) {
+    SLOG(id + ' rejected: invalid email address');
+    return { statusCode: 200, body: 'Bad email' };
+  }
+  SLOG(id + ' received: ' + type + ', lang=' + s.lang + ', source=' + s.source + (s.note ? ', with a note' : ''));
+
+  // 1. Notion
+  let page;
+  try {
+    page = await findPage(env, id, env.signupsDatabaseId);
+    if (page) {
+      SLOG(id + ' notion: already saved (' + page.id + '), not creating a duplicate');
+      if (page.emailStatus === 'Sent') {
+        SLOG(id + ' email: already sent on an earlier run, nothing to do');
+        return { statusCode: 200, body: 'Duplicate' };
+      }
+    } else {
+      page = await createSignupPage(env, id, s);
+      page.created = true;
+      SLOG(id + ' notion: saved (' + page.id + ')');
+    }
+  } catch (err) {
+    SLOG(id + ' notion: FAILED (' + err.message + '); customer email not sent');
+    if (env.ownerEmail.length && env.emailReady) {
+      const alert = buildSignupAlert(id, s, err.message);
+      const sent = await sendEmail(env, { to: env.ownerEmail, ...alert }).catch((e) => ({ ok: false, why: e.message }));
+      SLOG(id + ' owner alert: ' + (sent.ok ? 'sent' : 'FAILED (' + sent.why + ')'));
+    }
+    return { statusCode: 500, body: 'Notion write failed' };
+  }
+
+  // 2. Thank-you email
+  let status = 'Failed';
+  if (!env.emailReady) {
+    SLOG(id + ' email: not configured (RESEND_API_KEY / FROM_EMAIL missing)');
+  } else {
+    const msg = buildSignupEmail(s, env);
+    const sent = await sendEmail(env, { to: s.email, ...msg }).catch((e) => ({ ok: false, why: e.message }));
+    status = sent.ok ? 'Sent' : 'Failed';
+    SLOG(id + ' email: ' + (sent.ok ? 'sent to ' + maskEmail(s.email) + ' (resend id ' + sent.resendId + ')' : 'FAILED (' + sent.why + ')'));
+  }
+  try {
+    await setEmailStatus(env, page.id, status);
+    SLOG(id + ' notion: Email status = ' + status);
+  } catch (err) {
+    SLOG(id + ' notion: could not record Email status (' + err.message + ')');
+  }
+
+  // 3. Owners (only for a new page, so a retry doesn't notify twice)
+  if (NOTIFY_OWNERS_ON_SIGNUP && env.ownerEmail.length && env.emailReady && page.created) {
+    const note = buildSignupNotice(id, s, page.url, status);
+    const sent = await sendEmail(env, { to: env.ownerEmail, ...note }).catch((e) => ({ ok: false, why: e.message }));
+    SLOG(id + ' owner notice: ' + (sent.ok ? 'sent' : 'FAILED (' + sent.why + ')'));
+  }
+  return { statusCode: 200, body: status === 'Sent' ? 'Saved and sent' : 'Saved, email failed' };
+}
+
+function parseSignup(d, formName) {
+  const str = (k, max) => String(d[k] == null ? '' : d[k]).trim().slice(0, max || 200);
+  const source = str('source', 40);
+  return {
+    form: formName,
+    type: SIGNUP_FORMS[formName],
+    first: str('first_name', 100),
+    last: str('last_name', 100),
+    email: str('email', 254),
+    zip: str('zip', 10),
+    note: str('note', SIGNUP_NOTE_MAX),
+    lang: str('lang') === 'es' ? 'es' : 'en',
+    source: ['hero', 'cookbook'].includes(source) ? source : 'none',
+    honeypot: !!str('bot-field'),
+  };
+}
+
+async function createSignupPage(env, id, s) {
+  const page = await notion(env, 'POST', '/pages', {
+    parent: { database_id: env.signupsDatabaseId },
+    properties: {
+      'Name': { title: [{ type: 'text', text: { content: (s.first + ' ' + s.last).trim().slice(0, 200) || '(no name)' } }] },
+      'Submission ID': text(id),
+      'Signed up at': { date: { start: new Date().toISOString() } },
+      'Type': { select: { name: s.type } },
+      'First name': text(s.first),
+      'Last name': text(s.last),
+      'Email': { email: s.email || null },
+      'ZIP': text(s.zip),
+      'Anything we should know': text(s.note),
+      'Language': { select: { name: s.lang } },
+      'Source': text(s.source),
+    },
+  });
+  return { id: page.id, url: page.url };
+}
+
+const SIGNUP_COPY = {
+  loop: {
+    en: {
+      subject: 'Thank you for signing up',
+      preheader: 'You’re in the loop.',
+      heading: 'You’re in the loop.',
+      body1: 'Hi {name}, thank you for signing up. We’ll let you know when jars are ready, when new flavors land and when we have a new recipe to share. We don’t send much, and we’re not here to spam you.',
+      body2: 'Want a head start? You can reserve a jar or a Holiday Gift Box any time.',
+      button: 'Reserve yours',
+      closing: 'Hit reply any time. We read every message.',
+    },
+    es: {
+      subject: 'Gracias por registrarte',
+      preheader: 'Ya estás al tanto.',
+      heading: 'Ya estás al tanto.',
+      body1: 'Hola {name}, gracias por registrarte. Te avisaremos cuando haya frascos listos, cuando salgan sabores nuevos y cuando tengamos una receta nueva para compartir. No enviamos mucho y no estamos aquí para llenarte de spam.',
+      body2: '¿Quieres adelantarte? Puedes reservar un frasco o una caja de regalo cuando quieras.',
+      button: 'Reserva el tuyo',
+      closing: 'Responde cuando quieras. Leemos cada mensaje.',
+    },
+  },
+  cookbook: {
+    en: {
+      subject: 'Here’s the cookbook',
+      preheader: 'Your pirekua cookbook is inside.',
+      heading: 'Here’s the cookbook.',
+      body1: 'Hi {name}, thank you for asking! Here’s your pirekua cookbook: how to mix Sweet, Smoky and Spicy into your own blend, three staples (The Schmear, Spicy Mayo and The Zhuzh) and six recipes.',
+      button: 'Open the cookbook',
+      body2: 'Made something good? Reply and tell us. We’d love to hear.',
+      more: 'Want jars to go with it?',
+      moreLink: 'Reserve yours',
+    },
+    es: {
+      subject: 'Aquí está el recetario',
+      preheader: 'Tu recetario de pirekua está adentro.',
+      heading: 'Aquí está el recetario.',
+      body1: 'Hola {name}, ¡gracias por pedirlo! Aquí está tu recetario de pirekua: cómo mezclar Sweet, Smoky y Spicy para crear tu propia mezcla, tres básicos (The Schmear, Spicy Mayo y The Zhuzh) y seis recetas.',
+      button: 'Abrir el recetario',
+      body2: '¿Preparaste algo rico? Responde y cuéntanos. Nos encantará saberlo.',
+      more: '¿Quieres frascos para acompañarlo?',
+      moreLink: 'Reserva el tuyo',
+    },
+  },
+  // Shared with the reservation email: sign-off, logo alt; the footer says why they got it.
+  footer: {
+    en: "You’re getting this because you signed up on our site. Don’t want our emails? Reply \"stop\" and we’ll take you off the list.",
+    es: 'Recibes esto porque te registraste en nuestro sitio. ¿No quieres nuestros correos? Responde "stop" y te daremos de baja.',
+  },
+};
+
+// The orange pill button, same as the reservation email's cookbook button.
+function emailButton(href, label) {
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 26px;"><tr>' +
+    '<td align="center" bgcolor="' + ORANGE + '" style="border-radius:999px;">' +
+    '<a href="' + escapeHtml(href) + '" style="display:inline-block;padding:14px 28px;font-family:' + FONT +
+    ';font-size:17px;font-weight:700;line-height:1;color:' + INK + ';text-decoration:none;border-radius:999px;">' + escapeHtml(label) + '</a>' +
+    '</td></tr></table>';
+}
+
+function buildSignupEmail(s, env) {
+  const kind = s.form === 'cookbook' ? 'cookbook' : 'loop';
+  const c = SIGNUP_COPY[kind][s.lang] || SIGNUP_COPY[kind].en;
+  const base = COPY[s.lang] || COPY.en;                      // sign-off and logo alt, as in the reservation email
+  const footerLine = SIGNUP_COPY.footer[s.lang] || SIGNUP_COPY.footer.en;
+  const body1 = c.body1.replace('{name}', s.first);
+  const reserveUrl = env.siteUrl ? env.siteUrl + '/reserve/?source=' + (kind === 'cookbook' ? 'email-cookbook' : 'email-loop') : '';
+  const cookbookUrl = env.cookbookUrl || (env.siteUrl ? env.siteUrl + '/#cookbook' : '');
+  let inner = P(escapeHtml(c.heading), 'font-size:22px;font-weight:700;') + P(escapeHtml(body1));
+  const plain = [c.heading, '', body1, ''];
+  if (kind === 'loop') {
+    inner += P(escapeHtml(c.body2)) + (reserveUrl ? emailButton(reserveUrl, c.button) : '') + P(escapeHtml(c.closing));
+    plain.push(c.body2, ...(reserveUrl ? [c.button + ' → ' + reserveUrl] : []), '', c.closing, '');
+  } else {
+    inner += (cookbookUrl ? emailButton(cookbookUrl, c.button) : '') + P(escapeHtml(c.body2)) +
+      (reserveUrl ? P(escapeHtml(c.more) + ' <a href="' + escapeHtml(reserveUrl) + '" style="color:' + INK + ';font-weight:700;">' + escapeHtml(c.moreLink) + '</a>') : '');
+    plain.push(...(cookbookUrl ? [c.button + ' → ' + cookbookUrl, ''] : []), c.body2, '', ...(reserveUrl ? [c.more + ' ' + c.moreLink + ' → ' + reserveUrl, ''] : []));
+  }
+  inner += P(escapeHtml(base.signoff) + '<br><strong>pirekua</strong>');
+  plain.push(base.signoff, 'pirekua', '', '—', footerLine, '[BUSINESS NAME + MAILING ADDRESS]');
+  const html = shell({
+    lang: s.lang, title: c.subject, preheader: c.preheader,
+    logo: env.siteUrl ? env.siteUrl + '/assets/lockup-primary.png' : '', logoAlt: base.logoAlt, inner,
+    footer: escapeHtml(footerLine) + '<br>[BUSINESS NAME + MAILING ADDRESS]',
+  });
+  return { subject: c.subject, html, text: plain.join('\n') };
+}
+
+function signupLines(s) {
+  return [
+    ['Name', (s.first + ' ' + s.last).trim()],
+    ['Email', s.email],
+    ['ZIP', s.zip],
+    ['Language', s.lang],
+    ['Source', s.source],
+    ['Anything we should know', s.note || '(nothing)'],
+  ];
+}
+
+function buildSignupNotice(id, s, pageUrl, emailStatus) {
+  const subject = 'New sign-up: ' + s.type;
+  const lines = signupLines(s).concat([['Thank-you email', emailStatus], ['Submission ID', id]]);
+  const inner = P('<strong>' + escapeHtml(subject) + '</strong>', 'font-size:20px;') +
+    lines.map(([k, v]) => P('<strong>' + escapeHtml(k) + ':</strong> ' + escapeHtml(v), 'margin-bottom:6px;font-size:15px;')).join('') +
+    (pageUrl ? P('<a href="' + escapeHtml(pageUrl) + '" style="color:' + INK + ';font-weight:700;">Open it in Notion</a>', 'margin-top:14px;') : '');
+  const html = shell({ lang: 'en', title: subject, logo: '', logoAlt: '', inner });
+  const plain = [subject, '', ...lines.map(([k, v]) => k + ': ' + v), '', pageUrl ? 'Notion: ' + pageUrl : ''].join('\n');
+  return { subject, html, text: plain };
+}
+
+function buildSignupAlert(id, s, why) {
+  const subject = 'Action needed: a sign-up did not reach Notion (' + id + ')';
+  const lines = [['Submission ID', id], ['Type', s.type], ['Error', why]].concat(signupLines(s));
+  const form = s.form;
+  const inner = P('<strong>A sign-up could not be saved to Notion.</strong>', 'font-size:20px;') +
+    P('No thank-you email went to them. The submission is safe in Netlify → Forms → ' + escapeHtml(form) + '. Add it to Notion by hand (or fix the setting), then send them a note.') +
+    lines.map(([k, v]) => P('<strong>' + escapeHtml(k) + ':</strong> ' + escapeHtml(v), 'margin-bottom:6px;font-size:15px;')).join('');
+  const html = shell({ lang: 'en', title: subject, logo: '', logoAlt: '', inner });
+  const plain = ['A sign-up could not be saved to Notion.', 'No thank-you email went to them. The submission is safe in Netlify → Forms → ' + form + '.', '', ...lines.map(([k, v]) => k + ': ' + v)].join('\n');
+  return { subject, html, text: plain };
+}
+
 /* ---------------- Helpers ---------------- */
 
 function maskEmail(email) {
@@ -418,4 +692,4 @@ function escapeHtml(s) {
 }
 
 // Exposed for local testing.
-exports._test = { parseReservation, buildCustomerEmail, buildOwnerNotice, buildOwnerAlert, orderSummary };
+exports._test = { parseReservation, buildCustomerEmail, buildOwnerNotice, buildOwnerAlert, orderSummary, parseSignup, buildSignupEmail, buildSignupNotice, buildSignupAlert };

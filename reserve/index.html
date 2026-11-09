@@ -81,7 +81,8 @@
           <div class="gift__body">
             <h1 class="gift__eyebrow" data-i18n="reserve.title">Reserve your pirekua</h1>
             <h2 class="gift__name" id="gift-name" data-i18n="gift.name">The Holiday Gift Box</h2>
-            <p class="gift__desc" data-i18n="gift.desc">One jar each of Sweet, Smoky and Spicy, plus an empty jar with its own label, so you can mix up your own: a vinaigrette, a spicy mayo, whatever you dream up. Comes with a mini whisk and a mini spatula.</p>
+            <p class="price price--big" data-price-for="gift-box" hidden></p>
+            <p class="gift__desc" data-i18n="gift.desc">One jar each of Sweet, Smoky and Spicy, plus an empty jar with its own label, so you can mix up your own: a vinaigrette, a spicy mayo, whatever you dream up. Comes with a mini whisk.</p>
             <h3 class="gift__inside-title" id="gift-inside" data-i18n="gift.inside">What’s inside</h3>
             <ul class="gift__inside" aria-labelledby="gift-inside">
               <li data-i18n="gift.i1">1 jar of Sweet</li>
@@ -89,9 +90,7 @@
               <li data-i18n="gift.i3">1 jar of Spicy</li>
               <li data-i18n="gift.i4">1 empty mixing jar with its own label</li>
               <li data-i18n="gift.i5">1 mini whisk</li>
-              <li data-i18n="gift.i6">1 mini spatula</li>
             </ul>
-            <p class="price price--big" data-price-for="gift-box" hidden></p>
             <div class="qty qty--gift">
               <span class="qty__label" id="qty-label-gift-box" data-i18n="gift.qty">Gift boxes</span>
               <div class="stepper" data-product="gift-box">
@@ -195,6 +194,7 @@
           <h2 class="section-title" id="means-title" data-i18n="means.title">What reserving means</h2>
           <p data-i18n="means.p1">This is our first batch, made in small runs for friends and family. Your reservation is how we decide how much of each flavor to make for the holidays, so we make enough for everyone and waste nothing. That’s why we ask before we cook.</p>
           <p data-i18n="means.p2">There’s no payment today. Once we know the final numbers, we’ll email you with the details and how to pay before anything ships.</p>
+          <p data-i18n="reserve.priceNote">Prices are estimates and may change before we confirm your order. Nothing is charged today; we’ll email you the final total and how to pay before anything ships.</p>
           <p data-i18n="means.p3">Thank you for trusting us with your spot. It really does help.</p>
         </section>
 
@@ -375,6 +375,7 @@
       <p class="done__text" data-done-text></p>
       <h3 class="done__recap-title" data-i18n="done.recap">You reserved</h3>
       <ul class="done__recap" data-done-recap></ul>
+      <p class="done__total" data-done-total hidden></p>
       <a class="btn btn--primary btn--block" href="/" data-i18n="done.home">Back to home</a>
     </div>
   </div>

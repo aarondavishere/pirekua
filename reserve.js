@@ -5,23 +5,25 @@
 /* ---------------- Tuning knobs ---------------- */
 
 // The products, in page order. `field` is the hidden form field (and the Netlify
-// column); `price` is per unit in dollars. Leave every price null to show no
-// prices anywhere; fill them in later and the cards and summary show prices and
-// a total (the "No payment today" line stays). Names stay in English, except the
-// gift box, which uses gift.name / gift.short.
+// column); `price` is the ESTIMATED price per unit in dollars (shown with "est.",
+// and the summary says "Estimated total"). The gift box price is for the whole box:
+// its jars are included, never added on top. Set a price to null to hide it; leave
+// every price null to show no prices anywhere (the "No payment today" line stays).
+// Money is added up in whole cents, so 3 × 12.99 is exactly $38.97. Names stay in
+// English, except the gift box, which uses gift.name / gift.short.
 const PRODUCTS = [
-  { id: 'gift-box',  field: 'gift_boxes', nameKey: 'gift.short', en: 'Holiday Gift Box', enPlural: 'Holiday Gift Boxes', price: null, max: 999 },
-  { id: 'sweet',     field: 'sweet',      name: 'Sweet',     price: null, max: 999 },
-  { id: 'smoky',     field: 'smoky',      name: 'Smoky',     price: null, max: 999 },
-  { id: 'spicy',     field: 'spicy',      name: 'Spicy',     price: null, max: 999 },
-  { id: 'chili-oil', field: 'chili_oil',  name: 'Chili Oil', price: null, max: 999 },
+  { id: 'gift-box',  field: 'gift_boxes', nameKey: 'gift.short', en: 'Holiday Gift Box', enPlural: 'Holiday Gift Boxes', price: 42.99, max: 999 },
+  { id: 'sweet',     field: 'sweet',      name: 'Sweet',     price: 12.99, max: 999 },
+  { id: 'smoky',     field: 'smoky',      name: 'Smoky',     price: 12.99, max: 999 },
+  { id: 'spicy',     field: 'spicy',      name: 'Spicy',     price: 12.99, max: 999 },
+  { id: 'chili-oil', field: 'chili_oil',  name: 'Chili Oil', price: 10.99, max: 999 },
 ];
 const BULK_NOTE_AT = 10;          // gift boxes at which the "Gifting a crowd?" note appears
-const CURRENCY = 'USD';           // only used once prices are filled in
+const CURRENCY = 'USD';           // formatted in the page language (Intl.NumberFormat)
 const LIVE_DELAY_MS = 600;        // quiet pause before the summary change is announced to screen readers
 const DONE_DIALOG_DELAY_MS = 700; // let the confetti play before the confirmation opens (0 with reduced motion)
 // ?source= values we keep; anything else is stored as "none".
-const SOURCES = ['hero', 'cookbook', 'quiz', 'sweet', 'smoky', 'spicy', 'chili-oil'];
+const SOURCES = ['hero', 'nav', 'cookbook', 'quiz', 'sweet', 'smoky', 'spicy', 'chili-oil'];
 // ?add= values that start a product at 1.
 const ADDABLE = ['gift-box', 'sweet', 'smoky', 'spicy', 'chili-oil'];
 // "Add to basket": a small copy of the product flies from the + to the basket button.
@@ -41,9 +43,13 @@ const BUMP_MS = 260;         // the basket's bump when the count changes
 
   const nameOf = (p) => (p.nameKey ? t(p.nameKey) : p.name);
   const hasPrices = () => PRODUCTS.some((p) => typeof p.price === 'number');
-  const money = (n) => {
-    try { return new Intl.NumberFormat(P.lang() === 'es' ? 'es-US' : 'en-US', { style: 'currency', currency: CURRENCY }).format(n); }
-    catch (e) { return '$' + n.toFixed(2); }
+  // Money in whole cents: add and multiply integers, format only at the end.
+  const unitCents = (p) => (typeof p.price === 'number' ? Math.round(p.price * 100) : 0);
+  const lineCents = (id, n) => unitCents(byId[id]) * n;
+  const totalCents = () => PRODUCTS.reduce((s, p) => s + unitCents(p) * qty[p.id], 0);
+  const money = (cents) => {
+    try { return new Intl.NumberFormat(P.lang() === 'es' ? 'es-US' : 'en-US', { style: 'currency', currency: CURRENCY }).format(cents / 100); }
+    catch (e) { return '$' + (cents / 100).toFixed(2); }
   };
   const itemCount = () => PRODUCTS.reduce((s, p) => s + qty[p.id], 0);
   const clamp = (n, p) => Math.min(Math.max(n, 0), p.max);
@@ -159,12 +165,16 @@ const BUMP_MS = 260;         // the basket's bump when the count changes
     PRODUCTS.forEach((p) => { form.elements[p.field].value = String(qty[p.id]); });
     form.elements.order_summary.value = orderSummaryEn();
 
-    // prices on the cards (only once they're set)
+    // estimated prices on the cards: "$12.99 est." (read as "$12.99, estimated price")
     document.querySelectorAll('[data-price-for]').forEach((el) => {
       const p = byId[el.dataset.priceFor];
       const show = p && typeof p.price === 'number';
       el.hidden = !show;
-      if (show) el.textContent = money(p.price);
+      if (!show) return;
+      el.textContent = '';
+      el.appendChild(document.createTextNode(money(unitCents(p))));
+      el.appendChild(el2('span', 'price__est', t('price.est'), true));
+      el.appendChild(el2('span', 'sr-only', ', ' + t('price.estLabel')));
     });
 
     // recap above the Reserve button
@@ -191,7 +201,7 @@ const BUMP_MS = 260;         // the basket's bump when the count changes
         const p = byId[l.id];
         const li = el('li', 'summary__line');
         li.appendChild(el('span', 'summary__name', lineText(l)));
-        li.appendChild(el('span', 'summary__amount', typeof p.price === 'number' ? money(p.price * l.n) : ''));
+        li.appendChild(el('span', 'summary__amount', typeof p.price === 'number' ? money(lineCents(l.id, l.n)) : ''));
         const rm = el('button', 'link-btn summary__remove', t('summary.remove'));
         rm.type = 'button';
         rm.dataset.remove = l.id;
@@ -204,10 +214,7 @@ const BUMP_MS = 260;         // the basket's bump when the count changes
       const tt = totals();
       box.appendChild(el('p', 'summary__total', t('summary.total', tt)));
       if (tt.mixing > 0) box.appendChild(el('p', 'summary__mixing', tt.mixing === 1 ? t('summary.mixing1') : t('summary.mixingN', { n: tt.mixing })));
-      if (hasPrices()) {
-        const sum = PRODUCTS.reduce((s, p) => s + (typeof p.price === 'number' ? p.price * qty[p.id] : 0), 0);
-        box.appendChild(el('p', 'summary__price', t('summary.price', { price: money(sum) })));
-      }
+      if (hasPrices()) box.appendChild(el('p', 'summary__price', t('summary.price', { price: money(totalCents()) })));
     }
     box.appendChild(el('p', 'summary__nopay', t('summary.noPay')));
     if (focusId) {
@@ -232,6 +239,11 @@ const BUMP_MS = 260;         // the basket's bump when the count changes
     const n = document.createElement(tag);
     if (cls) n.className = cls;
     if (text != null) n.textContent = text;
+    return n;
+  }
+  function el2(tag, cls, text, hidden) {
+    const n = el(tag, cls, text);
+    if (hidden) n.setAttribute('aria-hidden', 'true');
     return n;
   }
 
@@ -544,7 +556,15 @@ const BUMP_MS = 260;         // the basket's bump when the count changes
       doneEl.querySelector('[data-done-text]').textContent = t('done.body', { email: this.email });
       const ul = doneEl.querySelector('[data-done-recap]');
       ul.textContent = '';
-      this.lines.forEach((l) => ul.appendChild(el('li', '', lineText(l))));
+      this.lines.forEach((l) => {
+        const li = el('li', 'done__line', lineText(l));
+        if (typeof byId[l.id].price === 'number') li.appendChild(el('span', 'done__amount', money(lineCents(l.id, l.n))));
+        ul.appendChild(li);
+      });
+      const totalEl = doneEl.querySelector('[data-done-total]');
+      const cents = this.lines.reduce((s, l) => s + lineCents(l.id, l.n), 0);
+      totalEl.hidden = !hasPrices() || !this.lines.length;
+      totalEl.textContent = totalEl.hidden ? '' : t('summary.price', { price: money(cents) });
     },
   };
 

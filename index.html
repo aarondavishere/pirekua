@@ -31,15 +31,21 @@
   <script src="i18n.js" defer></script>
   <script src="common.js" defer></script>
   <script src="script.js" defer></script>
+  <script src="signup.js" defer></script>
 </head>
 <body>
 
-<!-- ============ LANGUAGE TOGGLE ============ -->
-<div class="lang-toggle" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.group">
-  <span class="lang-toggle__thumb" aria-hidden="true"></span>
-  <button type="button" class="lang-toggle__btn" data-lang="en" lang="en" aria-label="English" aria-pressed="true">EN</button>
-  <span class="lang-toggle__sep" aria-hidden="true">|</span>
-  <button type="button" class="lang-toggle__btn" data-lang="es" lang="es" aria-label="Español" aria-pressed="false">ES</button>
+<!-- ============ TOP BAR: LANGUAGE TOGGLE + RESERVE NOW ============
+     One fixed bar, top right. The toggle (left) tucks away on phones while scrolling;
+     "Reserve now" (right) always stays put. -->
+<div class="topbar">
+  <div class="lang-toggle" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.group">
+    <span class="lang-toggle__thumb" aria-hidden="true"></span>
+    <button type="button" class="lang-toggle__btn" data-lang="en" lang="en" aria-label="English" aria-pressed="true">EN</button>
+    <span class="lang-toggle__sep" aria-hidden="true">|</span>
+    <button type="button" class="lang-toggle__btn" data-lang="es" lang="es" aria-label="Español" aria-pressed="false">ES</button>
+  </div>
+  <a class="btn btn--primary topbar__reserve" href="/reserve/?source=nav" data-i18n="nav.reserve">Reserve now</a>
 </div>
 
 <main id="main">
@@ -81,7 +87,7 @@
 
       <p class="hero__sub" data-i18n="hero.sub">It started with two friends, a stove, and a lot of laughing.</p>
 
-      <a class="btn btn--primary" data-party href="/reserve/?source=hero" data-i18n="cta.know">Reserve yours</a>
+      <button type="button" class="btn btn--primary" data-open-signup="loop" data-i18n="cta.loop">Stay in the loop</button>
     </div>
 
     <!-- Two small lines tucked among the jars (positions: --x/--y/--r on .hero__aside--tl / --br) -->
@@ -225,11 +231,11 @@
       <div class="uses__text">
         <h2 class="section-title" id="uses-title" data-i18n="s3.title">What do I use it for?</h2>
         <p class="section-body" data-i18n="s3.body">Eggs, tacos, pizza, noodles, avocado toast. Anything that could use a little más. If it's food, it probably works.</p>
-        <a class="btn btn--primary uses__btn" href="/reserve/?source=cookbook" data-i18n="s3.button">Get the cookbook</a>
+        <button type="button" class="btn btn--primary uses__btn" data-open-signup="cookbook" data-i18n="s3.button">Get the cookbook</button>
       </div>
 
       <!-- Cookbook carousel: slides come from COOKBOOK_PAGES in script.js -->
-      <div class="uses__carousel">
+      <div class="uses__carousel" id="cookbook">
         <div class="carousel" role="region" aria-roledescription="carousel" aria-label="Cookbook pages"
              data-i18n-attr="aria-roledescription:s3.roledesc;aria-label:s3.carouselLabel" data-carousel>
           <div class="carousel__viewport">
@@ -415,6 +421,128 @@
   <button type="button" class="lightbox__close" data-close aria-label="Close" data-i18n-attr="aria-label:cookbook.close">
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
   </button>
+</dialog>
+
+<!-- ============ SIGN-UP: STAY IN THE LOOP ============
+     signup.js runs it (one script for both sign-up dialogs). The form is static so
+     Netlify detects "stay-in-the-loop" at deploy; field names are shared by both forms. -->
+<dialog class="modal modal--form signup" id="signup-loop" aria-labelledby="signup-loop-title" data-signup="loop">
+  <div class="modal__panel">
+    <button type="button" class="modal__close" data-close aria-label="Close" data-i18n-attr="aria-label:modal.close">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="modal__body signup__body" data-signup-view="form">
+      <h2 class="modal__title" id="signup-loop-title" tabindex="-1" data-i18n="signup.loop.title">Stay in the loop</h2>
+      <p class="signup__intro" data-i18n="signup.loop.intro">Be the first to hear when jars are ready, new flavors land and we share a new recipe.</p>
+      <form class="signup__form" name="stay-in-the-loop" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+        <input type="hidden" name="form-name" value="stay-in-the-loop">
+        <input type="hidden" name="lang" value="en">
+        <input type="hidden" name="source" value="hero">
+        <p class="hp" aria-hidden="true">
+          <label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+        </p>
+        <fieldset class="signup__fields" data-fields>
+          <legend class="sr-only" data-i18n="signup.loop.title">Stay in the loop</legend>
+          <div class="signup__grid">
+            <div class="field">
+              <label class="field__label" for="loop-first" data-i18n="form.first">First name</label>
+              <input class="field__input" id="loop-first" name="first_name" type="text" autocomplete="given-name" maxlength="100" required aria-describedby="loop-err-first">
+              <p class="field__error" id="loop-err-first"></p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="loop-last" data-i18n="form.last">Last name</label>
+              <input class="field__input" id="loop-last" name="last_name" type="text" autocomplete="family-name" maxlength="100" required aria-describedby="loop-err-last">
+              <p class="field__error" id="loop-err-last"></p>
+            </div>
+            <div class="field signup__full">
+              <label class="field__label" for="loop-email" data-i18n="signup.email">Email address</label>
+              <input class="field__input" id="loop-email" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" maxlength="254" required aria-describedby="loop-err-email">
+              <p class="field__error" id="loop-err-email"></p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="loop-zip" data-i18n="signup.zip">Zip code</label>
+              <input class="field__input" id="loop-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="10" required aria-describedby="loop-err-zip">
+              <p class="field__error" id="loop-err-zip"></p>
+            </div>
+            <div class="field signup__full">
+              <label class="field__label" for="loop-note" data-i18n="signup.note">Anything we should know?</label>
+              <textarea class="field__input signup__note" id="loop-note" name="note" rows="3" maxlength="500"></textarea>
+            </div>
+          </div>
+        </fieldset>
+        <p class="signup__msg" role="alert" data-send-msg></p>
+        <button type="submit" class="btn btn--primary signup__submit" data-signup-submit><span data-btn-label data-i18n="signup.loop.button">Sign me up</span></button>
+        <p class="form-consent"><span data-i18n="signup.consent">By signing up, you agree that pirekua may email you. You can opt out any time by replying "stop".</span> <button type="button" class="link-btn" data-privacy data-i18n="footer.privacy">Privacy Policy</button></p>
+      </form>
+    </div>
+    <div class="modal__body signup__done" data-signup-view="done" hidden>
+      <img class="modal__mark" src="assets/icon-mark.png" alt="" width="1416" height="3312" aria-hidden="true">
+      <h2 class="modal__title" id="signup-loop-done" tabindex="-1" data-i18n="signup.loop.doneTitle">You’re in the loop.</h2>
+      <p class="signup__done-text" data-done-text></p>
+      <button type="button" class="btn btn--primary btn--block" data-close data-i18n="modal.close">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ============ SIGN-UP: GET THE COOKBOOK ============
+     signup.js runs it (one script for both sign-up dialogs). The form is static so
+     Netlify detects "cookbook" at deploy; field names are shared by both forms. -->
+<dialog class="modal modal--form signup" id="signup-cookbook" aria-labelledby="signup-cookbook-title" data-signup="cookbook">
+  <div class="modal__panel">
+    <button type="button" class="modal__close" data-close aria-label="Close" data-i18n-attr="aria-label:modal.close">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="modal__body signup__body" data-signup-view="form">
+      <h2 class="modal__title" id="signup-cookbook-title" tabindex="-1" data-i18n="signup.cookbook.title">Get the cookbook</h2>
+      <p class="signup__intro" data-i18n="signup.cookbook.intro">Pop in your details and we’ll email the cookbook right over.</p>
+      <form class="signup__form" name="cookbook" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+        <input type="hidden" name="form-name" value="cookbook">
+        <input type="hidden" name="lang" value="en">
+        <input type="hidden" name="source" value="cookbook">
+        <p class="hp" aria-hidden="true">
+          <label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+        </p>
+        <fieldset class="signup__fields" data-fields>
+          <legend class="sr-only" data-i18n="signup.cookbook.title">Get the cookbook</legend>
+          <div class="signup__grid">
+            <div class="field">
+              <label class="field__label" for="cookbook-first" data-i18n="form.first">First name</label>
+              <input class="field__input" id="cookbook-first" name="first_name" type="text" autocomplete="given-name" maxlength="100" required aria-describedby="cookbook-err-first">
+              <p class="field__error" id="cookbook-err-first"></p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="cookbook-last" data-i18n="form.last">Last name</label>
+              <input class="field__input" id="cookbook-last" name="last_name" type="text" autocomplete="family-name" maxlength="100" required aria-describedby="cookbook-err-last">
+              <p class="field__error" id="cookbook-err-last"></p>
+            </div>
+            <div class="field signup__full">
+              <label class="field__label" for="cookbook-email" data-i18n="signup.email">Email address</label>
+              <input class="field__input" id="cookbook-email" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" maxlength="254" required aria-describedby="cookbook-err-email">
+              <p class="field__error" id="cookbook-err-email"></p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="cookbook-zip" data-i18n="signup.zip">Zip code</label>
+              <input class="field__input" id="cookbook-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="10" required aria-describedby="cookbook-err-zip">
+              <p class="field__error" id="cookbook-err-zip"></p>
+            </div>
+            <div class="field signup__full">
+              <label class="field__label" for="cookbook-note" data-i18n="signup.note">Anything we should know?</label>
+              <textarea class="field__input signup__note" id="cookbook-note" name="note" rows="3" maxlength="500"></textarea>
+            </div>
+          </div>
+        </fieldset>
+        <p class="signup__msg" role="alert" data-send-msg></p>
+        <button type="submit" class="btn btn--primary signup__submit" data-signup-submit><span data-btn-label data-i18n="signup.cookbook.button">Send me the cookbook</span></button>
+        <p class="form-consent"><span data-i18n="signup.consent">By signing up, you agree that pirekua may email you. You can opt out any time by replying "stop".</span> <button type="button" class="link-btn" data-privacy data-i18n="footer.privacy">Privacy Policy</button></p>
+      </form>
+    </div>
+    <div class="modal__body signup__done" data-signup-view="done" hidden>
+      <img class="modal__mark" src="assets/icon-mark.png" alt="" width="1416" height="3312" aria-hidden="true">
+      <h2 class="modal__title" id="signup-cookbook-done" tabindex="-1" data-i18n="signup.cookbook.doneTitle">Check your inbox.</h2>
+      <p class="signup__done-text" data-done-text></p>
+      <button type="button" class="btn btn--primary btn--block" data-close data-i18n="modal.close">Close</button>
+    </div>
+  </div>
 </dialog>
 
 <!-- ============ PRIVACY POLICY MODAL ============ -->

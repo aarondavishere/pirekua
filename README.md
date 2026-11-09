@@ -5,45 +5,46 @@ Deploys from the repo root on Netlify (see `netlify.toml`).
 
 ## Home page order
 
-1. Language toggle (EN | ES, fixed top right)
-2. Hero: fills the first screen. Lockup with sunrise bloom, scattered jars, two tilted asides, fixed tagline "Made with amor y risas.", "Reserve yours" party link
+1. Top bar (fixed top right, every scroll position): the language toggle (EN | ES) and, to its right, "Reserve now" (a plain link to `/reserve/?source=nav`)
+2. Hero: fills the first screen. Lockup with sunrise bloom, scattered jars, two tilted asides, fixed tagline "Made with amor y risas.", "Stay in the loop" button (opens the sign-up dialog)
 3. Ristra divider: five hanging icon marks that swing, just below the first screen
 4. Section 1: What is Mexican chili crisp?
 5. Section 2: What does it taste like? + Not your usual chili crisp, with the sizzle reel (Vimeo)
 6. Section 3: Meet the lineup (Sweet, Smoky, Spicy, Chili Oil cards)
-7. Section 4: What do I use it for? + cookbook carousel + cookbook button
+7. Section 4: What do I use it for? + cookbook carousel (`#cookbook`) + "Get the cookbook" button (opens the cookbook sign-up dialog)
 8. Section 5: How much should I get? (the quiz)
 9. Section 6: What is special about pirekua? (the story, in two parts, beside a four-photo collage)
 10. Footer: one short Leaf Green band with the Privacy Policy link and © line (and the tall p cropped at the right)
 
-Every call to action goes to the Reserve page: the hero and quiz "Reserve yours" links, the four lineup cards and "Get the cookbook" (see "Calls to action" below). There is no signup modal any more.
+Calls to action: "Reserve now" (top bar), the quiz "Reserve yours" and the four lineup cards go to the Reserve page; the hero's "Stay in the loop" and "Get the cookbook" open sign-up dialogs (see "Calls to action" and "Sign-up dialogs" below).
 
 ## Reserve page order (`/reserve/`)
 
 1. Header: small lockup (links home), "Back to home", the language toggle (in the header, never tucks)
-2. The Holiday Gift Box: the biggest panel and type on the page, with its own quantity stepper and the "Gifting a crowd?" note from 10 boxes up
+2. The Holiday Gift Box: the biggest panel and type on the page, with its estimated price, what's inside (1 Sweet, 1 Smoky, 1 Spicy, 1 empty mixing jar with its own label, 1 mini whisk), its own quantity stepper and the "Gifting a crowd?" note from 10 boxes up
 3. Single jars: Sweet, Smoky, Spicy, Chili Oil cards, each with a stepper
-4. What reserving means
+4. What reserving means (including the note that prices are estimates)
 5. The reservation form (all fields required) and the Reserve button
 6. Footer, with the same Privacy Policy dialog
 
 Plus the basket button: pinned top right under the language toggle, with the item count. It opens "Your reservation" as an overlay (a panel on the right from 640px up, a bottom sheet on phones). That overlay is the only place the reservation shows: there is no side column and nothing pinned to the bottom of the screen (both removed in pass 8).
 
-Not built yet: payments, prices, shipping costs, taxes, inventory limits, order status, the real `/shop`, SMS automation, analytics.
+Not built yet: payments, final prices (the page shows estimates), shipping costs, taxes, inventory limits, order status, the real `/shop`, SMS automation, analytics.
 
 ## Files
 
 | File | What it does |
 |---|---|
-| `index.html` | Home page markup and the privacy dialog |
+| `index.html` | Home page markup, the two sign-up dialogs and their forms (`stay-in-the-loop`, `cookbook`: Netlify detects them here), the cookbook lightbox and the privacy dialog |
 | `reserve/index.html` | Reserve page markup: basket button, products, form (Netlify detects it here), the "Your reservation" overlay, confirmation and privacy dialogs |
 | `styles.css` | Shared: brand tokens, buttons, fields, dialogs, toggle, footer, reduced-motion rules. Plus the home page layout |
 | `reserve.css` | Reserve page layout (loaded after `styles.css`) |
 | `i18n.js` | Shared, loaded first on every page: all strings (EN/ES, `I18N`), the language engine and the EN \| ES toggle with its touch swipe |
-| `common.js` | Shared, loaded second: missing-asset placeholders, chile confetti (and party links), dialogs, the privacy policy |
+| `common.js` | Shared, loaded second: missing-asset placeholders, chile confetti (and party links; `pirekua.party(button, host)` can play it above an open dialog), dialogs (a dialog opened over another keeps the page locked until both close), the privacy policy |
 | `script.js` | Home page only: sizzle reel player, jar art manifest, ristra swing, product card names, carousel, quiz |
+| `signup.js` | Home page only, loaded after `common.js`: both sign-up dialogs (open, validation, sending, thank-you state) |
 | `reserve.js` | Reserve page only: `PRODUCTS`, steppers, basket button and overlay, "add to basket" flights, form validation, sending, confirmation |
-| `netlify/functions/submission-created.js` | After each reservation: saves it to Notion, then sends the confirmation email |
+| `netlify/functions/submission-created.js` | After each reservation or sign-up: saves it to Notion, then sends the confirmation or thank-you email |
 | `netlify.toml` | Publish the repo root; functions live in `netlify/functions` |
 | `assets/` | Brand art (see below) |
 
@@ -75,9 +76,9 @@ Ristra physics (`STIFFNESS`, `DAMPING`, `GAIN`, `MAX_ANGLE`) are in the ristra b
 
 | Constant | Default | What it does |
 |---|---|---|
-| `PRODUCTS` | 5 entries | One per product, in page order: `id`, `field` (the form field / Netlify column), name, `price` (`null` = no prices shown), `max` (`999`) |
+| `PRODUCTS` | 5 entries | One per product, in page order: `id`, `field` (the form field / Netlify column), name, `price` (estimated, in dollars: gift box `42.99`, Sweet / Smoky / Spicy `12.99`, Chili Oil `10.99`; `null` hides it), `max` (`999`) |
 | `BULK_NOTE_AT` | `10` | Gift boxes at which the "Gifting a crowd?" note appears |
-| `CURRENCY` | `USD` | Used only once prices are filled in |
+| `CURRENCY` | `USD` | Price format, in the page language (`Intl.NumberFormat`: `$1,074.75` in both) |
 | `LIVE_DELAY_MS` | `600` | Quiet pause before a change is announced to screen readers ("Holiday Gift Box, 2 in your reservation") |
 | `DONE_DIALOG_DELAY_MS` | `700` | Lets the confetti play before "Reservation confirmed" opens (0 with reduced motion) |
 | `FLY_MS` | `650` | "Add to basket" flight time (ease-in-out) |
@@ -85,10 +86,17 @@ Ristra physics (`STIFFNESS`, `DAMPING`, `GAIN`, `MAX_ANGLE`) are in the ristra b
 | `FLY_MAX_AT_ONCE` | `6` | Flights in the air at once; beyond this the flight is skipped and the badge just updates |
 | `FLY_SIZE_PX` | `52` | Height of the flying copy as it sets off (it shrinks to 40% on arrival) |
 | `BUMP_MS` | `260` | The basket's bump (scale 1 → 1.12 → 1) when its count changes |
-| `SOURCES` | `hero, cookbook, quiz, sweet, smoky, spicy, chili-oil` | `?source=` values kept; anything else is saved as `none` |
+| `SOURCES` | `hero, nav, cookbook, quiz, sweet, smoky, spicy, chili-oil` | `?source=` values kept; anything else is saved as `none` |
 | `ADDABLE` | `gift-box, sweet, smoky, spicy, chili-oil` | `?add=` values that start that product at 1 |
 
 The quantity max is `max` on each `PRODUCTS` entry (the inputs read it). The server clamps to 0–999 as well.
+
+## Tuning knobs (top of `signup.js`, home page)
+
+| Constant | Default | What it does |
+|---|---|---|
+| `SIGNUP_CONFETTI` | `true` | Chile confetti from the submit button when a sign-up goes through (never with reduced motion). `false` turns it off |
+| `SIGNUP_NOTE_MAX` | `500` | Longest "Anything we should know?" note (the box stops there; the function cuts at 500 too) |
 
 ## Tuning knobs (shared: top of `i18n.js` and `common.js`)
 
@@ -132,6 +140,8 @@ The quantity max is `max` on each `PRODUCTS` entry (the inputs read it). The ser
 | `--story-frame` | `.story__panel` | Warm Cream frame around each story photo (`8px`) |
 | `--story-photo-tilt` | `.story__panel` | Multiplies the photos' tilts (−1.5°, 1.2°, 1°, −1°). `1` as designed, `0` straight; it's `0` under 360px wide and with reduced motion |
 | `--story-part-gap` | `.story__panel` | Space above "And the story continues…" on desktop (`48px`) |
+| `--topbar-gap` | `.topbar` | Space between the language toggle and "Reserve now" (`10px`; `8px` under 375px) |
+| `--topbar-clear` | `.hero` (below 1024px) | Extra room at the top of the hero's upper band so nothing sits under the top bar: `62px` on phones, `56px` from 640 to 1023px, `0` on desktop. The upper jars and the "pronounced" line move down by the same amount |
 | `--products-pad-top`, `--products-pad-bottom`, `--products-title-gap` | `.products` | Lineup section spacing |
 | `--pcard-pad`, `--pcard-gap`, `--oil-col` | `.products` | Card padding, space between cards, and the Chili Oil column width (desktop) |
 | `--win-h` | `.products__grid` | Height of the product window on each card (`clamp(212px, 17vw + 12px, 248px)`) |
@@ -153,14 +163,25 @@ The quantity max is `max` on each `PRODUCTS` entry (the inputs read it). The ser
 
 | Where | Link | Notes |
 |---|---|---|
-| Hero | `/reserve/?source=hero` | "Reserve yours", `data-party` |
+| Top bar | `/reserve/?source=nav` | "Reserve now", right of the language toggle, home page only. Plain link: no confetti. Always on screen; it never tucks (only the toggle does, on phones) |
+| Hero | Opens the "Stay in the loop" dialog | A button (`data-open-signup="loop"`), no confetti on opening. Form `stay-in-the-loop`, source `hero` |
 | Lineup cards | `/reserve/?source=sweet&add=sweet` (and `smoky`, `spicy`, `chili-oil`) | Stretched link over the card, named "Sweet: reserve yours". Lands with that product at 1 |
-| Cookbook | `/reserve/?source=cookbook` | Keeps the "Get the cookbook" label |
+| Cookbook | Opens the "Get the cookbook" dialog | A button (`data-open-signup="cookbook"`), same label. Form `cookbook`, source `cookbook` |
 | Quiz result | `/reserve/?source=quiz` | "Reserve yours", `data-party` |
 
 - `data-party` on a link: a plain click fires the chile confetti, then follows the link after `PARTY_NAV_DELAY_MS`. With reduced motion it goes straight away. Cmd/Ctrl-click, middle-click and right-click are never intercepted.
 - `data-party` on a button does nothing by itself; the script calls `pirekua.party(button)` when it wants the burst. The Reserve button fires it only once the reservation has gone through.
-- Query values the Reserve page reads: `source` = `hero`, `cookbook`, `quiz`, `sweet`, `smoky`, `spicy`, `chili-oil` (anything else, or none, is saved as `none`); `add` = `sweet`, `smoky`, `spicy`, `chili-oil`, `gift-box`. Anything else is ignored.
+- Query values the Reserve page reads: `source` = `nav`, `hero`, `cookbook`, `quiz`, `sweet`, `smoky`, `spicy`, `chili-oil` (`hero` and `cookbook` no longer come from the home page but are still accepted) (anything else, or none, is saved as `none`); `add` = `sweet`, `smoky`, `spicy`, `chili-oil`, `gift-box`. Anything else is ignored.
+
+## Sign-up dialogs ("Stay in the loop", "Get the cookbook")
+
+- Two native `<dialog>`s in `index.html` (`#signup-loop`, `#signup-cookbook`), run by one script, `signup.js`, through `pirekua.createDialog`: Escape, backdrop and × close; Tab stays inside; focus returns to the button that opened it. Same shell as the other dialogs (Warm Cream panel, orange offset shadow, 48px ×); on short screens the panel scrolls inside.
+- Fields (both): First name, Last name, Email address, Zip code (all required) and "Anything we should know?" (optional, 3 rows, up to 500 characters). Names use `given-name` / `family-name`, email `type="email"`, zip `inputmode="numeric"` + `postal-code` and the Reserve page's rule (5 digits or ZIP+4).
+- Validation works like the Reserve form and reuses its messages (`form.required`, `form.emailBad`, `form.zipBad`): on submit and on leaving a field, focus to the first problem, the button never disabled.
+- The consent line ends with "Privacy Policy", which opens the policy on top; closing it returns to the sign-up with focus on the link.
+- Sending: "Sending…" (`signup.busy`), fields locked, `fetch` POST of the urlencoded form to `/`. On failure: "Something went wrong on our end. Your details aren't lost: please try again." (`signup.error`), nothing cleared. On success the form gives way to a thank-you in the same dialog ("You're in the loop." / "Check your inbox.", with the first name) and a Close button; focus moves to its heading; the chile confetti plays once from the button, above the dialog (`SIGNUP_CONFETTI`). Opening it again shows a fresh form.
+- Netlify forms (static in `index.html`, so detected at deploy): `stay-in-the-loop` and `cookbook`, each with hidden `form-name`, `lang` (set at submit), `source` (`hero` / `cookbook`) and honeypot `bot-field`; fields `first_name`, `last_name`, `email`, `zip`, `note`.
+- Strings: the "Sign-up dialogs" block in `i18n.js` (`signup.*`, plus `cta.loop` for the hero button and `nav.reserve` for "Reserve now"). The Spanish is a draft for native review.
 
 ## Language toggle and translations
 
@@ -215,6 +236,15 @@ To add a string:
 - **Hero jars:** each `<div class="jar jar--N">` in `index.html` names its image directly (comment above the jar layer). Change the filename to change the angle; change its placement variables in `styles.css` (see the CSS table above) to move it.
 - **Fallback chain:** `data-fallback="a|b"` tries each file in order. Jars go small cutout → full cutout → `render-{flavor}.png` with its old crop (`is-fallback`), then a dashed placeholder.
 - To replace the cutouts with your own exports, overwrite the files with the same names (and re-make the `small/` copies).
+
+## Pass 14 edits in one line each
+
+- **Hero:** "Reserve yours" became "Stay in the loop", a button that opens a sign-up dialog (no confetti on opening).
+- **Top bar:** "Reserve now" sits right of the language toggle at every scroll position (home page only); on phones and tablets the hero's upper band starts below the bar (`--topbar-clear`) so it never covers the lockup, the button or the "pronounced" line.
+- **Cookbook:** "Get the cookbook" opens a second sign-up dialog; the carousel wrapper is `#cookbook`.
+- **Function:** the two sign-up forms save to the new Signups database in Notion and send a thank-you email (EN/ES); reservations are unchanged.
+- **Prices:** estimated prices on the Reserve page, with line subtotals and an estimated total (in cents, so no rounding errors).
+- **Gift box:** it now holds 1 Sweet, 1 Smoky, 1 Spicy, 1 empty mixing jar and 1 mini whisk only (page, Spanish, confirmation email).
 
 ## Pass 13 edits in one line each
 
@@ -342,9 +372,13 @@ The Oct 2026 brand assets zip was used only for the four files marked "Updated O
 - **Basket button:** pinned top right under the toggle, same look as the toggle. Its badge (Deep Chili Red, Warm Cream number, "99+" above 99) shows gift boxes plus jars and hides at 0. It bumps when the count changes, shows a "Your reservation" chip on desktop hover or focus, and its accessible name carries the count ("Your reservation, 3 items"; "… empty"). It's the first control after the header, steps aside on phones if it would sit over a field being typed into, and never covers the toggle or "Back to home".
 - **"Your reservation" overlay:** the basket opens the native `#summary-sheet` dialog. From 640px up it's a full-height panel on the right that slides in; on phones a bottom sheet (up to 85% tall) that slides up. The page doesn't move or scroll behind it (the page is padded by the scrollbar's width while it's open). Escape, the backdrop, X and "Keep browsing" close it, and focus returns to the basket. "Reserve" closes it and moves to the form; it's hidden when the reservation is empty.
 - **"Add to basket":** each + (and a typed number, once committed, if it went up) sends a small copy of that product along an arc to the basket: the gift box flies as its three front jars (its art is a mockup with a background, not a cutout), the others as their front cutout. The steppers, summary and hidden fields update at the click; the badge and the bump wait for the landing. Going down never flies. `?add=` on arrival just sets the badge.
-- Summary lines (in the overlay) read "Holiday Gift Box × 2", each with Remove. Below them, the production total counts every gift box as one Sweet, one Smoky and one Spicy, plus "Plus N empty mixing jars" when there are gift boxes. "No payment today." always shows.
+- **Estimated prices:** every card shows its price with a small "est." (`price.est`, the same in both languages; screen readers hear "$12.99, estimated price" / "precio estimado", `price.estLabel`). The gift box price sits right under its name, a size below it. Prices: Holiday Gift Box $42.99 (the whole box: its jars, mixing jar and whisk are included, never added on top), Sweet, Smoky and Spicy $12.99 each, Chili Oil $10.99.
+- Summary lines (in the overlay) read "Holiday Gift Box × 2" with the line's subtotal ("$85.98"), each with Remove. Below them, the production total counts every gift box as one Sweet, one Smoky and one Spicy, plus "Plus N empty mixing jars" when there are gift boxes, then "Estimated total: $…" (`summary.price`). "No payment today." always shows. "Reservation confirmed" repeats the lines with their subtotals and the estimated total.
+- **Money is added up in whole cents** (`Math.round(price * 100)`) and formatted only at the end, so 3 × 12.99 is exactly $38.97 and 25 gift boxes are $1,074.75.
+- "What reserving means" adds one line (`reserve.priceNote`): prices are estimates, nothing is charged today, the final total and how to pay come by email.
+- Not yet: the Notion reservation rows and the reservation emails don't store or show prices.
 - Changes are announced politely to screen readers.
-- **Turning on prices later:** set `price` on each entry in `PRODUCTS` at the top of `reserve.js` (e.g. `price: 38`). The cards then show the price, each summary line shows its subtotal, and the summary shows a total (`CURRENCY` sets the format). Leave them all `null` and no prices appear anywhere. The "No payment today" line stays either way; change `summary.noPay` when payment starts.
+- **Changing a price:** edit `price` on its entry in `PRODUCTS` at the top of `reserve.js` (dollars, e.g. `12.99`). `null` hides that price; all `null` hides prices everywhere. The "No payment today" line stays either way; change `summary.noPay` when payment starts.
 
 ### Reservation form (Netlify Forms)
 
@@ -357,7 +391,7 @@ The Oct 2026 brand assets zip was used only for the four files marked "Updated O
 ### Renaming `/reserve` to `/shop` later
 
 1. Rename the folder `reserve/` to `shop/` (and, if you like, `reserve.css` / `reserve.js`, updating the two tags in its `<head>`).
-2. Update the seven links in `index.html` (search for `/reserve/`).
+2. Update the links in `index.html` (search for `/reserve/`: "Reserve now", the lineup cards and the quiz).
 3. Add a redirect so old links keep working, in `netlify.toml`:
    ```toml
    [[redirects]]
@@ -367,9 +401,11 @@ The Oct 2026 brand assets zip was used only for the four files marked "Updated O
    ```
 The page uses root-relative paths (`/styles.css`, `/assets/…`), so nothing inside it needs to change. Netlify serves `/reserve` and `/reserve/` from `reserve/index.html` on its own; no redirect is needed for that.
 
-## Reservation function (Notion first, then email)
+## Reservation and sign-up function (Notion first, then email)
 
-`netlify/functions/submission-created.js` runs automatically after every verified Netlify Forms submission and only acts on the `reservation` form:
+`netlify/functions/submission-created.js` runs automatically after every verified Netlify Forms submission. It handles three forms, each on its own path, so a problem with a sign-up never affects a reservation (or the reverse): `reservation` (below, unchanged), and `stay-in-the-loop` and `cookbook` (see "Sign-ups" further down). Any other form is ignored.
+
+For the `reservation` form:
 
 1. Re-reads the quantities (clamped to 0–999), recomputes the production totals and order summary on the server, and rejects a reservation with no items.
 2. Looks in Notion for a page with the same **Submission ID**. If it exists, no duplicate is created (and if its email already went out, it stops there).
@@ -379,7 +415,28 @@ The page uses root-relative paths (`/styles.css`, `/assets/…`), so nothing ins
 
 Logs (Netlify → Logs → Functions) start with `[reserve]` and show the submission id, the step and the outcome, never keys or full personal details.
 
-The confirmation email says thank you, lists what they reserved, says nothing is charged today and that you'll email how to pay before anything ships, invites a reply for changes, and adds the cookbook link if `COOKBOOK_URL` is set. Before launch, replace `[BUSINESS NAME + MAILING ADDRESS]` in the footer (in the function file).
+The confirmation email says thank you, lists what they reserved (a gift box adds "one jar each of Sweet, Smoky and Spicy, an empty mixing jar with its own label and a mini whisk"), says nothing is charged today and that you'll email how to pay before anything ships, invites a reply for changes, and adds the cookbook link if `COOKBOOK_URL` is set. Before launch, replace `[BUSINESS NAME + MAILING ADDRESS]` in the footer (in the function file; the sign-up emails use the same footer).
+
+### Sign-ups
+
+For `stay-in-the-loop` and `cookbook` (logs start with `[signup]`):
+
+1. Skips the submission if `NOTION_SIGNUPS_DATABASE_ID` (or `NOTION_TOKEN`) is missing, or the honeypot is filled; rejects a missing first name or a bad email (same rule as reservations). Everything is trimmed; the note is cut at 500 characters.
+2. Looks in the Signups database for the same **Submission ID**; if it's there, no second row (and no second email if it was sent).
+3. Creates the row. **If Notion fails, no thank-you email goes out**; the owners get an "Action needed: a sign-up did not reach Notion" alert (when `OWNER_NOTIFY_EMAIL` is set).
+4. Sends the thank-you email through Resend (English or Spanish, by `lang`), then sets **Email status** to Sent or Failed.
+5. If `OWNER_NOTIFY_EMAIL` is set and `NOTIFY_OWNERS_ON_SIGNUP` (top of the file) is `true`, sends the owners "New sign-up: Stay in the loop" (or "Cookbook") with the name, email, zip, language, source, the note ("Anything we should know?": this is where to read it) and a link to the Notion row.
+
+The same person signing up twice (or once on each form) makes two rows; that's fine. Logs never include the note, keys or full addresses.
+
+**The two thank-you emails** use the reservation email's template (logo from `SITE_URL`, Cream Card panel, orange button, plain-text version, sign-off "Made with amor y risas, pirekua", the `[BUSINESS NAME + MAILING ADDRESS]` footer), the same `FROM_EMAIL` and `REPLY_TO`, and never include the note:
+
+| Form | Subject (EN / ES) | What's in it |
+|---|---|---|
+| `stay-in-the-loop` | "Thank you for signing up" / "Gracias por registrarte" | "You're in the loop.", what we'll send and how often, a "Reserve yours" button to `SITE_URL/reserve/?source=email-loop`, "Hit reply any time" |
+| `cookbook` | "Here's the cookbook" / "Aquí está el recetario" | What's in the cookbook, an "Open the cookbook" button, "Made something good? Reply", and "Want jars to go with it? Reserve yours" to `SITE_URL/reserve/?source=email-cookbook` |
+
+The cookbook button links to `COOKBOOK_URL` when it's set, otherwise to `SITE_URL/#cookbook` (the carousel on the home page). Recipe, staple and product names stay in English in both languages. The footer line says they got it because they signed up (the reservation one says because they reserved).
 
 ### Notion setup
 
@@ -418,6 +475,25 @@ The confirmation email says thank you, lists what they reserved, says nothing is
 4. Copy the database id from its URL (the 32 characters before `?v=`) into `NOTION_DATABASE_ID`.
 5. Later you can add a `Status` property of your own; the function doesn't touch it.
 
+### Notion setup: Signups
+
+The "pirekua Signups" database already exists (id `d04232a65532482490c55d42fcb7e83b`). Share it with the same integration (••• → Connections) and put its id in `NOTION_SIGNUPS_DATABASE_ID`. The function writes these properties; names and types must match exactly:
+
+| Property | Type | Filled with |
+|---|---|---|
+| `Name` | Title | "First Last" |
+| `Submission ID` | Text | Netlify submission id (used to skip duplicates, as for reservations) |
+| `Signed up at` | Date | When it was saved |
+| `Type` | Select | Options `Stay in the loop`, `Cookbook` (which form) |
+| `First name` | Text | |
+| `Last name` | Text | |
+| `Email` | Email | |
+| `ZIP` | Text | |
+| `Anything we should know` | Text | The note, trimmed, up to 500 characters (may be empty) |
+| `Language` | Select | Options `en`, `es` (anything else saves as `en`) |
+| `Source` | Text | `hero`, `cookbook`, or `none` |
+| `Email status` | Select | Options `Sent`, `Failed` (set after the thank-you email is tried) |
+
 ### Environment variables
 
 Set these in Netlify (Site configuration → Environment variables), never in the repo:
@@ -426,12 +502,13 @@ Set these in Netlify (Site configuration → Environment variables), never in th
 |---|---|---|---|
 | `NOTION_TOKEN` | Yes | `ntn_…` | Notion integration secret. If missing, nothing is written and the function logs which variable is missing |
 | `NOTION_DATABASE_ID` | Yes | `1a2b…` | The Reservations database |
+| `NOTION_SIGNUPS_DATABASE_ID` | Yes, for sign-ups | `d04232a65532482490c55d42fcb7e83b` | The Signups database. If missing, sign-ups are logged and skipped (they stay in Netlify Forms); reservations are unaffected |
 | `RESEND_API_KEY` | Yes, for email | `re_…` | Resend API key. If missing, reservations still save to Notion with Email status = Failed |
 | `FROM_EMAIL` | Yes, for email | `pirekua <hello@yourdomain.com>` | Sender. The domain must be verified in Resend |
 | `REPLY_TO` | Recommended | `hello@yourdomain.com` | Where replies go ("Need to change something? Just reply") |
-| `SITE_URL` | Recommended | `https://pirekua.netlify.app` | Base URL, used for the logo in the email |
-| `COOKBOOK_URL` | Optional | `https://…` | Cookbook link. Leave empty to drop that line |
-| `OWNER_NOTIFY_EMAIL` | Optional | `emma@…, aaron@…` | Owners' address(es), comma-separated: "New reservation" emails and Notion-failure alerts |
+| `SITE_URL` | Recommended | `https://pirekua.netlify.app` | Base URL, used for the logo in the emails and the links in the sign-up emails (without it those buttons are left out) |
+| `COOKBOOK_URL` | Optional | `https://…` | Cookbook link. Empty: the reservation email drops that line, and the cookbook email links to `SITE_URL/#cookbook` |
+| `OWNER_NOTIFY_EMAIL` | Optional | `emma@…, aaron@…` | Owners' address(es), comma-separated: "New reservation" and "New sign-up" emails and Notion-failure alerts |
 
 ## Accessibility and motion
 
@@ -443,4 +520,4 @@ Set these in Netlify (Site configuration → Environment variables), never in th
 - Lineup section and footer: cream on Leaf Green is 3.55:1. That fails the 4.5:1 target for normal text but passes the 3:1 bar for large text, so all footer text is set at 19px bold and the lineup heading is large. A strict 4.5:1 would need a darker green.
 - Hero jars and asides: jars are decorative (`aria-hidden`, `alt=""`, no pointer events); the asides are real text and translate.
 - Language toggle: on touch screens it can be swiped, but the two real buttons, `aria-pressed`, focus rings, Tab/Enter/Space and taps all work as before; arrow keys also switch.
-- `prefers-reduced-motion`: no cookbook lightbox animation, no smooth carousel scroll, no bloom spin, confetti (party links navigate at once, the confirmation opens at once), overlay slide, "add to basket" flight or basket bump (the badge updates at once with a brief static highlight), ristra swing, drumroll, basket animation or transitions. The toggle thumb jumps instead of sliding, with no first-visit nudge and no haptic tick. The quiz shows its final state at once. The sizzle reel doesn't autoplay or loop (Vimeo's play button starts it), and the story photos sit straight.
+- `prefers-reduced-motion`: no cookbook lightbox animation, no smooth carousel scroll, no bloom spin, confetti (party links navigate at once, the confirmation opens at once), overlay slide, "add to basket" flight or basket bump (the badge updates at once with a brief static highlight), ristra swing, drumroll, basket animation or transitions. The toggle thumb jumps instead of sliding, with no first-visit nudge and no haptic tick. The quiz shows its final state at once. The sign-up dialogs open without animation and their thank-you has no confetti. The sizzle reel doesn't autoplay or loop (Vimeo's play button starts it), and the story photos sit straight.

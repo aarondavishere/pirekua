@@ -83,7 +83,9 @@ const PARTY_NAV_DELAY_MS = 450;
     ('requestIdleCallback' in window ? requestIdleCallback : setTimeout)(preload);
   }
 
-  function partyBurst(button) {
+  // `host` (optional): where the burst layer goes. Pass an open <dialog> to play the
+  // burst above it (a modal dialog sits in the top layer, over anything in <body>).
+  function partyBurst(button, host) {
     if (reduceMotion()) return;
     const rect = button.getBoundingClientRect();
     const ox = rect.left + rect.width / 2;
@@ -91,7 +93,7 @@ const PARTY_NAV_DELAY_MS = 450;
     const layer = document.createElement('div');
     layer.className = 'party-layer';
     layer.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(layer);
+    (host || document.body).appendChild(layer);
 
     const count = 18 + Math.floor(Math.random() * 7);   // 18–24
     const DURATION = 1150;
@@ -182,7 +184,9 @@ const PARTY_NAV_DELAY_MS = 450;
       else { dialog.removeAttribute('open'); onClosed(); }
     }
     function onClosed() {
-      document.documentElement.style.overflow = '';
+      // Another dialog still open underneath (e.g. the privacy policy opened from a
+      // sign-up form): keep the page locked until that one closes too.
+      if (!document.querySelector('dialog[open]')) document.documentElement.style.overflow = '';
       if (opener && typeof opener.focus === 'function') opener.focus();
       opener = null;
     }

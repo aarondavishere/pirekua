@@ -221,8 +221,12 @@
 .qty--gift .stepper { --stepper-size: 56px; }
 .qty--gift .stepper__input { font-size: 1.375rem; min-width: 64px; }
 
-.price { margin: 0; font-weight: 800; font-size: 1.125rem; }
+.price { margin: 0; font-weight: 800; font-size: 1.125rem; line-height: 1.25; white-space: nowrap; }
 .price--big { font-size: 1.5rem; }
+/* "est." after every price: small, ink, never the focus */
+.price__est { margin-left: 0.3em; font-size: 0.8125rem; font-weight: 600; }
+.price--big .price__est { font-size: 0.9375rem; }
+.gift__name + .price { margin-top: -4px; }   /* the gift box price sits with its name, a size below it */
 
 /* ============ SINGLE JARS ============ */
 .jars { display: grid; gap: clamp(14px, 2vw, 22px); }
@@ -496,6 +500,9 @@
 .done__text { margin: 0; font-weight: 500; line-height: 1.6; }
 .done__recap-title { margin: 6px 0 0; font-size: 1rem; font-weight: 800; }
 .done__recap { display: grid; gap: 4px; margin: 0 0 8px; padding: 0; list-style: none; font-weight: 600; }
+.done__line { display: flex; justify-content: space-between; gap: 12px; text-align: left; }
+.done__amount { font-weight: 800; white-space: nowrap; }
+.done__total { margin: 0 0 8px; font-weight: 800; }
 
 /* No motion beyond the confetti and the sheet; reduced motion drops those too
    (styles.css already zeroes animations and transitions). */

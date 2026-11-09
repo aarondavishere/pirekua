@@ -276,8 +276,9 @@ img { display: block; max-width: 100%; height: auto; }
     --jar-band-top: 136px;             /* upper band height */
     --jar-band: 108px;                 /* lower band height, below the button */
     --btn-clear: 24px;                 /* minimum empty space around the button */
-    --bands: calc((var(--jar-band-top) + var(--jar-band)) * var(--band-k));
-    padding-top: calc(var(--jar-band-top) * var(--band-k));
+    --topbar-clear: 0px;               /* extra top band under the fixed top bar (phones only, below) */
+    --bands: calc((var(--jar-band-top) + var(--jar-band)) * var(--band-k) + var(--topbar-clear));
+    padding-top: calc(var(--jar-band-top) * var(--band-k) + var(--topbar-clear));
     padding-bottom: calc(var(--jar-band) * var(--band-k));
     --lockup-w: min(86vw, 820px, calc((100vh - var(--bands) - 230px) * 1.7));
   }
@@ -291,34 +292,38 @@ img { display: block; max-width: 100%; height: auto; }
 /* Phones: 6 jars, 3 above and 3 below, 2 of each flavor.
    Above: 1 sweet, 2 smoky, 3 spicy. Below: 5 sweet, 6 spicy, 9 smoky. */
 @media (max-width: 639.98px) {
+  /* The top bar (toggle + "Reserve now") spans most of a phone's width, so the upper
+     band starts below it: the band grows by --topbar-clear and its jars and the
+     "pronounced" line move down by the same amount (their spacing is unchanged). */
+  .hero { --topbar-clear: 62px; }
   .lockup__img { transform: translateZ(0); }   /* wordmark on its own layer, above the spinning bloom */
   .jar--4, .jar--7, .jar--8 { display: none; }
-  .jar--1 { --jw: 44px; --r: -80deg; --left: 20%; --y: calc(78px + 26px * var(--band-k)); }   /* 24px under the "pronounced" line */
-  .jar--2 { --jw: 34px; --r: 34deg;  --left: 58%; --y: calc(44px * var(--band-k)); }
-  .jar--3 { --jw: 46px; --r: 78deg;  --left: 80%; --y: calc(74px + 26px * var(--band-k)); }   /* stays under the toggle */
+  .jar--1 { --jw: 44px; --r: -80deg; --left: 20%; --y: calc(var(--topbar-clear) + 78px + 26px * var(--band-k)); }   /* 24px under the "pronounced" line */
+  .jar--2 { --jw: 34px; --r: 34deg;  --left: 58%; --y: calc(var(--topbar-clear) + 44px * var(--band-k)); }
+  .jar--3 { --jw: 46px; --r: 78deg;  --left: 80%; --y: calc(var(--topbar-clear) + 74px + 26px * var(--band-k)); }
   .jar--5 { --jw: 42px; --r: -80deg; --left: 11%; --y: calc(100% - 34px * var(--band-k)); }
   .jar--6 { --jw: 34px; --r: 62deg;  --left: 27%; --y: calc(100% - 50px * var(--band-k)); }
   .jar--9 { --jw: 30px; --r: -98deg; --left: 43%; --y: calc(100% - 30px * var(--band-k)); }
   .hero__aside { font-size: 0.875rem; --aside-w: 9.5rem; }
-  .hero__aside--tl { --left: 23%; --y: 28px; }
+  .hero__aside--tl { --left: 23%; --y: calc(var(--topbar-clear) + 28px); }
   .hero__aside--br { --left: 79%; --y: calc(100% - 50px * var(--band-k)); }
 }
 
 /* Tablets and small windows (640–1023px): 9 jars. Upper band: 1 sweet, 2 smoky,
    3 spicy, 4 smoky, 8 sweet. Lower band: 5 sweet, 6 spicy, 7 spicy, 9 smoky. */
 @media (min-width: 640px) and (max-width: 1023.98px) {
-  .hero { --jar-band-top: 140px; --jar-band: 116px; }
-  .jar--1 { --jw: 44px; --r: -84deg; --left: 14%; --y: calc(70px + 26px * var(--band-k)); }   /* 24px under the "pronounced" line */
-  .jar--2 { --jw: 44px; --r: 28deg;  --left: 51%; --y: calc(58px * var(--band-k)); }
-  .jar--3 { --jw: 58px; --r: -12deg; --left: 64%; --y: calc(70px * var(--band-k)); }
-  .jar--4 { --jw: 40px; --r: 70deg;  --left: 88%; --y: calc(72px + 26px * var(--band-k)); }   /* stays under the toggle */
-  .jar--8 { --jw: 34px; --r: -40deg; --left: 76%; --y: calc(94px * var(--band-k)); }
+  .hero { --jar-band-top: 140px; --jar-band: 116px; --topbar-clear: 56px; }   /* upper band starts below the top bar */
+  .jar--1 { --jw: 44px; --r: -84deg; --left: 14%; --y: calc(var(--topbar-clear) + 70px + 26px * var(--band-k)); }   /* 24px under the "pronounced" line */
+  .jar--2 { --jw: 44px; --r: 28deg;  --left: 51%; --y: calc(var(--topbar-clear) + 58px * var(--band-k)); }
+  .jar--3 { --jw: 58px; --r: -12deg; --left: 64%; --y: calc(var(--topbar-clear) + 70px * var(--band-k)); }
+  .jar--4 { --jw: 40px; --r: 70deg;  --left: 88%; --y: calc(var(--topbar-clear) + 72px + 26px * var(--band-k)); }   /* stays under the top bar */
+  .jar--8 { --jw: 34px; --r: -40deg; --left: 76%; --y: calc(var(--topbar-clear) + 94px * var(--band-k)); }
   .jar--5 { --jw: 56px; --r: -82deg; --left: 9%;  --y: calc(100% - 38px * var(--band-k)); }
   .jar--6 { --jw: 46px; --r: 64deg;  --left: 23%; --y: calc(100% - 49px * var(--band-k)); }
   .jar--7 { --jw: 54px; --r: 96deg;  --left: 38%; --y: calc(100% - 35px * var(--band-k)); }
   .jar--9 { --jw: 40px; --r: -14deg; --left: 52%; --y: calc(100% - 50px * var(--band-k)); }
   .hero__aside { font-size: 0.9375rem; --aside-w: 12rem; }
-  .hero__aside--tl { --aside-w: 16rem; --left: 21%; --y: 26px; }   /* one line */
+  .hero__aside--tl { --aside-w: 16rem; --left: 21%; --y: calc(var(--topbar-clear) + 26px); }   /* one line */
   .hero__aside--br { --left: 80%; --y: calc(100% - 54px * var(--band-k)); }
 }
 
@@ -1503,6 +1508,36 @@ img { display: block; max-width: 100%; height: auto; }
 }
 /* In a page header (Reserve page): sits in the flow instead of floating */
 .lang-toggle--inline { position: relative; top: auto; right: auto; z-index: 1; }
+
+/* Home page top bar: the toggle (left) and "Reserve now" (right) in one fixed row.
+   The toggle tucks away on phones (transform only, so nothing beside it moves);
+   "Reserve now" never tucks. */
+.topbar {
+  --topbar-gap: 10px;        /* space between the toggle and "Reserve now" */
+  position: fixed;
+  z-index: 60;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: var(--topbar-gap);
+}
+.topbar .lang-toggle { position: relative; top: auto; right: auto; z-index: auto; }
+.topbar__reserve {
+  align-self: stretch;       /* exactly the toggle's height */
+  min-height: 0;
+  padding: 0 16px;
+  border: 2px solid var(--ink);
+  font: 700 0.9375rem/1 var(--sans);
+  white-space: nowrap;
+  box-shadow: 3px 4px 0 var(--red);
+}
+.topbar__reserve:hover { box-shadow: 4px 6px 0 var(--red); }
+.topbar__reserve:active { box-shadow: 1px 1px 0 var(--red); }
+@media (max-width: 374px) {
+  .topbar { --topbar-gap: 8px; }
+  .topbar__reserve { padding: 0 12px; font-size: 0.875rem; }
+}
 .lang-toggle__btn {
   min-width: 44px;
   min-height: 44px;
@@ -1676,6 +1711,29 @@ select.field__input {
 .modal__success { text-align: center; padding: 8px 0 12px; }
 .modal__success .modal__title { padding: 0; margin: 14px 0 0; }
 .modal__mark { width: 56px; height: auto; margin: 0 auto; }
+
+/* Sign-up dialogs ("Stay in the loop", "Get the cookbook"): the same shell, scrolling if tall */
+.modal--form { width: min(100% - 32px, 520px); }
+.modal--form .modal__panel { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+.modal--form .modal__title { margin-bottom: 10px; }
+.signup__intro { margin: 0 0 20px; font-weight: 500; line-height: 1.5; }
+.signup__form { display: grid; gap: 16px; }
+.signup__fields { min-width: 0; margin: 0; padding: 0; border: 0; }
+.signup__grid { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 520px) {
+  .signup__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .signup__full { grid-column: 1 / -1; }
+}
+textarea.field__input { min-height: 0; padding: 12px 16px; line-height: 1.5; resize: vertical; }
+.signup__msg { margin: 0; font-weight: 700; line-height: 1.45; }
+.signup__msg:empty { display: none; }
+.signup__msg::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 8px; border-radius: 999px; background: var(--red); }
+.signup__submit { width: 100%; }
+@media (min-width: 520px) { .signup__submit { width: auto; justify-self: start; } }
+.signup__submit[aria-busy="true"] { cursor: progress; opacity: 0.8; }
+.signup__done { display: grid; gap: 12px; padding: 4px 0 4px; text-align: center; }
+.signup__done .modal__title { margin: 6px 0 0; padding: 0; }
+.signup__done-text { margin: 0 0 8px; font-weight: 500; line-height: 1.6; }
 
 /* Privacy policy: a longer, scrolling document in the same modal shell */
 .modal--doc { width: min(100% - 32px, 640px); }
